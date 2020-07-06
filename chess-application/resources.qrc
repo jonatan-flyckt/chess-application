@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../../chess-images/placeholders/b_square.png</file>
+        <file>../../chess-images/placeholders/black_B.png</file>
+        <file>../../chess-images/placeholders/black_K.png</file>
+        <file>../../chess-images/placeholders/black_Kn.png</file>
+        <file>../../chess-images/placeholders/black_P.png</file>
+        <file>../../chess-images/placeholders/black_Q.png</file>
+        <file>../../chess-images/placeholders/black_R.png</file>
+        <file>../../chess-images/placeholders/w_square.png</file>
+        <file>../../chess-images/placeholders/white_B.png</file>
+        <file>../../chess-images/placeholders/white_K.png</file>
+        <file>../../chess-images/placeholders/white_Kn.png</file>
+        <file>../../chess-images/placeholders/white_P.png</file>
+        <file>../../chess-images/placeholders/white_Q.png</file>
+        <file>../../chess-images/placeholders/white_R.png</file>
+    </qresource>
+</RCC>

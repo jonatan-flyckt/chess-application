@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGridLayout>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,7 +17,13 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void initiateUIComponents();
+    void initiateBoardSquaresUI();
+
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *_ui;
+    QGridLayout *_board_layout;
+
+
 };
 #endif // MAINWINDOW_H
