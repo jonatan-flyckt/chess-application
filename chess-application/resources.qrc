@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/placeholders">
         <file>../../chess-images/placeholders/b_square.png</file>
         <file>../../chess-images/placeholders/black_B.png</file>
         <file>../../chess-images/placeholders/black_K.png</file>
