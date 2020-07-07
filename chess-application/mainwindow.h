@@ -12,6 +12,8 @@
 #include <graphicsinfo.h>
 #include <QPixmap>
 #include <QDesktopWidget>
+#include <squarewidget.h>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,14 +30,16 @@ public:
     void initiateUIComponents();
     void initiateBoardSquaresUI();
 
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;
     QGridLayout *_main_grid_layout;
     BoardAspectRatioWidget *_board_aspect_ratio_widget;
     GraphicsInfo _graphics_info;
+    bool _user_is_white = true;
 
-
+    QVector<QString> colsFromIndex{"a", "b", "c", "d", "e", "f", "g", "h"};
 };
 #endif // MAINWINDOW_H
 

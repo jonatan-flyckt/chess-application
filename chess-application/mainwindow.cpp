@@ -40,16 +40,12 @@ void MainWindow::initiateBoardSquaresUI(){
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             if ((i+j) % 2 == 0){
-                QLabel *w_label = new QLabel();
-                w_label->setPixmap(_graphics_info.w_square.scaled(5, 5, Qt::KeepAspectRatio));
-                w_label->setScaledContents(true);
-                _board_grid_layout->addWidget(w_label, i, j);
+                SquareWidget *w_square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info.w_square, "white");
+                _board_grid_layout->addWidget(w_square, i, j);
             }
             else{
-                QLabel *b_label = new QLabel();
-                b_label->setPixmap(_graphics_info.b_square.scaled(5, 5, Qt::KeepAspectRatio));
-                b_label->setScaledContents(true);
-                _board_grid_layout->addWidget(b_label, i, j);
+                SquareWidget *b_square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info.b_square, "black");
+                _board_grid_layout->addWidget(b_square, i, j);
             }
         }
     }
