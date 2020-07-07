@@ -16,6 +16,7 @@
 #include <QVector>
 #include "math.h"
 #include <QPushButton>
+#include "piecewidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -34,8 +35,10 @@ public:
 
     void addColAndRowHeaders();
     void clearBoardUI();
-    void addPieceGraphically();
+    void addPieceGraphically(QString type, QString squareID);
     void initiatePiecesGraphically();
+
+    QPixmap setPixmapFromType(QString type);
 
 signals:
     void on_set_white_button_clicked();
@@ -64,6 +67,7 @@ private:
     QPushButton *_set_black_button;
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;
+    QVector<PieceWidget*> _piece_widgets;
 
     QString _currently_hovered_square;
 

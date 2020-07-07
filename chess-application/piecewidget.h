@@ -3,17 +3,26 @@
 
 #include <QPixmap>
 #include <QWidget>
+#include <QLabel>
 
-class PieceWidget : public QWidget{
+class PieceWidget : public QLabel{
 
 public:
 
     PieceWidget();
 
+    void populateWithPixmap();
+
+    QString piece_position() const;
+    void setPiece_position(const QString &piece_position);
+
+    QPixmap piece_pixmap() const;
+    void setPiece_pixmap(const QPixmap &piece_pixmap);
+
 private:
 
-    QPixmap _piece_graphic;
     QString _piece_position;
+    QPixmap _piece_pixmap;
 
 };
 

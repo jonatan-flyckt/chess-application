@@ -36,11 +36,48 @@ MainWindow::~MainWindow(){
 }
 
 void MainWindow::initiatePiecesGraphically(){
+    for (int i = 0; i < 8; i++){
+        addPieceGraphically("black_P", colsFromIndex.at(i) + "7");
+        addPieceGraphically("white_P", colsFromIndex.at(i) + "2");
+    }
 
+    addPieceGraphically("white_R", "a1");
+    addPieceGraphically("white_Kn", "b1");
+    addPieceGraphically("white_B", "c1");
+    addPieceGraphically("white_Q", "d1");
+    addPieceGraphically("white_K", "e1");
+    addPieceGraphically("white_B", "f1");
+    addPieceGraphically("white_Kn", "g1");
+    addPieceGraphically("white_R", "h1");
+
+    addPieceGraphically("black_R", "a8");
+    addPieceGraphically("black_Kn", "b8");
+    addPieceGraphically("black_B", "c8");
+    addPieceGraphically("black_Q", "d8");
+    addPieceGraphically("black_K", "e8");
+    addPieceGraphically("black_B", "f8");
+    addPieceGraphically("black_Kn", "g8");
+    addPieceGraphically("black_R", "h8");
 }
 
-void MainWindow::addPieceGraphically(){
+void MainWindow::addPieceGraphically(QString type, QString squareID){
+    SquareWidget *squareToPlacePieceOn;
+    for (SquareWidget *square: _square_widgets){
+        if (square->id() == squareID)
+            squareToPlacePieceOn = square;
+    }
+    PieceWidget *piece = new PieceWidget();
+    QPixmap pixmap = setPixmapFromType(type);
+    piece->setPiece_pixmap(pixmap);
+    piece->populateWithPixmap();
+    piece->setPiece_position(squareID);
+    squareToPlacePieceOn->inner_layout()->addWidget(piece);
+    _piece_widgets.append(piece);
+}
 
+QPixmap MainWindow::setPixmapFromType(QString type){
+    QString path(":/images/images/placeholders/");
+    return QPixmap(path + type + ".png");
 }
 
 void MainWindow::initiateUIComponents(){
@@ -76,7 +113,10 @@ void MainWindow::initiateUIComponents(){
 
 
     _main_grid_layout->addWidget(_board_aspect_ratio_widget, BOARD_GRID_ROW, BOARD_GRID_COL);
+
     initiateBoardSquaresUI();
+
+    initiatePiecesGraphically();
 }
 
 void MainWindow::setInfoMessage(QString message){
@@ -88,19 +128,21 @@ void MainWindow::setCurrentHovered(QString id){
 }
 
 void MainWindow::setPlayerWhite(){
-    qDebug() << "clicked";
+    qDebug() << "playing as white";
     _user_is_white = true;
     _set_white_button->setEnabled(false);
     _set_black_button->setEnabled(true);
     initiateBoardSquaresUI();
+    initiatePiecesGraphically();
 }
 
 void MainWindow::setPlayerBlack(){
-    qDebug() << "clicked b";
+    qDebug() << "playing as black";
     _user_is_white = false;
     _set_white_button->setEnabled(true);
     _set_black_button->setEnabled(false);
     initiateBoardSquaresUI();
+    initiatePiecesGraphically();
 }
 
 void MainWindow::initiateBoardSquaresUI(){
@@ -186,6 +228,9 @@ void MainWindow::addColAndRowHeaders(){
 }
 
 void MainWindow::clearBoardUI(){
+    for (auto piece: _piece_widgets)
+        delete piece;
+    _piece_widgets.clear();
     for (auto label: _board_header_labels)
         delete label;
     _board_header_labels.clear();
