@@ -6,6 +6,7 @@
 
 class SquareWidget : public QLabel
 {
+Q_OBJECT
 public:
     SquareWidget(QString id, QPixmap pixmap, QString denotation);
 
@@ -13,6 +14,11 @@ public:
 
     void enterEvent(QEvent *event);
     void leaveEvent(QEvent *event);
+
+signals:
+    void signalInfoMessage(QString message);
+
+    void signalCurrentHovered(QString id);
 
 private:
     QString _id;

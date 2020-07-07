@@ -14,8 +14,10 @@ void SquareWidget::populateWithPixmap(){
 
 void SquareWidget::enterEvent(QEvent *event){ //User started hovering square
     qDebug() << "Entered " << _id << ": " << _denotation;
+    emit signalCurrentHovered(_id);
 }
 
 void SquareWidget::leaveEvent(QEvent *event){ //User stopped hovering square
     qDebug() << "Left " << _id << ": " << _denotation;
+    emit signalCurrentHovered("");
 }

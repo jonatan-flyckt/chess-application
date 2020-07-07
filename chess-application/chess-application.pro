@@ -20,12 +20,14 @@ SOURCES += \
     graphicsinfo.cpp \
     main.cpp \
     mainwindow.cpp \
+    piecewidget.cpp \
     squarewidget.cpp
 
 HEADERS += \
     boardaspectratiowidget.h \
     graphicsinfo.h \
     mainwindow.h \
+    piecewidget.h \
     squarewidget.h
 
 FORMS += \
