@@ -16,6 +16,8 @@ void SquareWidget::populateWithPixmap(){
 
 void SquareWidget::enterEvent(QEvent *event){ //User started hovering square
     emit signalCurrentHovered(_id);
+    if (getDraggingMoveReadyToCompleteStatus())
+        emit signalCompleteDraggingMove();
 }
 
 void SquareWidget::leaveEvent(QEvent *event){ //User stopped hovering square
@@ -29,6 +31,22 @@ void SquareWidget::mousePressEvent(QMouseEvent *ev){
     else{
         emit signalCompleteClickingMove(_id);
     }
+}
+
+void SquareWidget::mouseMoveEvent(QMouseEvent *ev){
+    if (!getDraggingMoveStatus())
+        emit signalStartDraggingMove(_id);
+    else{
+        QPoint point = QCursor::pos();
+        emit signalMovePieceWidget(point);
+    }
+}
+
+void SquareWidget::mouseReleaseEvent(QMouseEvent *ev){
+    qDebug() << "mouse was released";
+    if (!getDraggingMoveStatus())
+        return;
+    emit signalDraggingMoveReadyToComplete();
 }
 
 QString SquareWidget::id() const{

@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QDebug>
 #include <QBoxLayout>
+#include <QCursor>
 
 class SquareWidget : public QLabel
 {
@@ -17,6 +18,9 @@ public:
     void leaveEvent(QEvent *event);
 
     void mousePressEvent(QMouseEvent *ev);
+    void mouseMoveEvent(QMouseEvent *ev);
+
+    void mouseReleaseEvent(QMouseEvent *ev);
 
     QString id() const;
     void setId(const QString &id);
@@ -35,11 +39,17 @@ signals:
 
     void signalStartDraggingMove(QString originSquare);
 
-    void signalCompleteDraggingMove(QString destinationSquare);
+    void signalDraggingMoveReadyToComplete();
+
+    void signalCompleteDraggingMove();
+
+    void signalMovePieceWidget(QPoint mousePos);
 
     bool getClickingMoveStatus();
 
     bool getDraggingMoveStatus();
+
+    bool getDraggingMoveReadyToCompleteStatus();
 
 private:
     QString _id;

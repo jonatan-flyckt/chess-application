@@ -12,7 +12,11 @@ MainWindow::MainWindow(QWidget *parent)
     _set_black_button = nullptr;
     _info_label = nullptr;
     _board_aspect_ratio_widget = nullptr;
+    _piece_widget_currently_dragged = nullptr;
+
+    _dragging_move_ready_to_complete = false;
     _user_is_white = true;
+
     initiateUIComponents();
 
     resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
@@ -133,9 +137,17 @@ void MainWindow::setInfoMessage(QString message){
 
 void MainWindow::setCurrentHovered(QString id){
     _currently_hovered_square = id;
+    qDebug() << "current hovered set to" << _currently_hovered_square;
 }
 
 void MainWindow::startClickingMove(QString originSquare){
+    bool squareContainsPiece = false;
+    for (auto piece: _piece_widgets){
+        if (piece->piece_position() == originSquare)
+            squareContainsPiece = true;
+    }
+    if (!squareContainsPiece)
+        return;
     _clicking_move_in_progress = true;
     _dragging_move_in_progress = false;
     _move_in_progress_origin_square = originSquare;
@@ -160,19 +172,65 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     addPieceGraphically(pieceGraphic, destinationSquare);
     removePieceGraphically(pieceToMove);
     _clicking_move_in_progress = false;
+    _move_in_progress_origin_square = "";
     qDebug() << "completed clicking move to: " + destinationSquare;
 }
 
 void MainWindow::startDraggingMove(QString originSquare){
+    bool squareContainsPiece = false;
+    for (auto piece: _piece_widgets){
+        if (piece->piece_position() == originSquare)
+            squareContainsPiece = true;
+    }
+    if (!squareContainsPiece)
+        return;
     _clicking_move_in_progress = false;
     _dragging_move_in_progress = true;
     _move_in_progress_origin_square = originSquare;
+
+    QPixmap widgetGraphic;
+    QSize widgetSize;
+    PieceWidget *pieceToMove;
+    for (auto piece: _piece_widgets){
+        if (piece->piece_position() == originSquare){
+            widgetSize = piece->size();
+            widgetGraphic = piece->piece_pixmap();
+            pieceToMove = piece;
+            break;
+        }
+    }
+
+    _piece_widget_currently_dragged = new PieceWidget();
+    _piece_widget_currently_dragged->setPiece_pixmap(widgetGraphic);
+    _piece_widget_currently_dragged->setPiece_position("");
+    _piece_widget_currently_dragged->populateWithPixmap();
+    _piece_widget_currently_dragged->resize(widgetSize.width(), widgetSize.height());
+    _piece_widget_currently_dragged->setFrameStyle(Qt::FramelessWindowHint);
+    _piece_widget_currently_dragged->show();
+
+    _piece_widgets.append(_piece_widget_currently_dragged);
+    //removePieceGraphically(pieceToMove);
+
     qDebug() << "started dragging move from: " + originSquare;
 }
 
-void MainWindow::completeDraggingMove(QString destinationSquare){
+void MainWindow::setDraggingMoveReadyToComplete(){
+    _dragging_move_ready_to_complete = true;
+}
+
+void MainWindow::completeDraggingMove(){
+    _dragging_move_ready_to_complete = false;
+    if (!_legal_destination_squares.contains(_currently_hovered_square)){
+        qDebug() << "move was not legal";
+        _dragging_move_in_progress = false;
+        removePieceGraphically(_piece_widget_currently_dragged);
+        _piece_widget_currently_dragged = nullptr;
+        return;
+    }
     _dragging_move_in_progress = false;
-    qDebug() << "completed dragging move to: " + destinationSquare;
+    removePieceGraphically(_piece_widget_currently_dragged);
+    _piece_widget_currently_dragged = nullptr;
+    qDebug() << "completed dragging move to: " + _currently_hovered_square;
 }
 
 bool MainWindow::sendClickingMoveStatus(){
@@ -181,6 +239,16 @@ bool MainWindow::sendClickingMoveStatus(){
 
 bool MainWindow::sendDraggingMoveStatus(){
     return _dragging_move_in_progress;
+}
+
+bool MainWindow::sendDraggingMoveReadyToCompleteStatus(){
+    return _dragging_move_ready_to_complete;
+}
+
+void MainWindow::movePieceWidget(QPoint mousePos){
+    if (_piece_widget_currently_dragged == nullptr)
+        return;
+    _piece_widget_currently_dragged->move(mousePos);
 }
 
 void MainWindow::setPlayerWhite(){
@@ -248,6 +316,9 @@ void MainWindow::connectSquareToSignals(SquareWidget *square){
     connect(square, &SquareWidget::signalCompleteDraggingMove, this, &MainWindow::completeDraggingMove);
     connect(square, &SquareWidget::getClickingMoveStatus, this, &MainWindow::sendClickingMoveStatus);
     connect(square, &SquareWidget::getDraggingMoveStatus, this, &MainWindow::sendDraggingMoveStatus);
+    connect(square, &SquareWidget::signalMovePieceWidget, this, &MainWindow::movePieceWidget);
+    connect(square, &SquareWidget::signalDraggingMoveReadyToComplete, this, &MainWindow::setDraggingMoveReadyToComplete);
+    connect(square, &SquareWidget::getDraggingMoveReadyToCompleteStatus, this, &MainWindow::sendDraggingMoveReadyToCompleteStatus);
 }
 
 void MainWindow::addColAndRowHeaders(){

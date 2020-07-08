@@ -17,6 +17,7 @@
 #include "math.h"
 #include <QPushButton>
 #include "piecewidget.h"
+#include <QMouseEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -45,6 +46,7 @@ public:
 
     QPixmap setPixmapFromType(QString type);
 
+
 signals:
     void on_set_white_button_clicked();
 
@@ -61,11 +63,17 @@ public slots:
 
     void startDraggingMove(QString originSquare);
 
-    void completeDraggingMove(QString destinationSquare);
+    void setDraggingMoveReadyToComplete();
+
+    void completeDraggingMove();
 
     bool sendClickingMoveStatus();
 
     bool sendDraggingMoveStatus();
+
+    bool sendDraggingMoveReadyToCompleteStatus();
+
+    void movePieceWidget(QPoint mousePos);
 
     void setPlayerWhite();
 
@@ -89,8 +97,10 @@ private:
     QString _currently_hovered_square;
     bool _clicking_move_in_progress;
     bool _dragging_move_in_progress;
+    bool _dragging_move_ready_to_complete;
     QString _move_in_progress_origin_square;
     QVector<QString> _legal_destination_squares;
+    PieceWidget *_piece_widget_currently_dragged;
 
     QVector<QString> colsFromIndex{"a", "b", "c", "d", "e", "f", "g", "h"};
 };
