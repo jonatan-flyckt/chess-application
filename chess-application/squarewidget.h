@@ -22,11 +22,18 @@ public:
 
     void mouseReleaseEvent(QMouseEvent *ev);
 
+    void changePixmap(QPixmap newPixmap);
+
     QString id() const;
     void setId(const QString &id);
 
     QBoxLayout *inner_layout() const;
     void setInner_layout(QBoxLayout *inner_layout);
+
+    QBoxLayout *getInner_layout() const;
+
+    QString getDenotation() const;
+    void setDenotation(const QString &denotation);
 
 signals:
     void signalInfoMessage(QString message);

@@ -13,10 +13,15 @@ void GraphicsInfo::setGraphicsFromPath(QString path){
     else
         graphicsPath = path;
 
+    legal_move_highlight_black.load(graphicsPath+"legal_move_highlight_black.png");
+    legal_move_highlight_white.load(graphicsPath+"legal_move_highlight_white.png");
+    check_highlight_black.load(graphicsPath+"check_highlight_black.png");
+    check_highlight_white.load(graphicsPath+"check_highlight_white.png");
+
     white_square.load(graphicsPath+"white_square.png");
     black_square.load(graphicsPath+"black_square.png");
 
-    white_king.load(graphicsPath+"white_knight.png");
+    white_king.load(graphicsPath+"white_king.png");
     white_queen.load(graphicsPath+"white_queen.png");
     white_rook.load(graphicsPath+"white_rook.png");
     white_bishop.load(graphicsPath+"white_bishop.png");

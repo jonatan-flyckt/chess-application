@@ -12,6 +12,10 @@ public:
 
     void setGraphicsFromPath(QString path);
 
+    QPixmap legal_move_highlight_white;
+    QPixmap legal_move_highlight_black;
+    QPixmap check_highlight_white;
+    QPixmap check_highlight_black;
 
     QPixmap black_square;
     QPixmap white_square;

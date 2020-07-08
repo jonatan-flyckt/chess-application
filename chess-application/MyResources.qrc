@@ -14,5 +14,9 @@
         <file>images/placeholders/white_queen.png</file>
         <file>images/placeholders/white_rook.png</file>
         <file>images/placeholders/white_square.png</file>
+        <file>images/placeholders/check_highlight_black.png</file>
+        <file>images/placeholders/check_highlight_white.png</file>
+        <file>images/placeholders/legal_move_highlight_black.png</file>
+        <file>images/placeholders/legal_move_highlight_white.png</file>
     </qresource>
 </RCC>

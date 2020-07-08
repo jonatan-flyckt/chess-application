@@ -49,6 +49,11 @@ void SquareWidget::mouseReleaseEvent(QMouseEvent *ev){
     emit signalDraggingMoveReadyToComplete();
 }
 
+void SquareWidget::changePixmap(QPixmap newPixmap){
+    _square_pixmap = newPixmap;
+    this->populateWithPixmap();
+}
+
 QString SquareWidget::id() const{
     return _id;
 }
@@ -63,4 +68,19 @@ QBoxLayout *SquareWidget::inner_layout() const{
 
 void SquareWidget::setInner_layout(QBoxLayout *inner_layout){
     _inner_layout = inner_layout;
+}
+
+QBoxLayout *SquareWidget::getInner_layout() const
+{
+    return _inner_layout;
+}
+
+QString SquareWidget::getDenotation() const
+{
+    return _denotation;
+}
+
+void SquareWidget::setDenotation(const QString &denotation)
+{
+    _denotation = denotation;
 }

@@ -65,11 +65,29 @@ void MainWindow::initiatePiecesGraphically(){
 }
 
 void MainWindow::highlightLegalSquares(){
-
+    for (auto squareStr: _legal_destination_squares){
+        for (auto square: _square_widgets){
+            if (square->id() == squareStr){
+                if (square->getDenotation()  == "white")
+                    square->changePixmap(_graphics_info.legal_move_highlight_white);
+                else
+                    square->changePixmap(_graphics_info.legal_move_highlight_black);
+            }
+        }
+    }
 }
 
 void MainWindow::removeLegalSquaresHighlight(){
-
+    for (auto squareStr: _legal_destination_squares){
+        for (auto square: _square_widgets){
+            if (square->id() == squareStr){
+                if (square->getDenotation()  == "white")
+                    square->changePixmap(_graphics_info.white_square);
+                else
+                    square->changePixmap(_graphics_info.black_square);
+            }
+        }
+    }
 }
 
 void MainWindow::addPieceGraphically(QPixmap pieceGraphic, QString squareID){
@@ -151,16 +169,19 @@ void MainWindow::startClickingMove(QString originSquare){
     _clicking_move_in_progress = true;
     _dragging_move_in_progress = false;
     _move_in_progress_origin_square = originSquare;
-    _legal_destination_squares = {"d4", "d5", "e4", "e5"};
+    _legal_destination_squares = {"d4", "a3", "e4", "g5"};
+    highlightLegalSquares();
     qDebug() << "started clicking move from: " + originSquare;
 }
 
 void MainWindow::completeClickingMove(QString destinationSquare){
+    removeLegalSquaresHighlight();
     if (!_legal_destination_squares.contains(destinationSquare)){
         qDebug() << "move was not legal";
         _clicking_move_in_progress = false;
         return;
     }
+    _legal_destination_squares.clear();
     PieceWidget *pieceToMove;
     QPixmap pieceGraphic;
     for (auto piece: _piece_widgets){
@@ -205,11 +226,16 @@ void MainWindow::startDraggingMove(QString originSquare){
     _piece_widget_currently_dragged->setPiece_position("");
     _piece_widget_currently_dragged->populateWithPixmap();
     _piece_widget_currently_dragged->resize(widgetSize.width(), widgetSize.height());
-    _piece_widget_currently_dragged->setFrameStyle(Qt::FramelessWindowHint);
+    _piece_widget_currently_dragged->setWindowFlag(Qt::FramelessWindowHint);
+    _piece_widget_currently_dragged->setAttribute(Qt::WA_TranslucentBackground);
+    int newX = QCursor::pos().x() - widgetSize.width()/2;
+    int newY = QCursor::pos().y() - widgetSize.height()/2;
+    _piece_widget_currently_dragged->move(newX, newY);
     _piece_widget_currently_dragged->show();
 
     _piece_widgets.append(_piece_widget_currently_dragged);
-    //removePieceGraphically(pieceToMove);
+
+    //removePieceGraphically(piece);
 
     qDebug() << "started dragging move from: " + originSquare;
 }
@@ -220,6 +246,7 @@ void MainWindow::setDraggingMoveReadyToComplete(){
 
 void MainWindow::completeDraggingMove(){
     _dragging_move_ready_to_complete = false;
+    removeLegalSquaresHighlight();
     if (!_legal_destination_squares.contains(_currently_hovered_square)){
         qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
@@ -227,6 +254,7 @@ void MainWindow::completeDraggingMove(){
         _piece_widget_currently_dragged = nullptr;
         return;
     }
+    _legal_destination_squares.clear();
     _dragging_move_in_progress = false;
     removePieceGraphically(_piece_widget_currently_dragged);
     _piece_widget_currently_dragged = nullptr;
@@ -248,7 +276,10 @@ bool MainWindow::sendDraggingMoveReadyToCompleteStatus(){
 void MainWindow::movePieceWidget(QPoint mousePos){
     if (_piece_widget_currently_dragged == nullptr)
         return;
-    _piece_widget_currently_dragged->move(mousePos);
+    QSize widgetSize =  _piece_widget_currently_dragged->size();
+    int newX = mousePos.x() - widgetSize.width()/2;
+    int newY = mousePos.y() - widgetSize.height()/2;
+    _piece_widget_currently_dragged->move(newX, newY);
 }
 
 void MainWindow::setPlayerWhite(){
