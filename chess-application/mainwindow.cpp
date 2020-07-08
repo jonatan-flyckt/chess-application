@@ -37,47 +37,55 @@ MainWindow::~MainWindow(){
 
 void MainWindow::initiatePiecesGraphically(){
     for (int i = 0; i < 8; i++){
-        addPieceGraphically("black_P", colsFromIndex.at(i) + "7");
-        addPieceGraphically("white_P", colsFromIndex.at(i) + "2");
+        addPieceGraphically(_graphics_info.black_pawn, colsFromIndex.at(i) + "7");
+        addPieceGraphically(_graphics_info.white_pawn, colsFromIndex.at(i) + "2");
     }
 
-    addPieceGraphically("white_R", "a1");
-    addPieceGraphically("white_Kn", "b1");
-    addPieceGraphically("white_B", "c1");
-    addPieceGraphically("white_Q", "d1");
-    addPieceGraphically("white_K", "e1");
-    addPieceGraphically("white_B", "f1");
-    addPieceGraphically("white_Kn", "g1");
-    addPieceGraphically("white_R", "h1");
+    addPieceGraphically(_graphics_info.white_rook, "a1");
+    addPieceGraphically(_graphics_info.white_knight, "b1");
+    addPieceGraphically(_graphics_info.white_bishop, "c1");
+    addPieceGraphically(_graphics_info.white_queen, "d1");
+    addPieceGraphically(_graphics_info.white_king, "e1");
+    addPieceGraphically(_graphics_info.white_bishop, "f1");
+    addPieceGraphically(_graphics_info.white_knight, "g1");
+    addPieceGraphically(_graphics_info.white_rook, "h1");
 
-    addPieceGraphically("black_R", "a8");
-    addPieceGraphically("black_Kn", "b8");
-    addPieceGraphically("black_B", "c8");
-    addPieceGraphically("black_Q", "d8");
-    addPieceGraphically("black_K", "e8");
-    addPieceGraphically("black_B", "f8");
-    addPieceGraphically("black_Kn", "g8");
-    addPieceGraphically("black_R", "h8");
+    addPieceGraphically(_graphics_info.black_rook, "a8");
+    addPieceGraphically(_graphics_info.black_knight, "b8");
+    addPieceGraphically(_graphics_info.black_bishop, "c8");
+    addPieceGraphically(_graphics_info.black_queen, "d8");
+    addPieceGraphically(_graphics_info.black_king, "e8");
+    addPieceGraphically(_graphics_info.black_bishop, "f8");
+    addPieceGraphically(_graphics_info.black_knight, "g8");
+    addPieceGraphically(_graphics_info.black_rook, "h8");
 }
 
-void MainWindow::addPieceGraphically(QString type, QString squareID){
+void MainWindow::highlightLegalSquares(){
+
+}
+
+void MainWindow::removeLegalSquaresHighlight(){
+
+}
+
+void MainWindow::addPieceGraphically(QPixmap pieceGraphic, QString squareID){
     SquareWidget *squareToPlacePieceOn;
     for (SquareWidget *square: _square_widgets){
         if (square->id() == squareID)
             squareToPlacePieceOn = square;
     }
     PieceWidget *piece = new PieceWidget();
-    QPixmap pixmap = setPixmapFromType(type);
-    piece->setPiece_pixmap(pixmap);
+    piece->setPiece_pixmap(pieceGraphic);
     piece->populateWithPixmap();
     piece->setPiece_position(squareID);
     squareToPlacePieceOn->inner_layout()->addWidget(piece);
     _piece_widgets.append(piece);
 }
 
-QPixmap MainWindow::setPixmapFromType(QString type){
-    QString path(":/images/images/placeholders/");
-    return QPixmap(path + type + ".png");
+void MainWindow::removePieceGraphically(PieceWidget *piece){
+    int index = _piece_widgets.indexOf(piece);
+    _piece_widgets.remove(index);
+    delete piece;
 }
 
 void MainWindow::initiateUIComponents(){
@@ -127,6 +135,54 @@ void MainWindow::setCurrentHovered(QString id){
     _currently_hovered_square = id;
 }
 
+void MainWindow::startClickingMove(QString originSquare){
+    _clicking_move_in_progress = true;
+    _dragging_move_in_progress = false;
+    _move_in_progress_origin_square = originSquare;
+    _legal_destination_squares = {"d4", "d5", "e4", "e5"};
+    qDebug() << "started clicking move from: " + originSquare;
+}
+
+void MainWindow::completeClickingMove(QString destinationSquare){
+    if (!_legal_destination_squares.contains(destinationSquare)){
+        qDebug() << "move was not legal";
+        _clicking_move_in_progress = false;
+        return;
+    }
+    PieceWidget *pieceToMove;
+    QPixmap pieceGraphic;
+    for (auto piece: _piece_widgets){
+        if (piece->piece_position() == _move_in_progress_origin_square){
+            pieceToMove = piece;
+            pieceGraphic = pieceToMove->piece_pixmap();
+        }
+    }
+    addPieceGraphically(pieceGraphic, destinationSquare);
+    removePieceGraphically(pieceToMove);
+    _clicking_move_in_progress = false;
+    qDebug() << "completed clicking move to: " + destinationSquare;
+}
+
+void MainWindow::startDraggingMove(QString originSquare){
+    _clicking_move_in_progress = false;
+    _dragging_move_in_progress = true;
+    _move_in_progress_origin_square = originSquare;
+    qDebug() << "started dragging move from: " + originSquare;
+}
+
+void MainWindow::completeDraggingMove(QString destinationSquare){
+    _dragging_move_in_progress = false;
+    qDebug() << "completed dragging move to: " + destinationSquare;
+}
+
+bool MainWindow::sendClickingMoveStatus(){
+    return _clicking_move_in_progress;
+}
+
+bool MainWindow::sendDraggingMoveStatus(){
+    return _dragging_move_in_progress;
+}
+
 void MainWindow::setPlayerWhite(){
     qDebug() << "playing as white";
     _user_is_white = true;
@@ -151,37 +207,47 @@ void MainWindow::initiateBoardSquaresUI(){
     for (int i = 0; i < 8; i++){
         if (_user_is_white){
             for (int j = 8; j > 0; j--){
+                SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    SquareWidget *b_square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info.b_square, "black");
-                    connect(b_square, &SquareWidget::signalCurrentHovered, this, &MainWindow::setCurrentHovered);
-                    _board_grid_layout->addWidget(b_square, abs(8-i), j);
-                    _square_widgets.append(b_square);
+                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info.black_square, "black");
+                    _board_grid_layout->addWidget(square, abs(8-i), j);
+                    _square_widgets.append(square);
                 }
                 else{
-                    SquareWidget *w_square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info.w_square, "white");
-                    connect(w_square, &SquareWidget::signalCurrentHovered, this, &MainWindow::setCurrentHovered);
-                    _board_grid_layout->addWidget(w_square, abs(8-i), j);
-                    _square_widgets.append(w_square);
+                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info.white_square, "white");
+                    _board_grid_layout->addWidget(square, abs(8-i), j);
+                    _square_widgets.append(square);
                 }
+                connectSquareToSignals(square);
             }
         }
         else{
             for (int j = 0; j < 8; j++){
+                SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    SquareWidget *b_square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info.b_square, "black");
-                    connect(b_square, &SquareWidget::signalCurrentHovered, this, &MainWindow::setCurrentHovered);
-                    _board_grid_layout->addWidget(b_square, i+1, abs(8-j));
-                    _square_widgets.append(b_square);
+                    square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info.black_square, "black");
+                    _board_grid_layout->addWidget(square, i+1, abs(8-j));
+                    _square_widgets.append(square);
                 }
                 else{
-                    SquareWidget *w_square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info.w_square, "white");
-                    connect(w_square, &SquareWidget::signalCurrentHovered, this, &MainWindow::setCurrentHovered);
-                    _board_grid_layout->addWidget(w_square, i+1, abs(8-j));
-                    _square_widgets.append(w_square);
+                    square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info.white_square, "white");
+                    _board_grid_layout->addWidget(square, i+1, abs(8-j));
+                    _square_widgets.append(square);
                 }
+                connectSquareToSignals(square);
             }
         }
     }
+}
+
+void MainWindow::connectSquareToSignals(SquareWidget *square){
+    connect(square, &SquareWidget::signalCurrentHovered, this, &MainWindow::setCurrentHovered);
+    connect(square, &SquareWidget::signalStartClickingMove, this, &MainWindow::startClickingMove);
+    connect(square, &SquareWidget::signalCompleteClickingMove, this, &MainWindow::completeClickingMove);
+    connect(square, &SquareWidget::signalStartDraggingMove, this, &MainWindow::startDraggingMove);
+    connect(square, &SquareWidget::signalCompleteDraggingMove, this, &MainWindow::completeDraggingMove);
+    connect(square, &SquareWidget::getClickingMoveStatus, this, &MainWindow::sendClickingMoveStatus);
+    connect(square, &SquareWidget::getDraggingMoveStatus, this, &MainWindow::sendDraggingMoveStatus);
 }
 
 void MainWindow::addColAndRowHeaders(){

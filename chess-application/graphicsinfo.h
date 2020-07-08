@@ -13,22 +13,22 @@ public:
     void setGraphicsFromPath(QString path);
 
 
-    QPixmap b_square;
-    QPixmap w_square;
+    QPixmap black_square;
+    QPixmap white_square;
 
-    QPixmap w_king;
-    QPixmap w_queen;
-    QPixmap w_rook;
-    QPixmap w_bishop;
-    QPixmap w_knight;
-    QPixmap w_pawn;
+    QPixmap white_king;
+    QPixmap white_queen;
+    QPixmap white_rook;
+    QPixmap white_bishop;
+    QPixmap white_knight;
+    QPixmap white_pawn;
 
-    QPixmap b_king;
-    QPixmap b_queen;
-    QPixmap b_rook;
-    QPixmap b_bishop;
-    QPixmap b_knight;
-    QPixmap b_pawn;
+    QPixmap black_king;
+    QPixmap black_queen;
+    QPixmap black_rook;
+    QPixmap black_bishop;
+    QPixmap black_knight;
+    QPixmap black_pawn;
 
 private:
 

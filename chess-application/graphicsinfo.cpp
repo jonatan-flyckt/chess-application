@@ -13,20 +13,20 @@ void GraphicsInfo::setGraphicsFromPath(QString path){
     else
         graphicsPath = path;
 
-    w_square.load(graphicsPath+"w_square.png");
-    b_square.load(graphicsPath+"b_square.png");
+    white_square.load(graphicsPath+"white_square.png");
+    black_square.load(graphicsPath+"black_square.png");
 
-    w_king.load(graphicsPath+"white_K.png");
-    w_queen.load(graphicsPath+"white_Q.png");
-    w_rook.load(graphicsPath+"white_R.png");
-    w_bishop.load(graphicsPath+"white_B.png");
-    w_knight.load(graphicsPath+"white_Kn.png");
-    w_pawn.load(graphicsPath+"white_P.png");
+    white_king.load(graphicsPath+"white_knight.png");
+    white_queen.load(graphicsPath+"white_queen.png");
+    white_rook.load(graphicsPath+"white_rook.png");
+    white_bishop.load(graphicsPath+"white_bishop.png");
+    white_knight.load(graphicsPath+"white_knight.png");
+    white_pawn.load(graphicsPath+"white_pawn.png");
 
-    b_king.load(graphicsPath+"black_K.png");
-    b_queen.load(graphicsPath+"black_Q.png");
-    b_rook.load(graphicsPath+"black_R.png");
-    b_bishop.load(graphicsPath+"black_B.png");
-    b_knight.load(graphicsPath+"black_Kn.png");
-    b_pawn.load(graphicsPath+"black_P.png");
+    black_king.load(graphicsPath+"black_king.png");
+    black_queen.load(graphicsPath+"black_queen.png");
+    black_rook.load(graphicsPath+"black_rook.png");
+    black_bishop.load(graphicsPath+"black_bishop.png");
+    black_knight.load(graphicsPath+"black_knight.png");
+    black_pawn.load(graphicsPath+"black_pawn.png");
 }

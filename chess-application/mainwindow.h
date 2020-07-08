@@ -32,11 +32,16 @@ public:
 
     void initiateUIComponents();
     void initiateBoardSquaresUI();
+    void connectSquareToSignals(SquareWidget *square);
 
     void addColAndRowHeaders();
     void clearBoardUI();
-    void addPieceGraphically(QString type, QString squareID);
+    void addPieceGraphically(QPixmap pieceGraphic, QString squareID);
     void initiatePiecesGraphically();
+    void removePieceGraphically(PieceWidget *piece);
+
+    void highlightLegalSquares();
+    void removeLegalSquaresHighlight();
 
     QPixmap setPixmapFromType(QString type);
 
@@ -49,6 +54,18 @@ public slots:
     void setInfoMessage(QString message);
 
     void setCurrentHovered(QString id);
+
+    void startClickingMove(QString originSquare);
+
+    void completeClickingMove(QString destinationSquare);
+
+    void startDraggingMove(QString originSquare);
+
+    void completeDraggingMove(QString destinationSquare);
+
+    bool sendClickingMoveStatus();
+
+    bool sendDraggingMoveStatus();
 
     void setPlayerWhite();
 
@@ -70,6 +87,10 @@ private:
     QVector<PieceWidget*> _piece_widgets;
 
     QString _currently_hovered_square;
+    bool _clicking_move_in_progress;
+    bool _dragging_move_in_progress;
+    QString _move_in_progress_origin_square;
+    QVector<QString> _legal_destination_squares;
 
     QVector<QString> colsFromIndex{"a", "b", "c", "d", "e", "f", "g", "h"};
 };

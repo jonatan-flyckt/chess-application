@@ -1,18 +1,18 @@
 <RCC>
     <qresource prefix="/images">
-        <file>images/placeholders/b_square.png</file>
-        <file>images/placeholders/black_B.png</file>
-        <file>images/placeholders/black_K.png</file>
-        <file>images/placeholders/black_Kn.png</file>
-        <file>images/placeholders/black_P.png</file>
-        <file>images/placeholders/black_Q.png</file>
-        <file>images/placeholders/black_R.png</file>
-        <file>images/placeholders/w_square.png</file>
-        <file>images/placeholders/white_B.png</file>
-        <file>images/placeholders/white_K.png</file>
-        <file>images/placeholders/white_Kn.png</file>
-        <file>images/placeholders/white_P.png</file>
-        <file>images/placeholders/white_Q.png</file>
-        <file>images/placeholders/white_R.png</file>
+        <file>images/placeholders/black_bishop.png</file>
+        <file>images/placeholders/black_king.png</file>
+        <file>images/placeholders/black_knight.png</file>
+        <file>images/placeholders/black_pawn.png</file>
+        <file>images/placeholders/black_queen.png</file>
+        <file>images/placeholders/black_rook.png</file>
+        <file>images/placeholders/black_square.png</file>
+        <file>images/placeholders/white_bishop.png</file>
+        <file>images/placeholders/white_king.png</file>
+        <file>images/placeholders/white_knight.png</file>
+        <file>images/placeholders/white_pawn.png</file>
+        <file>images/placeholders/white_queen.png</file>
+        <file>images/placeholders/white_rook.png</file>
+        <file>images/placeholders/white_square.png</file>
     </qresource>
 </RCC>

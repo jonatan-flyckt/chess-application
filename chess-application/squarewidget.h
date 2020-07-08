@@ -16,6 +16,8 @@ public:
     void enterEvent(QEvent *event);
     void leaveEvent(QEvent *event);
 
+    void mousePressEvent(QMouseEvent *ev);
+
     QString id() const;
     void setId(const QString &id);
 
@@ -26,6 +28,18 @@ signals:
     void signalInfoMessage(QString message);
 
     void signalCurrentHovered(QString id);
+
+    void signalStartClickingMove(QString originSquare);
+
+    void signalCompleteClickingMove(QString destinationSquare);
+
+    void signalStartDraggingMove(QString originSquare);
+
+    void signalCompleteDraggingMove(QString destinationSquare);
+
+    bool getClickingMoveStatus();
+
+    bool getDraggingMoveStatus();
 
 private:
     QString _id;
