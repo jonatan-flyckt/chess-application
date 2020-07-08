@@ -219,7 +219,6 @@ void MainWindow::startDraggingMove(QString originSquare){
             break;
         }
     }
-    pieceToMove->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     _piece_widget_currently_dragged = new PieceWidget();
     _piece_widget_currently_dragged->setPiece_pixmap(_pixmap_of_dragged_piece);
@@ -235,15 +234,21 @@ void MainWindow::startDraggingMove(QString originSquare){
 
     _piece_widgets.append(_piece_widget_currently_dragged);
 
-    removePieceGraphically(pieceToMove);
-
-    /*SquareWidget *squareFrom;
+    SquareWidget *squareFrom;
     for (auto square: _square_widgets){
         if (square->id() == originSquare)
             squareFrom = square;
     }
-    squareFrom->setAttribute(Qt::WA_TransparentForMouseEvents);
-    */
+
+    if (squareFrom->getDenotation() == "white"){
+        pieceToMove->setPiece_pixmap(_graphics_info.white_square);
+        pieceToMove->populateWithPixmap();
+    }
+    else{
+        pieceToMove->setPiece_pixmap(_graphics_info.black_square);
+        pieceToMove->populateWithPixmap();
+    }
+    _piece_widget_of_moved_from_square = pieceToMove;
 
     qDebug() << "started dragging move from: " + originSquare;
 }
@@ -259,12 +264,22 @@ void MainWindow::completeDraggingMove(){
         qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
         removePieceGraphically(_piece_widget_currently_dragged);
+        _piece_widget_of_moved_from_square->setPiece_pixmap(_pixmap_of_dragged_piece);
+        _piece_widget_of_moved_from_square->populateWithPixmap();
         _piece_widget_currently_dragged = nullptr;
         return;
     }
     _legal_destination_squares.clear();
     _dragging_move_in_progress = false;
     removePieceGraphically(_piece_widget_currently_dragged);
+    PieceWidget *pieceToMove;
+    for (auto piece: _piece_widgets){
+        if (piece->piece_position() == _move_in_progress_origin_square){
+            pieceToMove = piece;
+        }
+    }
+    //removePieceGraphically(pieceToMove);
+
     addPieceGraphically(_pixmap_of_dragged_piece, _currently_hovered_square);
     _piece_widget_currently_dragged = nullptr;
     qDebug() << "completed dragging move to: " + _currently_hovered_square;

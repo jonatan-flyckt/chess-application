@@ -2,6 +2,8 @@
 
 SquareWidget::SquareWidget(QString id, QPixmap pixmap, QString denotation){
     _inner_layout = new QHBoxLayout(this);
+    _inner_layout->setSpacing(0);
+    _inner_layout->setContentsMargins(0,0,0,0);
     _id = id;
     _square_pixmap = pixmap;
     _denotation = denotation;
