@@ -34,6 +34,7 @@ void SquareWidget::mousePressEvent(QMouseEvent *ev){
 }
 
 void SquareWidget::mouseMoveEvent(QMouseEvent *ev){
+    qDebug() << QCursor::pos();
     if (!getDraggingMoveStatus())
         emit signalStartDraggingMove(_id);
     else{

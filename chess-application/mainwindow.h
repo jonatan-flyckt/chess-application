@@ -101,6 +101,7 @@ private:
     QString _move_in_progress_origin_square;
     QVector<QString> _legal_destination_squares;
     PieceWidget *_piece_widget_currently_dragged;
+    QPixmap _pixmap_of_dragged_piece;
 
     QVector<QString> colsFromIndex{"a", "b", "c", "d", "e", "f", "g", "h"};
 };

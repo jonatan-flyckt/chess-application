@@ -209,20 +209,20 @@ void MainWindow::startDraggingMove(QString originSquare){
     _dragging_move_in_progress = true;
     _move_in_progress_origin_square = originSquare;
 
-    QPixmap widgetGraphic;
     QSize widgetSize;
     PieceWidget *pieceToMove;
     for (auto piece: _piece_widgets){
         if (piece->piece_position() == originSquare){
             widgetSize = piece->size();
-            widgetGraphic = piece->piece_pixmap();
+            _pixmap_of_dragged_piece = piece->piece_pixmap();
             pieceToMove = piece;
             break;
         }
     }
+    pieceToMove->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     _piece_widget_currently_dragged = new PieceWidget();
-    _piece_widget_currently_dragged->setPiece_pixmap(widgetGraphic);
+    _piece_widget_currently_dragged->setPiece_pixmap(_pixmap_of_dragged_piece);
     _piece_widget_currently_dragged->setPiece_position("");
     _piece_widget_currently_dragged->populateWithPixmap();
     _piece_widget_currently_dragged->resize(widgetSize.width(), widgetSize.height());
@@ -235,7 +235,15 @@ void MainWindow::startDraggingMove(QString originSquare){
 
     _piece_widgets.append(_piece_widget_currently_dragged);
 
-    //removePieceGraphically(piece);
+    removePieceGraphically(pieceToMove);
+
+    /*SquareWidget *squareFrom;
+    for (auto square: _square_widgets){
+        if (square->id() == originSquare)
+            squareFrom = square;
+    }
+    squareFrom->setAttribute(Qt::WA_TransparentForMouseEvents);
+    */
 
     qDebug() << "started dragging move from: " + originSquare;
 }
@@ -257,6 +265,7 @@ void MainWindow::completeDraggingMove(){
     _legal_destination_squares.clear();
     _dragging_move_in_progress = false;
     removePieceGraphically(_piece_widget_currently_dragged);
+    addPieceGraphically(_pixmap_of_dragged_piece, _currently_hovered_square);
     _piece_widget_currently_dragged = nullptr;
     qDebug() << "completed dragging move to: " + _currently_hovered_square;
 }
