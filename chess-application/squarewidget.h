@@ -24,6 +24,8 @@ public:
 
     void changePixmap(QPixmap newPixmap);
 
+    bool stayedInSameSquareDuringDraggingMove();
+
     QString id() const;
     void setId(const QString &id);
 
@@ -57,6 +59,12 @@ signals:
     bool getDraggingMoveStatus();
 
     bool getDraggingMoveReadyToCompleteStatus();
+
+    QString getHoveredSquare();
+
+    QString getMoveOriginSquare();
+
+    QPair<QPoint, QPoint> getBoundsOfBoard();
 
 private:
     QString _id;

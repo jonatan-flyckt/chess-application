@@ -17,13 +17,21 @@ void SquareWidget::populateWithPixmap(){
 }
 
 void SquareWidget::enterEvent(QEvent *event){ //User started hovering square
+    //qDebug() << "entered square";
     emit signalCurrentHovered(_id);
     if (getDraggingMoveReadyToCompleteStatus())
         emit signalCompleteDraggingMove();
+
 }
 
 void SquareWidget::leaveEvent(QEvent *event){ //User stopped hovering square
-    emit signalCurrentHovered("");
+    //qDebug() << "bounds: " << emit getBoundsOfBoard();
+    //qDebug() << "mouse pos: " << mapToGlobal(QCursor::pos());
+    if (stayedInSameSquareDuringDraggingMove()){
+        emit signalCurrentHovered(_id);
+    }
+    else
+        emit signalCurrentHovered("");
 }
 
 void SquareWidget::mousePressEvent(QMouseEvent *ev){
@@ -36,7 +44,6 @@ void SquareWidget::mousePressEvent(QMouseEvent *ev){
 }
 
 void SquareWidget::mouseMoveEvent(QMouseEvent *ev){
-    qDebug() << QCursor::pos();
     if (!getDraggingMoveStatus())
         emit signalStartDraggingMove(_id);
     else{
@@ -46,15 +53,29 @@ void SquareWidget::mouseMoveEvent(QMouseEvent *ev){
 }
 
 void SquareWidget::mouseReleaseEvent(QMouseEvent *ev){
-    qDebug() << "mouse was released";
+    qDebug() << "mouse was released in square";
     if (!getDraggingMoveStatus())
         return;
+    QString origin = emit getMoveOriginSquare();
+    QString hovered = emit getHoveredSquare();
+    //qDebug() << "origin: " << origin;
+    //qDebug() << "hovered: " << hovered;
+    if (hovered == origin){ //Widget was released on origin square
+        emit signalCompleteDraggingMove();
+        return;
+    }
     emit signalDraggingMoveReadyToComplete();
 }
 
 void SquareWidget::changePixmap(QPixmap newPixmap){
     _square_pixmap = newPixmap;
     this->populateWithPixmap();
+}
+
+bool SquareWidget::stayedInSameSquareDuringDraggingMove(){
+    QRect widgetRect = this->geometry();
+    widgetRect.moveTopLeft(this->parentWidget()->mapToGlobal(widgetRect.topLeft()));
+    return widgetRect.contains(QCursor::pos());
 }
 
 QString SquareWidget::id() const{

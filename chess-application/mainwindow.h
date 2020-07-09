@@ -18,6 +18,7 @@
 #include <QPushButton>
 #include "piecewidget.h"
 #include <QMouseEvent>
+#include <QPair>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -37,7 +38,7 @@ public:
 
     void addColAndRowHeaders();
     void clearBoardUI();
-    void addPieceGraphically(QPixmap pieceGraphic, QString squareID);
+    void addPieceGraphically(QPixmap pieceGraphic, QString squareID, QString denotation);
     void initiatePiecesGraphically();
     void removePieceGraphically(PieceWidget *piece);
 
@@ -73,11 +74,17 @@ public slots:
 
     bool sendDraggingMoveReadyToCompleteStatus();
 
+    QString sendHoveredSquare();
+
+    QString sendMoveOriginSquare();
+
     void movePieceWidget(QPoint mousePos);
 
     void setPlayerWhite();
 
     void setPlayerBlack();
+
+    QPair<QPoint, QPoint> sendBoundsOfBoard();
 
 private:
     Ui::MainWindow *_ui;

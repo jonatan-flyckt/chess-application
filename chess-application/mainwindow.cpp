@@ -41,27 +41,27 @@ MainWindow::~MainWindow(){
 
 void MainWindow::initiatePiecesGraphically(){
     for (int i = 0; i < 8; i++){
-        addPieceGraphically(_graphics_info.black_pawn, colsFromIndex.at(i) + "7");
-        addPieceGraphically(_graphics_info.white_pawn, colsFromIndex.at(i) + "2");
+        addPieceGraphically(_graphics_info.black_pawn, colsFromIndex.at(i) + "7", "black");
+        addPieceGraphically(_graphics_info.white_pawn, colsFromIndex.at(i) + "2", "white");
     }
 
-    addPieceGraphically(_graphics_info.white_rook, "a1");
-    addPieceGraphically(_graphics_info.white_knight, "b1");
-    addPieceGraphically(_graphics_info.white_bishop, "c1");
-    addPieceGraphically(_graphics_info.white_queen, "d1");
-    addPieceGraphically(_graphics_info.white_king, "e1");
-    addPieceGraphically(_graphics_info.white_bishop, "f1");
-    addPieceGraphically(_graphics_info.white_knight, "g1");
-    addPieceGraphically(_graphics_info.white_rook, "h1");
+    addPieceGraphically(_graphics_info.white_rook, "a1", "white");
+    addPieceGraphically(_graphics_info.white_knight, "b1", "white");
+    addPieceGraphically(_graphics_info.white_bishop, "c1", "white");
+    addPieceGraphically(_graphics_info.white_queen, "d1", "white");
+    addPieceGraphically(_graphics_info.white_king, "e1", "white");
+    addPieceGraphically(_graphics_info.white_bishop, "f1", "white");
+    addPieceGraphically(_graphics_info.white_knight, "g1", "white");
+    addPieceGraphically(_graphics_info.white_rook, "h1", "white");
 
-    addPieceGraphically(_graphics_info.black_rook, "a8");
-    addPieceGraphically(_graphics_info.black_knight, "b8");
-    addPieceGraphically(_graphics_info.black_bishop, "c8");
-    addPieceGraphically(_graphics_info.black_queen, "d8");
-    addPieceGraphically(_graphics_info.black_king, "e8");
-    addPieceGraphically(_graphics_info.black_bishop, "f8");
-    addPieceGraphically(_graphics_info.black_knight, "g8");
-    addPieceGraphically(_graphics_info.black_rook, "h8");
+    addPieceGraphically(_graphics_info.black_rook, "a8", "black");
+    addPieceGraphically(_graphics_info.black_knight, "b8", "black");
+    addPieceGraphically(_graphics_info.black_bishop, "c8", "black");
+    addPieceGraphically(_graphics_info.black_queen, "d8", "black");
+    addPieceGraphically(_graphics_info.black_king, "e8", "black");
+    addPieceGraphically(_graphics_info.black_bishop, "f8", "black");
+    addPieceGraphically(_graphics_info.black_knight, "g8", "black");
+    addPieceGraphically(_graphics_info.black_rook, "h8", "black");
 }
 
 void MainWindow::highlightLegalSquares(){
@@ -90,13 +90,13 @@ void MainWindow::removeLegalSquaresHighlight(){
     }
 }
 
-void MainWindow::addPieceGraphically(QPixmap pieceGraphic, QString squareID){
+void MainWindow::addPieceGraphically(QPixmap pieceGraphic, QString squareID, QString denotation){
     SquareWidget *squareToPlacePieceOn;
     for (SquareWidget *square: _square_widgets){
         if (square->id() == squareID)
             squareToPlacePieceOn = square;
     }
-    PieceWidget *piece = new PieceWidget();
+    PieceWidget *piece = new PieceWidget(denotation);
     piece->setPiece_pixmap(pieceGraphic);
     piece->populateWithPixmap();
     piece->setPiece_position(squareID);
@@ -107,7 +107,9 @@ void MainWindow::addPieceGraphically(QPixmap pieceGraphic, QString squareID){
 void MainWindow::removePieceGraphically(PieceWidget *piece){
     int index = _piece_widgets.indexOf(piece);
     _piece_widgets.remove(index);
-    delete piece;
+    qDebug() << piece;
+    piece->hide();
+    piece->deleteLater();
 }
 
 void MainWindow::initiateUIComponents(){
@@ -155,7 +157,6 @@ void MainWindow::setInfoMessage(QString message){
 
 void MainWindow::setCurrentHovered(QString id){
     _currently_hovered_square = id;
-    qDebug() << "current hovered set to" << _currently_hovered_square;
 }
 
 void MainWindow::startClickingMove(QString originSquare){
@@ -184,13 +185,15 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     _legal_destination_squares.clear();
     PieceWidget *pieceToMove;
     QPixmap pieceGraphic;
+    QString denotation;
     for (auto piece: _piece_widgets){
         if (piece->piece_position() == _move_in_progress_origin_square){
             pieceToMove = piece;
             pieceGraphic = pieceToMove->piece_pixmap();
+            denotation = pieceToMove->denotation();
         }
     }
-    addPieceGraphically(pieceGraphic, destinationSquare);
+    addPieceGraphically(pieceGraphic, destinationSquare, denotation);
     removePieceGraphically(pieceToMove);
     _clicking_move_in_progress = false;
     _move_in_progress_origin_square = "";
@@ -211,16 +214,18 @@ void MainWindow::startDraggingMove(QString originSquare){
 
     QSize widgetSize;
     PieceWidget *pieceToMove;
+    QString denotation;
     for (auto piece: _piece_widgets){
         if (piece->piece_position() == originSquare){
             widgetSize = piece->size();
             _pixmap_of_dragged_piece = piece->piece_pixmap();
+            denotation = piece->denotation();
             pieceToMove = piece;
             break;
         }
     }
 
-    _piece_widget_currently_dragged = new PieceWidget();
+    _piece_widget_currently_dragged = new PieceWidget(denotation);
     _piece_widget_currently_dragged->setPiece_pixmap(_pixmap_of_dragged_piece);
     _piece_widget_currently_dragged->setPiece_position("");
     _piece_widget_currently_dragged->populateWithPixmap();
@@ -231,6 +236,7 @@ void MainWindow::startDraggingMove(QString originSquare){
     int newY = QCursor::pos().y() - widgetSize.height()/2;
     _piece_widget_currently_dragged->move(newX, newY);
     _piece_widget_currently_dragged->show();
+    _piece_widget_currently_dragged->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     _piece_widgets.append(_piece_widget_currently_dragged);
 
@@ -278,9 +284,19 @@ void MainWindow::completeDraggingMove(){
             pieceToMove = piece;
         }
     }
-    //removePieceGraphically(pieceToMove);
 
-    addPieceGraphically(_pixmap_of_dragged_piece, _currently_hovered_square);
+    SquareWidget *squareFrom;
+    for (auto square: _square_widgets){
+        if (square->id() == _currently_hovered_square)
+            squareFrom = square;
+    }
+    squareFrom->getInner_layout()->removeWidget(pieceToMove);
+    pieceToMove->hide();
+
+    QString denotation = pieceToMove->denotation();
+    removePieceGraphically(pieceToMove);
+
+    addPieceGraphically(_pixmap_of_dragged_piece, _currently_hovered_square, denotation);
     _piece_widget_currently_dragged = nullptr;
     qDebug() << "completed dragging move to: " + _currently_hovered_square;
 }
@@ -295,6 +311,14 @@ bool MainWindow::sendDraggingMoveStatus(){
 
 bool MainWindow::sendDraggingMoveReadyToCompleteStatus(){
     return _dragging_move_ready_to_complete;
+}
+
+QString MainWindow::sendHoveredSquare(){
+    return _currently_hovered_square;
+}
+
+QString MainWindow::sendMoveOriginSquare(){
+    return _move_in_progress_origin_square;
 }
 
 void MainWindow::movePieceWidget(QPoint mousePos){
@@ -322,6 +346,35 @@ void MainWindow::setPlayerBlack(){
     _set_black_button->setEnabled(false);
     initiateBoardSquaresUI();
     initiatePiecesGraphically();
+}
+
+QPair<QPoint, QPoint> MainWindow::sendBoundsOfBoard(){
+    QPoint upperLeft;
+    QPoint lowerRight;
+    SquareWidget *upperLeftSquare;
+    SquareWidget *lowerRightSquare;
+    for (auto square: _square_widgets){
+        if (square->id() == "a8"){
+            if (_user_is_white)
+                upperLeftSquare = square;
+            else
+                lowerRightSquare = square;
+        }
+        if (square->id() == "h1"){
+            if (_user_is_white)
+                lowerRightSquare = square;
+            else
+                upperLeftSquare = square;
+        }
+    }
+    upperLeft = upperLeftSquare->mapFromGlobal(upperLeftSquare->pos());
+    lowerRight.setX(lowerRightSquare->mapFromGlobal(lowerRightSquare->pos()).x() + lowerRightSquare->size().width());
+    lowerRight.setY(lowerRightSquare->mapFromGlobal(lowerRightSquare->pos()).y() + lowerRightSquare->size().height());
+    /*upperLeft = upperLeftSquare->pos();
+    lowerRight.setX(lowerRightSquare->pos().x() + lowerRightSquare->size().width());
+    lowerRight.setY(lowerRightSquare->pos().y() + lowerRightSquare->size().height());*/
+    //qDebug() << "mouse pos in mainwindow: " << QCursor::pos();
+    return QPair(upperLeft, lowerRight);
 }
 
 void MainWindow::initiateBoardSquaresUI(){
@@ -374,6 +427,9 @@ void MainWindow::connectSquareToSignals(SquareWidget *square){
     connect(square, &SquareWidget::signalMovePieceWidget, this, &MainWindow::movePieceWidget);
     connect(square, &SquareWidget::signalDraggingMoveReadyToComplete, this, &MainWindow::setDraggingMoveReadyToComplete);
     connect(square, &SquareWidget::getDraggingMoveReadyToCompleteStatus, this, &MainWindow::sendDraggingMoveReadyToCompleteStatus);
+    connect(square, &SquareWidget::getMoveOriginSquare, this, &MainWindow::sendMoveOriginSquare);
+    connect(square, &SquareWidget::getHoveredSquare, this, &MainWindow::sendHoveredSquare);
+    connect(square, &SquareWidget::getBoundsOfBoard, this, &MainWindow::sendBoundsOfBoard);
 }
 
 void MainWindow::addColAndRowHeaders(){

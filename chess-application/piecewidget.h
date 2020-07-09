@@ -9,7 +9,7 @@ class PieceWidget : public QLabel{
 
 public:
 
-    PieceWidget();
+    PieceWidget(QString denotation);
 
     void populateWithPixmap();
 
@@ -19,11 +19,14 @@ public:
     QPixmap piece_pixmap() const;
     void setPiece_pixmap(const QPixmap &piece_pixmap);
 
+    QString denotation() const;
+    void setDenotation(const QString &denotation);
+
 private:
 
     QString _piece_position;
     QPixmap _piece_pixmap;
-
+    QString _denotation;
 };
 
 #endif // PIECEWIDGET_H

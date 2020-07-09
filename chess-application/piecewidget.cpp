@@ -1,7 +1,7 @@
 #include "piecewidget.h"
 
-PieceWidget::PieceWidget(){
-
+PieceWidget::PieceWidget(QString denotation){
+    _denotation = denotation;
 }
 
 void PieceWidget::populateWithPixmap(){
@@ -27,4 +27,14 @@ QPixmap PieceWidget::piece_pixmap() const
 void PieceWidget::setPiece_pixmap(const QPixmap &piece_pixmap)
 {
     _piece_pixmap = piece_pixmap;
+}
+
+QString PieceWidget::denotation() const
+{
+    return _denotation;
+}
+
+void PieceWidget::setDenotation(const QString &denotation)
+{
+    _denotation = denotation;
 }
