@@ -84,7 +84,7 @@ public slots:
 
     void setPlayerBlack();
 
-    QPair<QPoint, QPoint> sendBoundsOfBoard();
+    bool mouseIsInsideBoard();
 
 private:
     Ui::MainWindow *_ui;

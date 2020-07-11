@@ -64,7 +64,7 @@ signals:
 
     QString getMoveOriginSquare();
 
-    QPair<QPoint, QPoint> getBoundsOfBoard();
+    bool signalMouseIsInsideBoard();
 
 private:
     QString _id;

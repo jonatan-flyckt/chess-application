@@ -107,7 +107,6 @@ void MainWindow::addPieceGraphically(QPixmap pieceGraphic, QString squareID, QSt
 void MainWindow::removePieceGraphically(PieceWidget *piece){
     int index = _piece_widgets.indexOf(piece);
     _piece_widgets.remove(index);
-    qDebug() << piece;
     piece->hide();
     piece->deleteLater();
 }
@@ -348,7 +347,7 @@ void MainWindow::setPlayerBlack(){
     initiatePiecesGraphically();
 }
 
-QPair<QPoint, QPoint> MainWindow::sendBoundsOfBoard(){
+bool MainWindow::mouseIsInsideBoard(){
     QPoint upperLeft;
     QPoint lowerRight;
     SquareWidget *upperLeftSquare;
@@ -367,14 +366,18 @@ QPair<QPoint, QPoint> MainWindow::sendBoundsOfBoard(){
                 upperLeftSquare = square;
         }
     }
-    upperLeft = upperLeftSquare->mapFromGlobal(upperLeftSquare->pos());
-    lowerRight.setX(lowerRightSquare->mapFromGlobal(lowerRightSquare->pos()).x() + lowerRightSquare->size().width());
-    lowerRight.setY(lowerRightSquare->mapFromGlobal(lowerRightSquare->pos()).y() + lowerRightSquare->size().height());
-    /*upperLeft = upperLeftSquare->pos();
-    lowerRight.setX(lowerRightSquare->pos().x() + lowerRightSquare->size().width());
-    lowerRight.setY(lowerRightSquare->pos().y() + lowerRightSquare->size().height());*/
-    //qDebug() << "mouse pos in mainwindow: " << QCursor::pos();
-    return QPair(upperLeft, lowerRight);
+    upperLeft = mapToGlobal(upperLeftSquare->pos());
+    upperLeft.setX(upperLeft.x() + 24);
+    upperLeft.setY(upperLeft.y() + 39);
+    lowerRight.setX(mapToGlobal(lowerRightSquare->pos()).x() + lowerRightSquare->size().width() + 24);
+    lowerRight.setY(mapToGlobal(lowerRightSquare->pos()).y() + lowerRightSquare->size().height() + 39);
+    QPoint mousePos = mapTo(this, QCursor::pos());
+
+    if (mousePos.x() >= upperLeft.x() && mousePos.y() >= upperLeft.y() &&
+            mousePos.y() <= lowerRight.y() && mousePos.x() <= lowerRight.x())
+        return true;
+    else
+        return false;
 }
 
 void MainWindow::initiateBoardSquaresUI(){
@@ -429,7 +432,7 @@ void MainWindow::connectSquareToSignals(SquareWidget *square){
     connect(square, &SquareWidget::getDraggingMoveReadyToCompleteStatus, this, &MainWindow::sendDraggingMoveReadyToCompleteStatus);
     connect(square, &SquareWidget::getMoveOriginSquare, this, &MainWindow::sendMoveOriginSquare);
     connect(square, &SquareWidget::getHoveredSquare, this, &MainWindow::sendHoveredSquare);
-    connect(square, &SquareWidget::getBoundsOfBoard, this, &MainWindow::sendBoundsOfBoard);
+    connect(square, &SquareWidget::signalMouseIsInsideBoard, this, &MainWindow::mouseIsInsideBoard);
 }
 
 void MainWindow::addColAndRowHeaders(){

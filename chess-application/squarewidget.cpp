@@ -17,7 +17,6 @@ void SquareWidget::populateWithPixmap(){
 }
 
 void SquareWidget::enterEvent(QEvent *event){ //User started hovering square
-    //qDebug() << "entered square";
     emit signalCurrentHovered(_id);
     if (getDraggingMoveReadyToCompleteStatus())
         emit signalCompleteDraggingMove();
@@ -25,8 +24,11 @@ void SquareWidget::enterEvent(QEvent *event){ //User started hovering square
 }
 
 void SquareWidget::leaveEvent(QEvent *event){ //User stopped hovering square
-    //qDebug() << "bounds: " << emit getBoundsOfBoard();
-    //qDebug() << "mouse pos: " << mapToGlobal(QCursor::pos());
+    if (!emit signalMouseIsInsideBoard() && getDraggingMoveStatus()){
+        qDebug() << "mouse was released outside of board";
+        emit signalCompleteDraggingMove();
+        return;
+    }
     if (stayedInSameSquareDuringDraggingMove()){
         emit signalCurrentHovered(_id);
     }
@@ -58,8 +60,6 @@ void SquareWidget::mouseReleaseEvent(QMouseEvent *ev){
         return;
     QString origin = emit getMoveOriginSquare();
     QString hovered = emit getHoveredSquare();
-    //qDebug() << "origin: " << origin;
-    //qDebug() << "hovered: " << hovered;
     if (hovered == origin){ //Widget was released on origin square
         emit signalCompleteDraggingMove();
         return;
