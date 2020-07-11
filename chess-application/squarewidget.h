@@ -37,6 +37,9 @@ public:
     QString getDenotation() const;
     void setDenotation(const QString &denotation);
 
+    QPixmap getSquare_pixmap() const;
+    void setSquare_pixmap(const QPixmap &square_pixmap);
+
 signals:
     void signalInfoMessage(QString message);
 

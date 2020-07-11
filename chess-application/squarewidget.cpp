@@ -108,3 +108,13 @@ void SquareWidget::setDenotation(const QString &denotation)
 {
     _denotation = denotation;
 }
+
+QPixmap SquareWidget::getSquare_pixmap() const
+{
+    return _square_pixmap;
+}
+
+void SquareWidget::setSquare_pixmap(const QPixmap &square_pixmap)
+{
+    _square_pixmap = square_pixmap;
+}

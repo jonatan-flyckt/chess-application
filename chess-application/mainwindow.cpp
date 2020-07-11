@@ -245,14 +245,8 @@ void MainWindow::startDraggingMove(QString originSquare){
             squareFrom = square;
     }
 
-    if (squareFrom->getDenotation() == "white"){
-        pieceToMove->setPiece_pixmap(_graphics_info.white_square);
-        pieceToMove->populateWithPixmap();
-    }
-    else{
-        pieceToMove->setPiece_pixmap(_graphics_info.black_square);
-        pieceToMove->populateWithPixmap();
-    }
+    pieceToMove->setPiece_pixmap(squareFrom->getSquare_pixmap());
+    pieceToMove->populateWithPixmap();
     _piece_widget_of_moved_from_square = pieceToMove;
 
     qDebug() << "started dragging move from: " + originSquare;
@@ -283,14 +277,6 @@ void MainWindow::completeDraggingMove(){
             pieceToMove = piece;
         }
     }
-
-    SquareWidget *squareFrom;
-    for (auto square: _square_widgets){
-        if (square->id() == _currently_hovered_square)
-            squareFrom = square;
-    }
-    squareFrom->getInner_layout()->removeWidget(pieceToMove);
-    pieceToMove->hide();
 
     QString denotation = pieceToMove->denotation();
     removePieceGraphically(pieceToMove);
@@ -366,6 +352,9 @@ bool MainWindow::mouseIsInsideBoard(){
                 upperLeftSquare = square;
         }
     }
+
+    // I don't know why addind 24 and 39 works, but it does for all window sizes...
+
     upperLeft = mapToGlobal(upperLeftSquare->pos());
     upperLeft.setX(upperLeft.x() + 24);
     upperLeft.setY(upperLeft.y() + 39);
@@ -382,7 +371,7 @@ bool MainWindow::mouseIsInsideBoard(){
 
 void MainWindow::initiateBoardSquaresUI(){
     clearBoardUI();
-    addColAndRowHeaders();
+    addCoordinateWidgets();
     for (int i = 0; i < 8; i++){
         if (_user_is_white){
             for (int j = 8; j > 0; j--){
@@ -435,7 +424,7 @@ void MainWindow::connectSquareToSignals(SquareWidget *square){
     connect(square, &SquareWidget::signalMouseIsInsideBoard, this, &MainWindow::mouseIsInsideBoard);
 }
 
-void MainWindow::addColAndRowHeaders(){
+void MainWindow::addCoordinateWidgets(){
     for (int i = 1; i < 9; i++){
         QFont f( "Arial", 15, QFont::Bold);
         if (_user_is_white){

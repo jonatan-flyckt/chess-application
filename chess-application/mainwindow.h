@@ -36,7 +36,7 @@ public:
     void initiateBoardSquaresUI();
     void connectSquareToSignals(SquareWidget *square);
 
-    void addColAndRowHeaders();
+    void addCoordinateWidgets();
     void clearBoardUI();
     void addPieceGraphically(QPixmap pieceGraphic, QString squareID, QString denotation);
     void initiatePiecesGraphically();
