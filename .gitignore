@@ -90,3 +90,5 @@ compile_commands.json
 *.exe
 *.out
 *.app
+
+chess-application/build/
