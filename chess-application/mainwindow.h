@@ -3,6 +3,7 @@
 
 #define BOARD_GRID_COL 1
 #define BOARD_GRID_ROW 1
+#define SMALLEST_BOARD_SIZE 500
 
 #include <QMainWindow>
 #include <QGridLayout>
@@ -47,6 +48,9 @@ public:
 
     QPixmap setPixmapFromType(QString type);
 
+    void updateCoordinateFontSize();
+
+    void resizeEvent(QResizeEvent* event);
 
 signals:
     void on_set_white_button_clicked();

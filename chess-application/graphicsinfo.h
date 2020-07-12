@@ -1,9 +1,14 @@
 #ifndef GRAPHICSINFO_H
 #define GRAPHICSINFO_H
 
+#define HEADER_FONT_SIZE 12
+#define START_HEADER_FONT_SIZE 21
+
 #include <QPixmap>
 #include <QFileInfo>
 #include <QDebug>
+#include <QFont>
+
 
 class GraphicsInfo
 {
@@ -12,27 +17,29 @@ public:
 
     void setGraphicsFromPath(QString path);
 
-    QPixmap legal_move_highlight_white;
-    QPixmap legal_move_highlight_black;
-    QPixmap check_highlight_white;
-    QPixmap check_highlight_black;
+    QPixmap _legal_move_highlight_white;
+    QPixmap _legal_move_highlight_black;
+    QPixmap _check_highlight_white;
+    QPixmap _check_highlight_black;
 
-    QPixmap black_square;
-    QPixmap white_square;
+    QPixmap _black_square;
+    QPixmap _white_square;
 
-    QPixmap white_king;
-    QPixmap white_queen;
-    QPixmap white_rook;
-    QPixmap white_bishop;
-    QPixmap white_knight;
-    QPixmap white_pawn;
+    QPixmap _white_king;
+    QPixmap _white_queen;
+    QPixmap _white_rook;
+    QPixmap _white_bishop;
+    QPixmap _white_knight;
+    QPixmap _white_pawn;
 
-    QPixmap black_king;
-    QPixmap black_queen;
-    QPixmap black_rook;
-    QPixmap black_bishop;
-    QPixmap black_knight;
-    QPixmap black_pawn;
+    QPixmap _black_king;
+    QPixmap _black_queen;
+    QPixmap _black_rook;
+    QPixmap _black_bishop;
+    QPixmap _black_knight;
+    QPixmap _black_pawn;
+
+    QFont _header_font;
 
 private:
 

@@ -39,29 +39,35 @@ MainWindow::~MainWindow(){
     delete _ui;
 }
 
+void MainWindow::resizeEvent(QResizeEvent* event)
+{
+   QMainWindow::resizeEvent(event);
+   updateCoordinateFontSize();
+}
+
 void MainWindow::initiatePiecesGraphically(){
     for (int i = 0; i < 8; i++){
-        addPieceGraphically(_graphics_info.black_pawn, colsFromIndex.at(i) + "7", "black");
-        addPieceGraphically(_graphics_info.white_pawn, colsFromIndex.at(i) + "2", "white");
+        addPieceGraphically(_graphics_info._black_pawn, colsFromIndex.at(i) + "7", "black");
+        addPieceGraphically(_graphics_info._white_pawn, colsFromIndex.at(i) + "2", "white");
     }
 
-    addPieceGraphically(_graphics_info.white_rook, "a1", "white");
-    addPieceGraphically(_graphics_info.white_knight, "b1", "white");
-    addPieceGraphically(_graphics_info.white_bishop, "c1", "white");
-    addPieceGraphically(_graphics_info.white_queen, "d1", "white");
-    addPieceGraphically(_graphics_info.white_king, "e1", "white");
-    addPieceGraphically(_graphics_info.white_bishop, "f1", "white");
-    addPieceGraphically(_graphics_info.white_knight, "g1", "white");
-    addPieceGraphically(_graphics_info.white_rook, "h1", "white");
+    addPieceGraphically(_graphics_info._white_rook, "a1", "white");
+    addPieceGraphically(_graphics_info._white_knight, "b1", "white");
+    addPieceGraphically(_graphics_info._white_bishop, "c1", "white");
+    addPieceGraphically(_graphics_info._white_queen, "d1", "white");
+    addPieceGraphically(_graphics_info._white_king, "e1", "white");
+    addPieceGraphically(_graphics_info._white_bishop, "f1", "white");
+    addPieceGraphically(_graphics_info._white_knight, "g1", "white");
+    addPieceGraphically(_graphics_info._white_rook, "h1", "white");
 
-    addPieceGraphically(_graphics_info.black_rook, "a8", "black");
-    addPieceGraphically(_graphics_info.black_knight, "b8", "black");
-    addPieceGraphically(_graphics_info.black_bishop, "c8", "black");
-    addPieceGraphically(_graphics_info.black_queen, "d8", "black");
-    addPieceGraphically(_graphics_info.black_king, "e8", "black");
-    addPieceGraphically(_graphics_info.black_bishop, "f8", "black");
-    addPieceGraphically(_graphics_info.black_knight, "g8", "black");
-    addPieceGraphically(_graphics_info.black_rook, "h8", "black");
+    addPieceGraphically(_graphics_info._black_rook, "a8", "black");
+    addPieceGraphically(_graphics_info._black_knight, "b8", "black");
+    addPieceGraphically(_graphics_info._black_bishop, "c8", "black");
+    addPieceGraphically(_graphics_info._black_queen, "d8", "black");
+    addPieceGraphically(_graphics_info._black_king, "e8", "black");
+    addPieceGraphically(_graphics_info._black_bishop, "f8", "black");
+    addPieceGraphically(_graphics_info._black_knight, "g8", "black");
+    addPieceGraphically(_graphics_info._black_rook, "h8", "black");
 }
 
 void MainWindow::highlightLegalSquares(){
@@ -69,9 +75,9 @@ void MainWindow::highlightLegalSquares(){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
                 if (square->getDenotation()  == "white")
-                    square->changePixmap(_graphics_info.legal_move_highlight_white);
+                    square->changePixmap(_graphics_info._legal_move_highlight_white);
                 else
-                    square->changePixmap(_graphics_info.legal_move_highlight_black);
+                    square->changePixmap(_graphics_info._legal_move_highlight_black);
             }
         }
     }
@@ -82,9 +88,9 @@ void MainWindow::removeLegalSquaresHighlight(){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
                 if (square->getDenotation()  == "white")
-                    square->changePixmap(_graphics_info.white_square);
+                    square->changePixmap(_graphics_info._white_square);
                 else
-                    square->changePixmap(_graphics_info.black_square);
+                    square->changePixmap(_graphics_info._black_square);
             }
         }
     }
@@ -118,10 +124,10 @@ void MainWindow::initiateUIComponents(){
 
     _board_grid_layout->setSpacing(0);
 
-    _board_aspect_ratio_widget = new BoardAspectRatioWidget(_board_grid_layout, 500, 500, _ui->centralwidget);
+    _board_aspect_ratio_widget = new BoardAspectRatioWidget(_board_grid_layout, SMALLEST_BOARD_SIZE, SMALLEST_BOARD_SIZE, _ui->centralwidget);
 
-    _main_grid_layout->setColumnMinimumWidth(BOARD_GRID_COL, 500);
-    _main_grid_layout->setRowMinimumHeight(BOARD_GRID_ROW, 500);
+    _main_grid_layout->setColumnMinimumWidth(BOARD_GRID_COL, SMALLEST_BOARD_SIZE);
+    _main_grid_layout->setRowMinimumHeight(BOARD_GRID_ROW, SMALLEST_BOARD_SIZE);
     _main_grid_layout->setColumnStretch(BOARD_GRID_COL, 100);
     _main_grid_layout->setRowStretch(BOARD_GRID_ROW, 100);
 
@@ -362,27 +368,23 @@ bool MainWindow::mouseIsInsideBoard(){
     lowerRight.setY(mapToGlobal(lowerRightSquare->pos()).y() + lowerRightSquare->size().height() + 39);
     QPoint mousePos = mapTo(this, QCursor::pos());
 
-    if (mousePos.x() >= upperLeft.x() && mousePos.y() >= upperLeft.y() &&
-            mousePos.y() <= lowerRight.y() && mousePos.x() <= lowerRight.x())
-        return true;
-    else
-        return false;
+    return (mousePos.x() >= upperLeft.x() && mousePos.y() >= upperLeft.y() &&
+            mousePos.y() <= lowerRight.y() && mousePos.x() <= lowerRight.x());
 }
 
 void MainWindow::initiateBoardSquaresUI(){
     clearBoardUI();
-    addCoordinateWidgets();
     for (int i = 0; i < 8; i++){
         if (_user_is_white){
             for (int j = 8; j > 0; j--){
                 SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info.black_square, "black");
+                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info._black_square, "black");
                     _board_grid_layout->addWidget(square, abs(8-i), j);
                     _square_widgets.append(square);
                 }
                 else{
-                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info.white_square, "white");
+                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info._white_square, "white");
                     _board_grid_layout->addWidget(square, abs(8-i), j);
                     _square_widgets.append(square);
                 }
@@ -393,12 +395,12 @@ void MainWindow::initiateBoardSquaresUI(){
             for (int j = 0; j < 8; j++){
                 SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info.black_square, "black");
+                    square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info._black_square, "black");
                     _board_grid_layout->addWidget(square, i+1, abs(8-j));
                     _square_widgets.append(square);
                 }
                 else{
-                    square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info.white_square, "white");
+                    square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info._white_square, "white");
                     _board_grid_layout->addWidget(square, i+1, abs(8-j));
                     _square_widgets.append(square);
                 }
@@ -406,6 +408,7 @@ void MainWindow::initiateBoardSquaresUI(){
             }
         }
     }
+    addCoordinateWidgets();
 }
 
 void MainWindow::connectSquareToSignals(SquareWidget *square){
@@ -425,19 +428,19 @@ void MainWindow::connectSquareToSignals(SquareWidget *square){
 }
 
 void MainWindow::addCoordinateWidgets(){
+    updateCoordinateFontSize();
     for (int i = 1; i < 9; i++){
-        QFont f( "Arial", 15, QFont::Bold);
         if (_user_is_white){
             QLabel *number1 = new QLabel(QString::number(abs(9-i)) + " ");
             QLabel *number2 = new QLabel(" " + QString::number(abs(9-i)));
-            number1->setFont(f);
-            number2->setFont(f);
+            number1->setFont(_graphics_info._header_font);
+            number2->setFont(_graphics_info._header_font);
             _board_grid_layout->addWidget(number1, i, 0, Qt::AlignRight);
             _board_grid_layout->addWidget(number2, i, 9, Qt::AlignLeft);
             QLabel *letter1 = new QLabel(colsFromIndex.at(i-1));
             QLabel *letter2 = new QLabel(colsFromIndex.at(i-1));
-            letter1->setFont(f);
-            letter2->setFont(f);
+            letter1->setFont(_graphics_info._header_font);
+            letter2->setFont(_graphics_info._header_font);
             _board_grid_layout->addWidget(letter1, 0, i, Qt::AlignHCenter | Qt::AlignBottom);
             _board_grid_layout->addWidget(letter2, 9, i, Qt::AlignHCenter | Qt::AlignTop);
             _board_header_labels.append(number1);
@@ -448,14 +451,14 @@ void MainWindow::addCoordinateWidgets(){
         else {
             QLabel *number1 = new QLabel(QString::number(i) + " ");
             QLabel *number2 = new QLabel(" " + QString::number(i));
-            number1->setFont(f);
-            number2->setFont(f);
+            number1->setFont(_graphics_info._header_font);
+            number2->setFont(_graphics_info._header_font);
             _board_grid_layout->addWidget(number1, i, 0, Qt::AlignRight);
             _board_grid_layout->addWidget(number2, i, 9, Qt::AlignLeft);
             QLabel *letter1 = new QLabel(colsFromIndex.at(abs(8-i)));
             QLabel *letter2 = new QLabel(colsFromIndex.at(abs(8-i)));
-            letter1->setFont(f);
-            letter2->setFont(f);
+            letter1->setFont(_graphics_info._header_font);
+            letter2->setFont(_graphics_info._header_font);
             _board_grid_layout->addWidget(letter1, 0, i, Qt::AlignHCenter | Qt::AlignBottom);
             _board_grid_layout->addWidget(letter2, 9, i, Qt::AlignHCenter | Qt::AlignTop);
             _board_header_labels.append(number1);
@@ -463,8 +466,18 @@ void MainWindow::addCoordinateWidgets(){
             _board_header_labels.append(letter1);
             _board_header_labels.append(letter2);
         }
-
     }
+}
+
+void MainWindow::updateCoordinateFontSize(){
+    int boardSize = std::min(_board_aspect_ratio_widget->size().width(), _board_aspect_ratio_widget->size().height());
+    float scaleFactor = float(boardSize) / SMALLEST_BOARD_SIZE;
+    if (int(scaleFactor*HEADER_FONT_SIZE) == 0)
+        _graphics_info._header_font.setPointSize(START_HEADER_FONT_SIZE);
+    else
+        _graphics_info._header_font.setPointSize(int(scaleFactor*HEADER_FONT_SIZE));
+    for (auto label: _board_header_labels)
+        label->setFont(_graphics_info._header_font);
 }
 
 void MainWindow::clearBoardUI(){
