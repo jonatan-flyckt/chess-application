@@ -26,6 +26,7 @@ void SquareWidget::enterEvent(QEvent *event){ //User started hovering square
 void SquareWidget::leaveEvent(QEvent *event){ //User stopped hovering square
     if (!emit signalMouseIsInsideBoard() && getDraggingMoveStatus()){
         qDebug() << "mouse was released outside of board";
+        emit signalCurrentHovered("");
         emit signalCompleteDraggingMove();
         return;
     }
