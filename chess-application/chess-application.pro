@@ -17,6 +17,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     boardaspectratiowidget.cpp \
+    chessgame.cpp \
+    chessrules.cpp \
     graphicsinfo.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -25,6 +27,9 @@ SOURCES += \
 
 HEADERS += \
     boardaspectratiowidget.h \
+    chessgame.h \
+    chessrules.h \
+    chessstructs.h \
     graphicsinfo.h \
     mainwindow.h \
     piecewidget.h \
