@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     _dragging_move_ready_to_complete = false;
     _user_is_white = true;
+    _game = new ChessGame(_user_is_white);
 
     initiateUIComponents();
 

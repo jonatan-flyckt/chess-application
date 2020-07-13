@@ -20,6 +20,7 @@
 #include "piecewidget.h"
 #include <QMouseEvent>
 #include <QPair>
+#include <chessgame.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -97,6 +98,7 @@ private:
     BoardAspectRatioWidget *_board_aspect_ratio_widget;
     GraphicsInfo _graphics_info;
     bool _user_is_white;
+    ChessGame *_game;
 
     QLabel *_info_label;
     QPushButton *_set_white_button;
