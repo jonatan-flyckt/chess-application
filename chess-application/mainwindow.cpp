@@ -18,6 +18,15 @@ MainWindow::MainWindow(QWidget *parent)
     _user_is_white = true;
     _game = new ChessGame(_user_is_white);
 
+    _legal_moves_for_current_state.clear();
+    for (auto legalMove: _game->getLegalMovesForCurrentState()){
+        _legal_moves_for_current_state.append(legalMove);
+    }
+
+
+    _dragging_move_in_progress = false;
+    _clicking_move_in_progress = false;
+
     initiateUIComponents();
 
     resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
@@ -71,8 +80,13 @@ void MainWindow::initiatePiecesGraphically(){
     addPieceGraphically(_graphics_info._black_rook, "h8", "black");
 }
 
-void MainWindow::highlightLegalSquares(){
-    for (auto squareStr: _legal_destination_squares){
+void MainWindow::highlightLegalSquares(QString originSquare){
+    _legal_destination_squares_for_origin_square.clear();
+    for (auto move: _legal_moves_for_current_state){
+        if (QString::fromStdString(move._origin_square) == originSquare)
+            _legal_destination_squares_for_origin_square.append(QString::fromStdString(move._destination_square));
+    }
+    for (auto squareStr: _legal_destination_squares_for_origin_square){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
                 if (square->getDenotation()  == "white")
@@ -85,7 +99,7 @@ void MainWindow::highlightLegalSquares(){
 }
 
 void MainWindow::removeLegalSquaresHighlight(){
-    for (auto squareStr: _legal_destination_squares){
+    for (auto squareStr: _legal_destination_squares_for_origin_square){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
                 if (square->getDenotation()  == "white")
@@ -176,19 +190,19 @@ void MainWindow::startClickingMove(QString originSquare){
     _clicking_move_in_progress = true;
     _dragging_move_in_progress = false;
     _move_in_progress_origin_square = originSquare;
-    _legal_destination_squares = {"d4", "a3", "e4", "g5"};
-    highlightLegalSquares();
+    //_legal_destination_squares_for_origin_square = {"d4", "a3", "e4", "g5"};
+    highlightLegalSquares(originSquare);
     qDebug() << "started clicking move from: " + originSquare;
 }
 
 void MainWindow::completeClickingMove(QString destinationSquare){
     removeLegalSquaresHighlight();
-    if (!_legal_destination_squares.contains(destinationSquare)){
+    if (!_legal_destination_squares_for_origin_square.contains(destinationSquare)){
         qDebug() << "move was not legal";
         _clicking_move_in_progress = false;
         return;
     }
-    _legal_destination_squares.clear();
+    _legal_destination_squares_for_origin_square.clear();
     PieceWidget *pieceToMove;
     QPixmap pieceGraphic;
     QString denotation;
@@ -266,7 +280,7 @@ void MainWindow::setDraggingMoveReadyToComplete(){
 void MainWindow::completeDraggingMove(){
     _dragging_move_ready_to_complete = false;
     removeLegalSquaresHighlight();
-    if (!_legal_destination_squares.contains(_currently_hovered_square)){
+    if (!_legal_destination_squares_for_origin_square.contains(_currently_hovered_square)){
         qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
         removePieceGraphically(_piece_widget_currently_dragged);
@@ -275,7 +289,7 @@ void MainWindow::completeDraggingMove(){
         _piece_widget_currently_dragged = nullptr;
         return;
     }
-    _legal_destination_squares.clear();
+    _legal_destination_squares_for_origin_square.clear();
     _dragging_move_in_progress = false;
     removePieceGraphically(_piece_widget_currently_dragged);
     PieceWidget *pieceToMove;
@@ -284,10 +298,8 @@ void MainWindow::completeDraggingMove(){
             pieceToMove = piece;
         }
     }
-
     QString denotation = pieceToMove->denotation();
     removePieceGraphically(pieceToMove);
-
     addPieceGraphically(_pixmap_of_dragged_piece, _currently_hovered_square, denotation);
     _piece_widget_currently_dragged = nullptr;
     qDebug() << "completed dragging move to: " + _currently_hovered_square;

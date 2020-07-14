@@ -11,14 +11,25 @@ ChessGame::ChessGame(bool _user_is_white, string difficulty){
     _state_vector = new vector<State*>();
     _state_vector->push_back(_current_state);
     updatePGN();
-    //_current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state);
+    _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state);
 }
-
 
 ChessGame::~ChessGame(){
     for (auto state: *_state_vector)
         delete  state;
     delete _state_vector;
+}
+
+vector<Move> ChessGame::getLegalMovesForCurrentState(){
+    return _current_state->_legal_moves_from_state;
+}
+
+bool ChessGame::makeMove(string originSquare, string destinationSquare){
+    for (auto legalMoves: _current_state->_legal_moves_from_state){
+
+    }
+
+    return true;
 }
 
 string ChessGame::fenFromState(State state){
@@ -29,8 +40,6 @@ State* ChessGame::gameStartingState(){
     State *startingState = new State;
     startingState->_previous_state = nullptr;
     startingState->_colour_to_move = White;
-    startingState->_white_castled = false;
-    startingState->_black_castled = false;
     startingState->_number_of_moves = 0;
     startingState->_previous_state = nullptr;
     startingState->_moves_without_capture = 0;
@@ -76,6 +85,10 @@ void ChessGame::setBitBoardForState(State *state){
 }
 
 void ChessGame::setAlgebraicNotationForMove(Move move){
+
+}
+
+vector<Move> ChessGame::getLegalMovesForSquare(State *state, string square){
 
 }
 

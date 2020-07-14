@@ -44,7 +44,7 @@ public:
     void initiatePiecesGraphically();
     void removePieceGraphically(PieceWidget *piece);
 
-    void highlightLegalSquares();
+    void highlightLegalSquares(QString originSquare);
     void removeLegalSquaresHighlight();
 
     QPixmap setPixmapFromType(QString type);
@@ -112,7 +112,8 @@ private:
     bool _dragging_move_in_progress;
     bool _dragging_move_ready_to_complete;
     QString _move_in_progress_origin_square;
-    QVector<QString> _legal_destination_squares;
+    QVector<Move> _legal_moves_for_current_state;
+    QVector<QString> _legal_destination_squares_for_origin_square;
     PieceWidget *_piece_widget_currently_dragged;
     QPixmap _pixmap_of_dragged_piece;
     PieceWidget *_piece_widget_of_moved_from_square;

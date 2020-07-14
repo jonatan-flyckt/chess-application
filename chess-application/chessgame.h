@@ -27,10 +27,15 @@ public:
     void setBitBoardForState(State *state);
     void setAlgebraicNotationForMove(Move move);
 
+    vector<Move> getLegalMovesForSquare(State *state, string square);
+
+    bool makeMove(string originSquare, string destinationSquare);
+    vector<Move> getLegalMovesForCurrentState();
 private:
 
     ChessRules _rules;
     bool _is_game_over;
+    string _game_over_reason;
     bool _is_draw;
     bool _white_won;
     bool _black_won;
