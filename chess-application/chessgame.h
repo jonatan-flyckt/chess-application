@@ -6,6 +6,7 @@
 #include <map>
 #include <tuple>
 #include <chessstructs.h>
+#include <chessrules.h>
 #include <QDebug>
 
 using namespace std;
@@ -23,8 +24,12 @@ public:
     void initiatePieces(State *startingState);
 
     void setFenForState(State *state);
+    void setBitBoardForState(State *state);
+    void setAlgebraicNotationForMove(Move move);
+
 private:
 
+    ChessRules _rules;
     bool _is_game_over;
     bool _is_draw;
     bool _white_won;
