@@ -61,16 +61,104 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     resultingState->_board.at(rowFrom).at(colFrom) = nullptr;
     resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, pieceToMove._type);
 
-    if (moveToMake._move_type == Promotion || moveToMake._move_type == PromotionCapture){ //temp
-        resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, Queen);
-    }
+    //Handle castling info and moves
+    updateCastlingInfo(moveToMake, resultingState);
+    if (moveToMake._move_type == LongCastle || moveToMake._move_type == ShortCastle)
+        performCastlingMove(moveToMake, resultingState);
+    if (moveToMake._move_type == Promotion || moveToMake._move_type == PromotionCapture)
+        resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, _piece_selected_from_promotion);
+    if (moveToMake._move_type == Capture || moveToMake._move_type == PromotionCapture || moveToMake._move_type == EnPassant)
+        resultingState->_moves_without_capture = 0;
+    if (moveToMake._move_type == EnPassant)
+        performEnPassantMove(moveToMake, resultingState);
 
+
+    //TODO: 3 move repeating rule
     resultingState->_legal_moves_from_state = _rules.getLegalMoves(resultingState);
     //TODO: Check if game is over or if check occurred
     _state_vector->push_back(resultingState);
     _current_state = resultingState;
 
     return true;
+}
+
+void ChessGame::performEnPassantMove(Move move, State *state){
+    int rowFrom = IndicesFromSquareID(move._origin_square).first;
+    int colTo = IndicesFromSquareID(move._destination_square).second;
+    state->_board.at(rowFrom).at(colTo) == nullptr;
+}
+
+void ChessGame::performCastlingMove(Move move, State *state){
+    if (move._move_type == LongCastle){
+        if (move._colour_performing_move == White){
+            state->_board.at(0).at(0) = nullptr;
+            state->_board.at(0).at(4) = nullptr;
+            state->_board.at(0).at(2) = new Piece(White, King);
+            state->_board.at(0).at(3) = new Piece(White, Rook);
+        }
+        else{
+            state->_board.at(7).at(0) = nullptr;
+            state->_board.at(7).at(4) = nullptr;
+            state->_board.at(7).at(2) = new Piece(Black, King);
+            state->_board.at(7).at(3) = new Piece(Black, Rook);
+        }
+    }
+    if (move._move_type == ShortCastle){
+        if (move._colour_performing_move == White){
+            state->_board.at(0).at(7) = nullptr;
+            state->_board.at(0).at(4) = nullptr;
+            state->_board.at(0).at(6) = new Piece(White, King);
+            state->_board.at(0).at(5) = new Piece(White, Rook);
+        }
+        else{
+            state->_board.at(7).at(7) = nullptr;
+            state->_board.at(7).at(4) = nullptr;
+            state->_board.at(7).at(6) = new Piece(Black, King);
+            state->_board.at(7).at(5) = new Piece(Black, Rook);
+        }
+    }
+}
+
+PieceType ChessGame::getPiece_selected_from_promotion() const{
+    return _piece_selected_from_promotion;
+}
+
+void ChessGame::updateCastlingInfo(Move move, State *state){
+    if (move._piece._type == Rook){
+        if (move._piece._colour == White){
+            if (move._origin_square == "a1")
+                state->_castling_info._white_long_rook_has_moved = true;
+            else if (move._origin_square == "h1")
+                state->_castling_info._white_short_rook_has_moved = true;
+        }
+        else{
+            if (move._origin_square == "a8")
+                state->_castling_info._black_long_rook_has_moved = true;
+            else if (move._origin_square == "h8")
+                state->_castling_info._black_short_rook_has_moved = true;
+        }
+    }
+    else if (move._piece._type == King){
+        if (move._piece._colour == White)
+            state->_castling_info._white_king_has_moved = true;
+        else
+            state->_castling_info._black_king_has_moved = true;
+    }
+    if (move._move_type == LongCastle || move._move_type == ShortCastle){
+        if (move._piece._colour == White){
+            state->_castling_info._white_castled = true;
+            state->_castling_info._white_king_has_moved = true;
+        }
+        else{
+            state->_castling_info._black_castled = true;
+            state->_castling_info._black_king_has_moved = true;
+        }
+    }
+}
+
+void ChessGame::setPiece_selected_from_promotion(const PieceType &piece_selected_from_promotion)
+{
+    _piece_selected_from_promotion = piece_selected_from_promotion;
 }
 
 string ChessGame::fenFromState(State state){

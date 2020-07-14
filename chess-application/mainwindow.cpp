@@ -32,6 +32,15 @@ MainWindow::MainWindow(QWidget *parent)
     resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
 }
 
+void MainWindow::restartGame(Colour colour){
+    _user_is_white = colour == White;
+    _game = new ChessGame(_user_is_white);
+    _legal_moves_for_current_state.clear();
+    for (auto legalMove: _game->getLegalMovesForCurrentState()){
+        _legal_moves_for_current_state.append(legalMove);
+    }
+}
+
 MainWindow::~MainWindow(){
     clearBoardUI();
     if (_board_grid_layout != nullptr)
@@ -219,12 +228,12 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     removePieceGraphically(pieceToMove);
     _clicking_move_in_progress = false;
     _move_in_progress_origin_square = "";
+    if (_move_was_promotion)
+        performPawnPromotionGraphically(_promotion_move);
     qDebug() << "completed clicking move to: " + destinationSquare;
 }
 
 bool MainWindow::completeMove(QString destinationSquare){
-    if (!_game->makeMove(_move_in_progress_origin_square.toStdString(), destinationSquare.toStdString()))
-        return false;
     Move moveMade;
     for (auto move: _legal_moves_for_current_state){
         if (QString::fromStdString(move._origin_square) == _move_in_progress_origin_square &&
@@ -233,14 +242,98 @@ bool MainWindow::completeMove(QString destinationSquare){
             break;
         }
     }
+    if (moveMade._move_type == Promotion || moveMade._move_type == PromotionCapture){
+        //TODO: popup välj pjäs
+        _game->setPiece_selected_from_promotion(Queen);
+        _move_was_promotion = true;
+        _promotion_move = moveMade;
+    }
+    else
+        _move_was_promotion = false;
+    if (!_game->makeMove(_move_in_progress_origin_square.toStdString(), destinationSquare.toStdString()))
+        return false;
+
+    //TODO: Handle captures, castling, promotion, en passant graphically
+    //TODO: Only allow the user to move if its their turn
+
+    //Move the rook if castled (king is moved in normal move function)
+    if (moveMade._move_type == LongCastle || moveMade._move_type == ShortCastle)
+        moveRookForCastlingGraphically(moveMade);
+    if (moveMade._move_type == Capture || moveMade._move_type == PromotionCapture)
+        removeCapturedPieceGraphically(moveMade);
+    if (moveMade._move_type == EnPassant)
+        removeEnPassantCaptureGraphically(moveMade);
+
+
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
         _legal_moves_for_current_state.append(legalMove);
     }
-
-    //TODO: Handle captures, castling, promotion, en passant graphically
-    //TODO: Only allow the user to move if its their turn
+    //TODO: Check if it is check, game over and indicate graphically
     return true;
+}
+
+void MainWindow::performPawnPromotionGraphically(Move move){
+    QString square = QString::fromStdString(move._destination_square);
+    PieceWidget *pieceToRemove;
+    for (auto piece: _piece_widgets)
+        if (piece->piece_position() == square)
+            pieceToRemove = piece;
+    QPixmap pixmapOfPiece;
+    QString denotation = move._colour_performing_move == White ? "white" : "black";
+    if (_game->getPiece_selected_from_promotion() == Queen)
+        pixmapOfPiece = move._colour_performing_move == White ? _graphics_info._white_queen : _graphics_info._black_queen;
+    else if (_game->getPiece_selected_from_promotion() == Rook)
+        pixmapOfPiece = move._colour_performing_move == White ? _graphics_info._white_rook : _graphics_info._black_rook;
+    else if (_game->getPiece_selected_from_promotion() == Bishop)
+        pixmapOfPiece = move._colour_performing_move == White ? _graphics_info._white_bishop : _graphics_info._black_bishop;
+    else if (_game->getPiece_selected_from_promotion() == Knight)
+        pixmapOfPiece = move._colour_performing_move == White ? _graphics_info._white_knight : _graphics_info._black_knight;
+    removePieceGraphically(pieceToRemove);
+    addPieceGraphically(pixmapOfPiece, square, denotation);
+}
+
+void MainWindow::removeEnPassantCaptureGraphically(Move move){
+    int rowFrom = _game->IndicesFromSquareID(move._origin_square).first;
+    int colTo = _game->IndicesFromSquareID(move._destination_square).second;
+    QString square = QString::fromStdString(_game->squareIDFromIndices(rowFrom, colTo));
+    PieceWidget *pieceToRemove;
+    for (auto piece: _piece_widgets)
+        if (piece->piece_position() == square)
+            pieceToRemove = piece;
+    removePieceGraphically(pieceToRemove);
+}
+
+void MainWindow::removeCapturedPieceGraphically(Move move){
+    QString square = QString::fromStdString(move._destination_square);
+    PieceWidget *pieceToRemove;
+    for (auto piece: _piece_widgets)
+        if (piece->piece_position() == square)
+            pieceToRemove = piece;
+    removePieceGraphically(pieceToRemove);
+}
+
+void MainWindow::moveRookForCastlingGraphically(Move move){
+    QString rookOrigin;
+    QString rookDestination;
+    if (move._colour_performing_move == White){
+        rookOrigin = move._move_type == LongCastle ? "a1" : "h1";
+        rookDestination = move._move_type == LongCastle ? "d1" : "f1";
+    }
+    else{
+        rookOrigin = move._move_type == LongCastle ? "a8" : "h8";
+        rookDestination = move._move_type == LongCastle ? "d8" : "f8";
+    }
+    PieceWidget *pieceToMove;
+    for (auto piece: _piece_widgets){
+        if (piece->piece_position() == rookOrigin){
+            pieceToMove = piece;
+        }
+    }
+    QPixmap pixmapOfPiece = pieceToMove->piece_pixmap();
+    QString denotation = pieceToMove->denotation();
+    removePieceGraphically(pieceToMove);
+    addPieceGraphically(pixmapOfPiece, rookDestination, denotation);
 }
 
 void MainWindow::startDraggingMove(QString originSquare){
@@ -334,6 +427,8 @@ void MainWindow::completeDraggingMove(){
     removePieceGraphically(pieceToMove);
     addPieceGraphically(_pixmap_of_dragged_piece, _currently_hovered_square, denotation);
     _piece_widget_currently_dragged = nullptr;
+    if (_move_was_promotion)
+        performPawnPromotionGraphically(_promotion_move);
     qDebug() << "completed dragging move to: " + _currently_hovered_square;
 }
 
@@ -371,6 +466,7 @@ void MainWindow::setPlayerWhite(){
     _user_is_white = true;
     _set_white_button->setEnabled(false);
     _set_black_button->setEnabled(true);
+    restartGame(White);
     initiateBoardSquaresUI();
     initiatePiecesGraphically();
 }
@@ -380,6 +476,7 @@ void MainWindow::setPlayerBlack(){
     _user_is_white = false;
     _set_white_button->setEnabled(true);
     _set_black_button->setEnabled(false);
+    restartGame(Black);
     initiateBoardSquaresUI();
     initiatePiecesGraphically();
 }

@@ -54,6 +54,12 @@ public:
     void resizeEvent(QResizeEvent* event);
 
     bool completeMove(QString destinationSquare);
+    void restartGame(Colour colour);
+
+    void moveRookForCastlingGraphically(Move move);
+    void performPawnPromotionGraphically(Move move);
+    void removeCapturedPieceGraphically(Move move);
+    void removeEnPassantCaptureGraphically(Move move);
 signals:
     void on_set_white_button_clicked();
 
@@ -112,6 +118,8 @@ private:
     bool _clicking_move_in_progress;
     bool _dragging_move_in_progress;
     bool _dragging_move_ready_to_complete;
+    bool _move_was_promotion;
+    Move _promotion_move;
     QString _move_in_progress_origin_square;
     QVector<Move> _legal_moves_for_current_state;
     QVector<QString> _legal_destination_squares_for_origin_square;

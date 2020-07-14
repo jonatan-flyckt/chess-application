@@ -32,6 +32,14 @@ public:
     bool makeMove(string originSquare, string destinationSquare);
     vector<Move> getLegalMovesForCurrentState();
     pair<int, int> IndicesFromSquareID(string square);
+    void updateCastlingInfo(Move move, State *state);
+
+    void setPiece_selected_from_promotion(const PieceType &piece_selected_from_promotion);
+
+    void performCastlingMove(Move move, State *state);
+    PieceType getPiece_selected_from_promotion() const;
+
+    void performEnPassantMove(Move move, State *state);
 private:
 
     ChessRules _rules;
@@ -44,6 +52,8 @@ private:
     State *_current_state;
     vector<State*> *_state_vector;
     string _difficulty;
+
+    PieceType _piece_selected_from_promotion;
 
     string _pgn;
 
