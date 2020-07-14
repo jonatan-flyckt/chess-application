@@ -202,6 +202,8 @@ void MainWindow::completeClickingMove(QString destinationSquare){
         _clicking_move_in_progress = false;
         return;
     }
+    if (!completeMove(destinationSquare))
+        return;
     _legal_destination_squares_for_origin_square.clear();
     PieceWidget *pieceToMove;
     QPixmap pieceGraphic;
@@ -218,6 +220,27 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     _clicking_move_in_progress = false;
     _move_in_progress_origin_square = "";
     qDebug() << "completed clicking move to: " + destinationSquare;
+}
+
+bool MainWindow::completeMove(QString destinationSquare){
+    if (!_game->makeMove(_move_in_progress_origin_square.toStdString(), destinationSquare.toStdString()))
+        return false;
+    Move moveMade;
+    for (auto move: _legal_moves_for_current_state){
+        if (QString::fromStdString(move._origin_square) == _move_in_progress_origin_square &&
+                QString::fromStdString(move._destination_square) == destinationSquare) {
+            moveMade = move;
+            break;
+        }
+    }
+    _legal_moves_for_current_state.clear();
+    for (auto legalMove: _game->getLegalMovesForCurrentState()){
+        _legal_moves_for_current_state.append(legalMove);
+    }
+
+    //TODO: Handle captures, castling, promotion, en passant graphically
+    //TODO: Only allow the user to move if its their turn
+    return true;
 }
 
 void MainWindow::startDraggingMove(QString originSquare){
@@ -281,6 +304,15 @@ void MainWindow::completeDraggingMove(){
     _dragging_move_ready_to_complete = false;
     removeLegalSquaresHighlight();
     if (!_legal_destination_squares_for_origin_square.contains(_currently_hovered_square)){
+        qDebug() << "move was not legal";
+        _dragging_move_in_progress = false;
+        removePieceGraphically(_piece_widget_currently_dragged);
+        _piece_widget_of_moved_from_square->setPiece_pixmap(_pixmap_of_dragged_piece);
+        _piece_widget_of_moved_from_square->populateWithPixmap();
+        _piece_widget_currently_dragged = nullptr;
+        return;
+    }
+    if (!completeMove(_currently_hovered_square)){
         qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
         removePieceGraphically(_piece_widget_currently_dragged);

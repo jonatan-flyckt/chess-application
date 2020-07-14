@@ -133,7 +133,10 @@ vector<Move> ChessRules::getMovesForKing(State *state, vector<vector<Piece *> > 
 
 bool ChessRules::squareIsUnderAttack(int row, int col, State *state){
     //threateningMoves include moves that are illegal due to revealing check of own king, but that need to be considered here
-    vector<Move> threateningMoves = getLegalMoves(state, false);
+    State *fakeState = new State();
+    memcpy(fakeState, state, sizeof(State));
+    fakeState->_colour_to_move = state->_colour_to_move == White ? Black : White;
+    vector<Move> threateningMoves = getLegalMoves(fakeState, false);
     string squareID = squareIDFromIndices(row, col);
     for (auto move: threateningMoves)
         if (move._destination_square == squareID)
@@ -251,21 +254,21 @@ vector<Move> ChessRules::getMovesForPawn(vector<vector<Piece *> > board, Colour 
                     if (IndicesFromSquareID(previousMove._destination_square).second - 1 == col){
                         if (colourToMove == White)
                             pawnMoves.push_back(Move(colourToMove, Piece(colourToMove, type),
-                                                     squareIDFromIndices(row, col), squareIDFromIndices(row+1, col-1),
-                                                     previousMoveNumber+1, EnPassant));
-                        else
-                            pawnMoves.push_back(Move(colourToMove, Piece(colourToMove, type),
-                                                     squareIDFromIndices(row, col), squareIDFromIndices(row-1, col-1),
-                                                     previousMoveNumber+1, EnPassant));
-                    }
-                    if (IndicesFromSquareID(previousMove._destination_square).second + 1 == col){
-                        if (colourToMove == White)
-                            pawnMoves.push_back(Move(colourToMove, Piece(colourToMove, type),
                                                      squareIDFromIndices(row, col), squareIDFromIndices(row+1, col+1),
                                                      previousMoveNumber+1, EnPassant));
                         else
                             pawnMoves.push_back(Move(colourToMove, Piece(colourToMove, type),
                                                      squareIDFromIndices(row, col), squareIDFromIndices(row-1, col+1),
+                                                     previousMoveNumber+1, EnPassant));
+                    }
+                    if (IndicesFromSquareID(previousMove._destination_square).second + 1 == col){
+                        if (colourToMove == White)
+                            pawnMoves.push_back(Move(colourToMove, Piece(colourToMove, type),
+                                                     squareIDFromIndices(row, col), squareIDFromIndices(row+1, col-1),
+                                                     previousMoveNumber+1, EnPassant));
+                        else
+                            pawnMoves.push_back(Move(colourToMove, Piece(colourToMove, type),
+                                                     squareIDFromIndices(row, col), squareIDFromIndices(row-1, col-1),
                                                      previousMoveNumber+1, EnPassant));
                     }
                 }
@@ -292,11 +295,13 @@ vector<Move> ChessRules::getMovesForBishop(vector<vector<Piece*>> board, Colour 
     string originID = squareIDFromIndices(row, col);
 
     for (int i = row, j = col; i < 8 && j < 8; i++, j++){
+        if (i == row && j == col)
+            continue;
         if (board.at(i).at(j) == nullptr){
             bishopMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
                                      squareIDFromIndices(i, j), previousMoveNumber+1));
         }
-        else if (board.at(i).at(col)->_colour == opponentColour){
+        else if (board.at(i).at(j)->_colour == opponentColour){
             Move move = Move(colourToMove, Piece(colourToMove, type), originID,
                              squareIDFromIndices(i, j), previousMoveNumber+1, Capture);
             bishopMoves.push_back(move);
@@ -307,26 +312,30 @@ vector<Move> ChessRules::getMovesForBishop(vector<vector<Piece*>> board, Colour 
     }
 
     for (int i = row, j = col; i < 8 && j >= 0; i++, j--){
+        if (i == row && j == col)
+            continue;
         if (board.at(i).at(j) == nullptr){
             bishopMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
                                      squareIDFromIndices(i, j), previousMoveNumber+1));
         }
-        else if (board.at(i).at(col)->_colour == opponentColour){
+        else if (board.at(i).at(j)->_colour == opponentColour){
             Move move = Move(colourToMove, Piece(colourToMove, type), originID,
                              squareIDFromIndices(i, j), previousMoveNumber+1, Capture);
             bishopMoves.push_back(move);
             break;
         }
         else
-            break;
+           break;
     }
 
     for (int i = row, j = col; i >= 0 && j < 8; i--, j++){
+        if (i == row && j == col)
+            continue;
         if (board.at(i).at(j) == nullptr){
             bishopMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
                                      squareIDFromIndices(i, j), previousMoveNumber+1));
         }
-        else if (board.at(i).at(col)->_colour == opponentColour){
+        else if (board.at(i).at(j)->_colour == opponentColour){
             Move move = Move(colourToMove, Piece(colourToMove, type), originID,
                              squareIDFromIndices(i, j), previousMoveNumber+1, Capture);
             bishopMoves.push_back(move);
@@ -337,11 +346,13 @@ vector<Move> ChessRules::getMovesForBishop(vector<vector<Piece*>> board, Colour 
     }
 
     for (int i = row, j = col; i >= 0 && j >= 0; i--, j--){
+        if (i == row && j == col)
+            continue;
         if (board.at(i).at(j) == nullptr){
             bishopMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
                                      squareIDFromIndices(i, j), previousMoveNumber+1));
         }
-        else if (board.at(i).at(col)->_colour == opponentColour){
+        else if (board.at(i).at(j)->_colour == opponentColour){
             Move move = Move(colourToMove, Piece(colourToMove, type), originID,
                              squareIDFromIndices(i, j), previousMoveNumber+1, Capture);
             bishopMoves.push_back(move);
@@ -358,6 +369,8 @@ vector<Move> ChessRules::getMovesForRook(vector<vector<Piece*>> board, Colour co
     vector<Move> rookMoves;
     string originID = squareIDFromIndices(row, col);
     for (int i = row; i < 8; i++){
+        if (i == row)
+            continue;
         if (board.at(i).at(col) == nullptr){
             rookMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
                                      squareIDFromIndices(i, col), previousMoveNumber+1));
@@ -372,6 +385,8 @@ vector<Move> ChessRules::getMovesForRook(vector<vector<Piece*>> board, Colour co
             break;
     }
     for (int i = row; i >= 0; i--){
+        if (i == row)
+            continue;
         if (board.at(i).at(col) == nullptr){
             rookMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
                                      squareIDFromIndices(i, col), previousMoveNumber+1));
@@ -387,6 +402,8 @@ vector<Move> ChessRules::getMovesForRook(vector<vector<Piece*>> board, Colour co
     }
 
     for (int i = col; i < 8; i++){
+        if (i == col)
+            continue;
         if (board.at(row).at(i) == nullptr){
             rookMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
                                      squareIDFromIndices(row, i), previousMoveNumber+1));
@@ -401,6 +418,8 @@ vector<Move> ChessRules::getMovesForRook(vector<vector<Piece*>> board, Colour co
             break;
     }
     for (int i = col; i >= 0; i--){
+        if (i == col)
+            continue;
         if (board.at(row).at(i) == nullptr){
             rookMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
                                      squareIDFromIndices(row, i), previousMoveNumber+1));
@@ -451,7 +470,7 @@ string ChessRules::squareIDFromIndices(int row, int col){
 pair<int, int> ChessRules::IndicesFromSquareID(string square){
     int row;
     int col;
-    row = stoi(square.substr(1, 1));
+    row = stoi(square.substr(1, 1))-1;
     for (int i = 0; i < _cols_from_index.size(); i++){
         if (_cols_from_index.at(i) == square.substr(0, 1)){
             col = i;

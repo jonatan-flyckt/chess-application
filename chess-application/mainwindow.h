@@ -53,6 +53,7 @@ public:
 
     void resizeEvent(QResizeEvent* event);
 
+    bool completeMove(QString destinationSquare);
 signals:
     void on_set_white_button_clicked();
 

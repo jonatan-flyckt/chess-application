@@ -25,9 +25,50 @@ vector<Move> ChessGame::getLegalMovesForCurrentState(){
 }
 
 bool ChessGame::makeMove(string originSquare, string destinationSquare){
-    for (auto legalMoves: _current_state->_legal_moves_from_state){
-
+    Move moveToMake;
+    bool moveWasLegal = false;
+    for (auto move: _current_state->_legal_moves_from_state){
+        if (move._origin_square == originSquare && move._destination_square == destinationSquare){
+            moveToMake = move;
+            moveWasLegal = true;
+        }
     }
+    if (!moveWasLegal)
+        return false;
+
+    _current_state->_move_from_state = moveToMake;
+
+    int rowFrom = IndicesFromSquareID(originSquare).first;
+    int colFrom = IndicesFromSquareID(originSquare).second;
+    int rowTo = IndicesFromSquareID(destinationSquare).first;
+    int colTo = IndicesFromSquareID(destinationSquare).second;
+
+    Piece pieceToMove = moveToMake._piece;
+
+    State *resultingState = new State();
+    resultingState->_colour_to_move = _current_state->_colour_to_move == White ? Black : White;
+    resultingState->_move_to_state = moveToMake;
+    resultingState->_previous_state = _current_state;
+    resultingState->_number_of_moves = _current_state->_number_of_moves+1;
+    resultingState->_moves_without_capture = (moveToMake._move_type == Capture || moveToMake._move_type == EnPassant || moveToMake._move_type == PromotionCapture) ? _current_state->_moves_without_capture+1 : 0;
+    resultingState->_castling_info = _current_state->_castling_info; //TODO: Check if move was castling
+
+    for (int i = 0; i < _current_state->_board.size(); i++){
+        for (int j = 0; j < _current_state->_board.at(i).size(); j++){
+            resultingState->_board.at(i).at(j) = _current_state->_board.at(i).at(j);
+        }
+    }
+    resultingState->_board.at(rowFrom).at(colFrom) = nullptr;
+    resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, pieceToMove._type);
+
+    if (moveToMake._move_type == Promotion || moveToMake._move_type == PromotionCapture){ //temp
+        resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, Queen);
+    }
+
+    resultingState->_legal_moves_from_state = _rules.getLegalMoves(resultingState);
+    //TODO: Check if game is over or if check occurred
+    _state_vector->push_back(resultingState);
+    _current_state = resultingState;
 
     return true;
 }
@@ -94,7 +135,20 @@ vector<Move> ChessGame::getLegalMovesForSquare(State *state, string square){
 
 string ChessGame::squareIDFromIndices(int row, int col){
     string squareID = "";
-    squareID.append(colsFromIndex.at(col));
+    squareID.append(_cols_from_index.at(col));
     squareID.append(to_string(row+1));
     return squareID;
+}
+
+pair<int, int> ChessGame::IndicesFromSquareID(string square){
+    int row;
+    int col;
+    row = stoi(square.substr(1, 1))-1;
+    for (int i = 0; i < _cols_from_index.size(); i++){
+        if (_cols_from_index.at(i) == square.substr(0, 1)){
+            col = i;
+            break;
+        }
+    }
+    return make_pair(row, col);
 }

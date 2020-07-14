@@ -31,6 +31,7 @@ public:
 
     bool makeMove(string originSquare, string destinationSquare);
     vector<Move> getLegalMovesForCurrentState();
+    pair<int, int> IndicesFromSquareID(string square);
 private:
 
     ChessRules _rules;
@@ -46,7 +47,7 @@ private:
 
     string _pgn;
 
-    vector<string> colsFromIndex{"a", "b", "c", "d", "e", "f", "g", "h"};
+    vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
 };
 
 #endif // CHESSGAME_H
