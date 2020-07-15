@@ -530,12 +530,54 @@ vector<Move> ChessRules::getMovesForRook(vector<vector<Piece*>> board, Colour co
     return rookMoves;
 }
 
-bool ChessRules::isWhiteCheck(State *state){
-
+bool ChessRules::whiteKingIsInCheck(State *state){
+    string whiteKingSquare;
+    for (int i = 0; i < state->_board.size(); i++){
+        for (int j = 0; j < state->_board.at(i).size(); j++){
+            if (state->_board.at(i).at(j) != nullptr){
+                if (state->_board.at(i).at(j)->_type == King &&
+                        state->_board.at(i).at(j)->_colour == White){
+                    whiteKingSquare = squareIDFromIndices(i, j);
+                    break;
+                }
+            }
+        }
+    }
+    State *fakeState = new State();
+    *fakeState = *state;
+    fakeState->_colour_to_move = Black;
+    vector<Move> legalResultingMovesForBlack = getLegalMoves(fakeState, Queen, false);
+    for (auto move: legalResultingMovesForBlack){
+        if (move._destination_square == whiteKingSquare){
+            return true;
+        }
+    }
+    return false;
 }
 
-bool ChessRules::isBlackCheck(State *state){
-
+bool ChessRules::blackKingIsInCheck(State *state){
+    string blackKingSquare;
+    for (int i = 0; i < state->_board.size(); i++){
+        for (int j = 0; j < state->_board.at(i).size(); j++){
+            if (state->_board.at(i).at(j) != nullptr){
+                if (state->_board.at(i).at(j)->_type == King &&
+                        state->_board.at(i).at(j)->_colour == Black){
+                    blackKingSquare = squareIDFromIndices(i, j);
+                    break;
+                }
+            }
+        }
+    }
+    State *fakeState = new State();
+    *fakeState = *state;
+    fakeState->_colour_to_move = White;
+    vector<Move> legalResultingMovesForWhite = getLegalMoves(fakeState, Queen, false);
+    for (auto move: legalResultingMovesForWhite){
+        if (move._destination_square == blackKingSquare){
+            return true;
+        }
+    }
+    return false;
 }
 
 bool ChessRules::isGameOver(State *state){

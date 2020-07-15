@@ -79,13 +79,16 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     _state_vector->push_back(resultingState);
     _current_state = resultingState;
 
+    _current_state->_white_king_is_in_check = _rules.whiteKingIsInCheck(_current_state);
+    _current_state->_black_king_is_in_check = _rules.blackKingIsInCheck(_current_state);
+
     return true;
 }
 
 void ChessGame::performEnPassantMove(Move move, State *state){
     int rowFrom = IndicesFromSquareID(move._origin_square).first;
     int colTo = IndicesFromSquareID(move._destination_square).second;
-    state->_board.at(rowFrom).at(colTo) == nullptr;
+    state->_board.at(rowFrom).at(colTo) = nullptr;
 }
 
 State *ChessGame::getCurrent_state() const

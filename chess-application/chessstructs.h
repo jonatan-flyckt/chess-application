@@ -65,8 +65,8 @@ struct State{
     int _moves_without_capture;
 
     bool _is_game_over;
-    bool _is_white_check;
-    bool _is_black_check;
+    bool _white_king_is_in_check;
+    bool _black_king_is_in_check;
 
     //Nnumber of moves to reach this state (white + black)
     int _number_of_moves;

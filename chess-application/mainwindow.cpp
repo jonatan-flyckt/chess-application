@@ -336,6 +336,23 @@ bool MainWindow::completeMove(QString destinationSquare){
     if (moveMade._move_type == EnPassant)
         removeEnPassantCapturedPieceGraphically(moveMade);
 
+    QString whiteKingSquare;
+    QString blackKingSquare;
+    State *currentState = _game->getCurrent_state();
+    for (int i = 0; i < currentState->_board.size(); i++){
+        for (int j = 0; j < currentState->_board.at(i).size(); j++){
+            if (currentState->_board.at(i).at(j) != nullptr){
+                if (currentState->_board.at(i).at(j)->_type == King){
+                    if (currentState->_board.at(i).at(j)->_colour == White)
+                        whiteKingSquare = QString::fromStdString(_game->squareIDFromIndices(i, j));
+                    else
+                        blackKingSquare = QString::fromStdString(_game->squareIDFromIndices(i, j));
+                }
+            }
+        }
+    }
+    currentState->_white_king_is_in_check ? highlightCheck(whiteKingSquare, White) : doNotHightlightCheck(whiteKingSquare, White);
+    currentState->_black_king_is_in_check ? highlightCheck(blackKingSquare, Black) : doNotHightlightCheck(blackKingSquare, Black);
 
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
@@ -344,6 +361,28 @@ bool MainWindow::completeMove(QString destinationSquare){
     highlightPreviousMove();
     //TODO: Check if it is check, game over and indicate graphically
     return true;
+}
+
+void MainWindow::highlightCheck(QString squareStr, Colour colour){
+    for (auto square: _square_widgets){
+        if (square->id() == squareStr){
+            if (colour == White)
+                square->changePixmap(_graphics_info._check_highlight_white);
+            else
+                square->changePixmap(_graphics_info._check_highlight_black);
+        }
+    }
+}
+
+void MainWindow::doNotHightlightCheck(QString squareStr, Colour colour){
+    for (auto square: _square_widgets){
+        if (square->id() == squareStr){
+            if (colour == White)
+                square->changePixmap(_graphics_info._white_square);
+            else
+                square->changePixmap(_graphics_info._black_square);
+        }
+    }
 }
 
 void MainWindow::performPawnPromotionGraphically(Move move){

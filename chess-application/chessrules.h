@@ -10,11 +10,11 @@ class ChessRules
 public:
     ChessRules();
 
-    vector<Move> getLegalMoves(State *state, PieceType promotionPiece, bool checkIfCheck = true);
+    vector<Move> getLegalMoves(State *state, PieceType promotionPiece = Queen, bool checkIfCheck = true);
 
-    bool isWhiteCheck(State *state);
+    bool whiteKingIsInCheck(State *state);
 
-    bool isBlackCheck(State *state);
+    bool blackKingIsInCheck(State *state);
 
     bool isGameOver(State *state);
 
