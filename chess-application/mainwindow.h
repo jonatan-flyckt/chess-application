@@ -59,7 +59,7 @@ public:
     void moveRookForCastlingGraphically(Move move);
     void performPawnPromotionGraphically(Move move);
     void removeCapturedPieceGraphically(Move move);
-    void removeEnPassantCaptureGraphically(Move move);
+    void removeEnPassantCapturedPieceGraphically(Move move);
 signals:
     void on_set_white_button_clicked();
 

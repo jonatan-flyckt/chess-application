@@ -4,7 +4,7 @@ ChessRules::ChessRules(){
 
 }
 
-vector<Move> ChessRules::getLegalMoves(State *state, bool checkIfCheck){
+vector<Move> ChessRules::getLegalMoves(State *state, PieceType promotionPiece, bool checkIfCheck){
     vector<Move> legalMoves;
     Colour colourToMove = state->_colour_to_move;
     int numberOfMoves = state->_number_of_moves;
@@ -43,13 +43,107 @@ vector<Move> ChessRules::getLegalMoves(State *state, bool checkIfCheck){
     }
     //checkIfCheck is true when checking for legal moves, false when checking for which squares are under attack
     if (checkIfCheck)
-        legalMoves = checkIfMovesCauseCheck(legalMoves, board, colourToMove);
+        legalMoves = checkIfMovesCauseCheckForSelf(legalMoves, board, colourToMove, state, promotionPiece);
     return legalMoves;
 }
 
-vector<Move> ChessRules::checkIfMovesCauseCheck(vector<Move> movesToCheck, vector<vector<Piece*>> board, Colour colourToMove){
-    //TODO: implement function
-    return movesToCheck;
+vector<Move> ChessRules::checkIfMovesCauseCheckForSelf(vector<Move> movesToCheck, vector<vector<Piece*>> board, Colour colourToMove, State *state, PieceType promotionPiece){
+    vector<Move> nonCheckMoves;
+
+    for (auto move: movesToCheck){
+        string originSquare = move._origin_square;
+        string destinationSquare = move._destination_square;
+        int rowFrom = IndicesFromSquareID(originSquare).first;
+        int colFrom = IndicesFromSquareID(originSquare).second;
+        int rowTo = IndicesFromSquareID(destinationSquare).first;
+        int colTo = IndicesFromSquareID(destinationSquare).second;
+        Piece pieceToMove = move._piece;
+        State *resultingState = new State();
+        resultingState->_colour_to_move = move._colour_performing_move == White ? Black : White;
+        resultingState->_move_to_state = move;
+        resultingState->_previous_state = state;
+        resultingState->_castling_info = state->_castling_info;
+        for (int i = 0; i < state->_board.size(); i++){
+            for (int j = 0; j < state->_board.at(i).size(); j++){
+                resultingState->_board.at(i).at(j) = state->_board.at(i).at(j);
+            }
+        }
+        resultingState->_board.at(rowFrom).at(colFrom) = nullptr;
+        resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, pieceToMove._type);
+        if (move._move_type == LongCastle || move._move_type == ShortCastle)
+            performCheckCheckCastlingMove(move, resultingState);
+        if (move._move_type == Promotion || move._move_type == PromotionCapture)
+            resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, promotionPiece);
+        if (move._move_type == Capture || move._move_type == PromotionCapture || move._move_type == EnPassant)
+            resultingState->_moves_without_capture = 0;
+        if (move._move_type == EnPassant)
+            performCheckCheckEnPassantMove(move, resultingState);
+
+        string kingSquare;
+        if (move._piece._type == King){
+            kingSquare = move._destination_square;
+        }
+        else{
+            for (int i = 0; i < state->_board.size(); i++){
+                for (int j = 0; j < state->_board.at(i).size(); j++){
+                    if (board.at(i).at(j) != nullptr){
+                        if (board.at(i).at(j)->_type == King && board.at(i).at(j)->_colour == move._colour_performing_move)
+                            kingSquare = squareIDFromIndices(i, j);
+                    }
+                }
+            }
+        }
+
+        qDebug() << QString::fromStdString(kingSquare);
+        vector<Move> resultingLegalMoves = getLegalMoves(resultingState, promotionPiece, false);
+        bool moveCausedCheck = false;
+        for (auto resultingMove: resultingLegalMoves){
+            if (resultingMove._destination_square == kingSquare){
+                moveCausedCheck = true;
+                break;
+            }
+        }
+        if (!moveCausedCheck)
+            nonCheckMoves.push_back(move);
+    }
+    return nonCheckMoves;
+}
+
+void ChessRules::performCheckCheckEnPassantMove(Move move, State *state){
+    int rowFrom = IndicesFromSquareID(move._origin_square).first;
+    int colTo = IndicesFromSquareID(move._destination_square).second;
+    state->_board.at(rowFrom).at(colTo) == nullptr;
+}
+
+void ChessRules::performCheckCheckCastlingMove(Move move, State *state){
+    if (move._move_type == LongCastle){
+        if (move._colour_performing_move == White){
+            state->_board.at(0).at(0) = nullptr;
+            state->_board.at(0).at(4) = nullptr;
+            state->_board.at(0).at(2) = new Piece(White, King);
+            state->_board.at(0).at(3) = new Piece(White, Rook);
+        }
+        else{
+            state->_board.at(7).at(0) = nullptr;
+            state->_board.at(7).at(4) = nullptr;
+            state->_board.at(7).at(2) = new Piece(Black, King);
+            state->_board.at(7).at(3) = new Piece(Black, Rook);
+        }
+    }
+    if (move._move_type == ShortCastle){
+        if (move._colour_performing_move == White){
+            state->_board.at(0).at(7) = nullptr;
+            state->_board.at(0).at(4) = nullptr;
+            state->_board.at(0).at(6) = new Piece(White, King);
+            state->_board.at(0).at(5) = new Piece(White, Rook);
+        }
+        else{
+            state->_board.at(7).at(7) = nullptr;
+            state->_board.at(7).at(4) = nullptr;
+            state->_board.at(7).at(6) = new Piece(Black, King);
+            state->_board.at(7).at(5) = new Piece(Black, Rook);
+        }
+    }
 }
 
 vector<Move> ChessRules::getMovesForKnight(vector<vector<Piece*>> board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type){
@@ -136,7 +230,7 @@ bool ChessRules::squareIsUnderAttack(int row, int col, State *state){
     State *fakeState = new State();
     memcpy(fakeState, state, sizeof(State));
     fakeState->_colour_to_move = state->_colour_to_move == White ? Black : White;
-    vector<Move> threateningMoves = getLegalMoves(fakeState, false);
+    vector<Move> threateningMoves = getLegalMoves(fakeState, Queen, false);
     string squareID = squareIDFromIndices(row, col);
     for (auto move: threateningMoves)
         if (move._destination_square == squareID)

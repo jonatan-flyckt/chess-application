@@ -262,7 +262,7 @@ bool MainWindow::completeMove(QString destinationSquare){
     if (moveMade._move_type == Capture || moveMade._move_type == PromotionCapture)
         removeCapturedPieceGraphically(moveMade);
     if (moveMade._move_type == EnPassant)
-        removeEnPassantCaptureGraphically(moveMade);
+        removeEnPassantCapturedPieceGraphically(moveMade);
 
 
     _legal_moves_for_current_state.clear();
@@ -293,7 +293,7 @@ void MainWindow::performPawnPromotionGraphically(Move move){
     addPieceGraphically(pixmapOfPiece, square, denotation);
 }
 
-void MainWindow::removeEnPassantCaptureGraphically(Move move){
+void MainWindow::removeEnPassantCapturedPieceGraphically(Move move){
     int rowFrom = _game->IndicesFromSquareID(move._origin_square).first;
     int colTo = _game->IndicesFromSquareID(move._destination_square).second;
     QString square = QString::fromStdString(_game->squareIDFromIndices(rowFrom, colTo));

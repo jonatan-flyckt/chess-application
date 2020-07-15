@@ -11,7 +11,7 @@ ChessGame::ChessGame(bool _user_is_white, string difficulty){
     _state_vector = new vector<State*>();
     _state_vector->push_back(_current_state);
     updatePGN();
-    _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state);
+    _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state, Queen);
 }
 
 ChessGame::~ChessGame(){
@@ -51,7 +51,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     resultingState->_previous_state = _current_state;
     resultingState->_number_of_moves = _current_state->_number_of_moves+1;
     resultingState->_moves_without_capture = (moveToMake._move_type == Capture || moveToMake._move_type == EnPassant || moveToMake._move_type == PromotionCapture) ? _current_state->_moves_without_capture+1 : 0;
-    resultingState->_castling_info = _current_state->_castling_info; //TODO: Check if move was castling
+    resultingState->_castling_info = _current_state->_castling_info;
 
     for (int i = 0; i < _current_state->_board.size(); i++){
         for (int j = 0; j < _current_state->_board.at(i).size(); j++){
@@ -74,7 +74,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
 
 
     //TODO: 3 move repeating rule
-    resultingState->_legal_moves_from_state = _rules.getLegalMoves(resultingState);
+    resultingState->_legal_moves_from_state = _rules.getLegalMoves(resultingState, _piece_selected_from_promotion);
     //TODO: Check if game is over or if check occurred
     _state_vector->push_back(resultingState);
     _current_state = resultingState;
