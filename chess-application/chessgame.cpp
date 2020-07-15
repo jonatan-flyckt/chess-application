@@ -72,15 +72,29 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     if (moveToMake._move_type == EnPassant)
         performEnPassantMove(moveToMake, resultingState);
 
-
-    //TODO: 3 move repeating rule
     resultingState->_legal_moves_from_state = _rules.getLegalMoves(resultingState, _piece_selected_from_promotion);
-    //TODO: Check if game is over or if check occurred
     _state_vector->push_back(resultingState);
     _current_state = resultingState;
-
     _current_state->_white_king_is_in_check = _rules.whiteKingIsInCheck(_current_state);
     _current_state->_black_king_is_in_check = _rules.blackKingIsInCheck(_current_state);
+
+    if (_current_state->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
+        _is_game_over = true;
+        if (_current_state->_colour_to_move == Black && _current_state->_black_king_is_in_check){
+            _white_won = true;
+            _game_over_reason = "Check Mate";
+        }
+        else if (_current_state->_colour_to_move == White && _current_state->_white_king_is_in_check){
+            _black_won = true;
+            _game_over_reason = "Check Mate";
+        }
+        else{
+            _is_draw = true;
+            _game_over_reason = "Stalemate";
+        }
+    }
+
+    //TODO: 3 move repeating rule and other game enders
 
     return true;
 }

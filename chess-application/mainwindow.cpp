@@ -219,7 +219,7 @@ void MainWindow::initiateUIComponents(){
     QFont f( "Arial", 15);
     _info_label->setFont(f);
     _info_label->setStyleSheet("color: rgb(255, 0, 0)");
-    _main_grid_layout->addWidget(_info_label, 0, 0);
+    _main_grid_layout->addWidget(_info_label, 0, 1);
 
     _set_white_button = new QPushButton(this);
     _set_white_button->setText("Play as white");
@@ -305,6 +305,7 @@ void MainWindow::completeClickingMove(QString destinationSquare){
 }
 
 bool MainWindow::completeMove(QString destinationSquare){
+    _info_label->setText("");
     Move moveMade;
     removeHighlightPreviousMove();
     for (auto move: _legal_moves_for_current_state){
@@ -351,22 +352,39 @@ bool MainWindow::completeMove(QString destinationSquare){
             }
         }
     }
-    currentState->_white_king_is_in_check ? highlightCheck(whiteKingSquare, White) : doNotHightlightCheck(whiteKingSquare, White);
-    currentState->_black_king_is_in_check ? highlightCheck(blackKingSquare, Black) : doNotHightlightCheck(blackKingSquare, Black);
+    currentState->_white_king_is_in_check ? highlightCheck(whiteKingSquare) : doNotHightlightCheck(whiteKingSquare);
+    currentState->_black_king_is_in_check ? highlightCheck(blackKingSquare) : doNotHightlightCheck(blackKingSquare);
+    //TODO: Re-highlight king check if king started being dragged but was not moved
 
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
         _legal_moves_for_current_state.append(legalMove);
     }
     highlightPreviousMove();
+
+    if (_game->_is_game_over){
+        QString gameOverString = "";
+        gameOverString += "Game is over\n";
+        if (_game->_white_won)
+            gameOverString += "win for WHITE\n";
+        else if (_game->_black_won)
+            gameOverString += "win for BLACK\n";
+        else
+            gameOverString += "DRAW\n";
+        gameOverString += "by " + QString::fromStdString(_game->_game_over_reason);
+        _info_label->setText(gameOverString);
+        for (auto square: _square_widgets) //TODO: handle locking the ui in some way (also for player whose turn it is not to move)
+            square->setEnabled(false);
+    }
     //TODO: Check if it is check, game over and indicate graphically
     return true;
 }
 
-void MainWindow::highlightCheck(QString squareStr, Colour colour){
+void MainWindow::highlightCheck(QString squareStr){
+    _info_label->setText("Check");
     for (auto square: _square_widgets){
         if (square->id() == squareStr){
-            if (colour == White)
+            if (square->getDenotation() == "white")
                 square->changePixmap(_graphics_info._check_highlight_white);
             else
                 square->changePixmap(_graphics_info._check_highlight_black);
@@ -374,10 +392,10 @@ void MainWindow::highlightCheck(QString squareStr, Colour colour){
     }
 }
 
-void MainWindow::doNotHightlightCheck(QString squareStr, Colour colour){
+void MainWindow::doNotHightlightCheck(QString squareStr){
     for (auto square: _square_widgets){
         if (square->id() == squareStr){
-            if (colour == White)
+            if (square->getDenotation() == "white")
                 square->changePixmap(_graphics_info._white_square);
             else
                 square->changePixmap(_graphics_info._black_square);
@@ -386,6 +404,7 @@ void MainWindow::doNotHightlightCheck(QString squareStr, Colour colour){
 }
 
 void MainWindow::performPawnPromotionGraphically(Move move){
+    _info_label->setText("Pawn was promoted");
     QString square = QString::fromStdString(move._destination_square);
     PieceWidget *pieceToRemove;
     for (auto piece: _piece_widgets)

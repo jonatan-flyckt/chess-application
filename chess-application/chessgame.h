@@ -43,23 +43,21 @@ public:
     State *getCurrent_state() const;
     void setCurrent_state(State *current_state);
 
-private:
-
-    ChessRules _rules;
     bool _is_game_over;
     string _game_over_reason;
     bool _is_draw;
     bool _white_won;
     bool _black_won;
+
+private:
+
+    ChessRules _rules;
     Colour _user_colour;
     State *_current_state;
     vector<State*> *_state_vector;
     string _difficulty;
-
     PieceType _piece_selected_from_promotion;
-
     string _pgn;
-
     vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
 };
 
