@@ -17,6 +17,8 @@ void GraphicsInfo::setGraphicsFromPath(QString path){
     _legal_move_highlight_white.load(graphicsPath+"legal_move_highlight_white.png");
     _check_highlight_black.load(graphicsPath+"check_highlight_black.png");
     _check_highlight_white.load(graphicsPath+"check_highlight_white.png");
+    _misc_highlight_black.load(graphicsPath+"misc_square_highlight_black.png");
+    _misc_highlight_white.load(graphicsPath+"misc_square_highlight_white.png");
 
     _white_square.load(graphicsPath+"white_square.png");
     _black_square.load(graphicsPath+"black_square.png");

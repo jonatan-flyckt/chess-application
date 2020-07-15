@@ -60,6 +60,10 @@ public:
     void performPawnPromotionGraphically(Move move);
     void removeCapturedPieceGraphically(Move move);
     void removeEnPassantCapturedPieceGraphically(Move move);
+    void highlightPreviousMove();
+    void removeHighlightPreviousMove();
+    void highlightCurrentMovingFromSquare(QString highlightSquare);
+    void removeHighlightCurrentMovingFromSquare(QString highlightSquare);
 signals:
     void on_set_white_button_clicked();
 

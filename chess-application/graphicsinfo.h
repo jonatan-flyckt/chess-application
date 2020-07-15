@@ -21,6 +21,8 @@ public:
     QPixmap _legal_move_highlight_black;
     QPixmap _check_highlight_white;
     QPixmap _check_highlight_black;
+    QPixmap _misc_highlight_white;
+    QPixmap _misc_highlight_black;
 
     QPixmap _black_square;
     QPixmap _white_square;

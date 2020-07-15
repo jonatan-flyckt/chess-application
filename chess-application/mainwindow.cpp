@@ -107,6 +107,66 @@ void MainWindow::highlightLegalSquares(QString originSquare){
     }
 }
 
+void MainWindow::highlightPreviousMove(){
+    State *state = _game->getCurrent_state();
+    QVector<QString> previousMoveSquares;
+    if (state->_number_of_moves > 0){
+        previousMoveSquares.append(QString::fromStdString(state->_move_to_state._origin_square));
+        previousMoveSquares.append(QString::fromStdString(state->_move_to_state._destination_square));
+    }
+    for (auto squareStr: previousMoveSquares){
+        for (auto square: _square_widgets){
+            if (square->id() == squareStr){
+                if (square->getDenotation()  == "white")
+                    square->changePixmap(_graphics_info._misc_highlight_white);
+                else
+                    square->changePixmap(_graphics_info._misc_highlight_black);
+            }
+        }
+    }
+}
+
+void MainWindow::removeHighlightPreviousMove(){
+    State *state = _game->getCurrent_state();
+    QVector<QString> previousMoveSquares;
+    if (state->_number_of_moves > 0){
+        previousMoveSquares.append(QString::fromStdString(state->_move_to_state._origin_square));
+        previousMoveSquares.append(QString::fromStdString(state->_move_to_state._destination_square));
+    }
+    for (auto squareStr: previousMoveSquares){
+        for (auto square: _square_widgets){
+            if (square->id() == squareStr){
+                if (square->getDenotation()  == "white")
+                    square->changePixmap(_graphics_info._white_square);
+                else
+                    square->changePixmap(_graphics_info._black_square);
+            }
+        }
+    }
+}
+
+void MainWindow::highlightCurrentMovingFromSquare(QString highlightSquare){
+    for (auto square: _square_widgets){
+        if (square->id() == highlightSquare){
+            if (square->getDenotation()  == "white")
+                square->changePixmap(_graphics_info._misc_highlight_white);
+            else
+                square->changePixmap(_graphics_info._misc_highlight_black);
+        }
+    }
+}
+
+void MainWindow::removeHighlightCurrentMovingFromSquare(QString highlightSquare){
+    for (auto square: _square_widgets){
+        if (square->id() == highlightSquare){
+            if (square->getDenotation()  == "white")
+                square->changePixmap(_graphics_info._white_square);
+            else
+                square->changePixmap(_graphics_info._black_square);
+        }
+    }
+}
+
 void MainWindow::removeLegalSquaresHighlight(){
     for (auto squareStr: _legal_destination_squares_for_origin_square){
         for (auto square: _square_widgets){
@@ -199,16 +259,27 @@ void MainWindow::startClickingMove(QString originSquare){
     _clicking_move_in_progress = true;
     _dragging_move_in_progress = false;
     _move_in_progress_origin_square = originSquare;
-    //_legal_destination_squares_for_origin_square = {"d4", "a3", "e4", "g5"};
     highlightLegalSquares(originSquare);
+    QString denotation;
+    for (auto piece: _piece_widgets){
+        if (piece->piece_position() == _move_in_progress_origin_square){
+            denotation = piece->denotation();
+        }
+    }
+    if ((_game->getCurrent_state()->_colour_to_move == White && denotation == "white") ||
+            (_game->getCurrent_state()->_colour_to_move == Black && denotation == "black")){
+        highlightCurrentMovingFromSquare(originSquare);
+    }
     qDebug() << "started clicking move from: " + originSquare;
 }
 
 void MainWindow::completeClickingMove(QString destinationSquare){
     removeLegalSquaresHighlight();
+    removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
     if (!_legal_destination_squares_for_origin_square.contains(destinationSquare)){
         qDebug() << "move was not legal";
         _clicking_move_in_progress = false;
+        highlightPreviousMove();
         return;
     }
     if (!completeMove(destinationSquare))
@@ -235,6 +306,7 @@ void MainWindow::completeClickingMove(QString destinationSquare){
 
 bool MainWindow::completeMove(QString destinationSquare){
     Move moveMade;
+    removeHighlightPreviousMove();
     for (auto move: _legal_moves_for_current_state){
         if (QString::fromStdString(move._origin_square) == _move_in_progress_origin_square &&
                 QString::fromStdString(move._destination_square) == destinationSquare) {
@@ -269,6 +341,7 @@ bool MainWindow::completeMove(QString destinationSquare){
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
         _legal_moves_for_current_state.append(legalMove);
     }
+    highlightPreviousMove();
     //TODO: Check if it is check, game over and indicate graphically
     return true;
 }
@@ -382,8 +455,18 @@ void MainWindow::startDraggingMove(QString originSquare){
             squareFrom = square;
     }
 
-    pieceToMove->setPiece_pixmap(squareFrom->getSquare_pixmap());
-    pieceToMove->populateWithPixmap();
+    QString pieceColour = _piece_widget_currently_dragged->denotation();
+    if ((_game->getCurrent_state()->_colour_to_move == White && pieceColour == "black") ||
+            (_game->getCurrent_state()->_colour_to_move == Black && pieceColour == "white")){
+        QPixmap highlightSquarePixmap = squareFrom->getDenotation() == "white" ? _graphics_info._white_square : _graphics_info._black_square;
+        pieceToMove->setPiece_pixmap(highlightSquarePixmap);
+        pieceToMove->populateWithPixmap();
+    }
+    else{
+        QPixmap highlightSquarePixmap = squareFrom->getDenotation() == "white" ? _graphics_info._misc_highlight_white : _graphics_info._misc_highlight_black;
+        pieceToMove->setPiece_pixmap(highlightSquarePixmap);
+        pieceToMove->populateWithPixmap();
+    }
     _piece_widget_of_moved_from_square = pieceToMove;
 
     qDebug() << "started dragging move from: " + originSquare;
@@ -396,6 +479,7 @@ void MainWindow::setDraggingMoveReadyToComplete(){
 void MainWindow::completeDraggingMove(){
     _dragging_move_ready_to_complete = false;
     removeLegalSquaresHighlight();
+    removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
     if (!_legal_destination_squares_for_origin_square.contains(_currently_hovered_square)){
         qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
@@ -403,6 +487,7 @@ void MainWindow::completeDraggingMove(){
         _piece_widget_of_moved_from_square->setPiece_pixmap(_pixmap_of_dragged_piece);
         _piece_widget_of_moved_from_square->populateWithPixmap();
         _piece_widget_currently_dragged = nullptr;
+        highlightPreviousMove();
         return;
     }
     if (!completeMove(_currently_hovered_square)){
@@ -412,6 +497,7 @@ void MainWindow::completeDraggingMove(){
         _piece_widget_of_moved_from_square->setPiece_pixmap(_pixmap_of_dragged_piece);
         _piece_widget_of_moved_from_square->populateWithPixmap();
         _piece_widget_currently_dragged = nullptr;
+        highlightPreviousMove();
         return;
     }
     _legal_destination_squares_for_origin_square.clear();

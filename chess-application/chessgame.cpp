@@ -88,6 +88,16 @@ void ChessGame::performEnPassantMove(Move move, State *state){
     state->_board.at(rowFrom).at(colTo) == nullptr;
 }
 
+State *ChessGame::getCurrent_state() const
+{
+    return _current_state;
+}
+
+void ChessGame::setCurrent_state(State *current_state)
+{
+    _current_state = current_state;
+}
+
 void ChessGame::performCastlingMove(Move move, State *state){
     if (move._move_type == LongCastle){
         if (move._colour_performing_move == White){

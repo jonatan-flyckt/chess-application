@@ -40,6 +40,9 @@ public:
     PieceType getPiece_selected_from_promotion() const;
 
     void performEnPassantMove(Move move, State *state);
+    State *getCurrent_state() const;
+    void setCurrent_state(State *current_state);
+
 private:
 
     ChessRules _rules;
