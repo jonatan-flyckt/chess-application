@@ -93,8 +93,6 @@ vector<Move> ChessRules::checkIfMovesCauseCheckForSelf(vector<Move> movesToCheck
                 }
             }
         }
-
-        qDebug() << QString::fromStdString(kingSquare);
         vector<Move> resultingLegalMoves = getLegalMoves(resultingState, promotionPiece, false);
         bool moveCausedCheck = false;
         for (auto resultingMove: resultingLegalMoves){
@@ -607,6 +605,30 @@ bool ChessRules::isInsufficientMaterial(State *state){
         }
     }
     return true;
+    //TODO: Fix function, not proper atm.
+}
+
+int ChessRules::numberOfTimesThisStateSeen(string fen, map<string, int> *stateSeenCount){
+    string cutFen;
+    string delimiter = " ";
+    size_t pos = 0;
+    string subString;
+    int i = 0;
+    while ((pos = fen.find(delimiter)) != string::npos) {
+        subString = fen.substr(0, pos);
+        cutFen += subString;
+        cutFen += " ";
+        fen.erase(0, pos + delimiter.length());
+        i++;
+        if (i > 2)
+            break;
+    }
+    if (stateSeenCount->count(cutFen) > 0)
+        stateSeenCount->find(cutFen)->second += 1;
+    else
+        stateSeenCount->insert(pair<string, int>(cutFen, 1));
+    qDebug() << "state seen " << stateSeenCount->find(cutFen)->second << " times";
+    return stateSeenCount->find(cutFen)->second;
 }
 
 string ChessRules::squareIDFromIndices(int row, int col){

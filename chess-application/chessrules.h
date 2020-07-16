@@ -36,6 +36,7 @@ public:
 
     string _square_under_check;
     bool isInsufficientMaterial(State *state);
+    int numberOfTimesThisStateSeen(string fen, map<string, int> *stateSeenCount);
 private:
 
     vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};

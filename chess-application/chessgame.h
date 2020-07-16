@@ -54,6 +54,7 @@ public:
     string algebraicNotationForMove(Move move);
 private:
 
+    map<string, int> *_state_seen_count;
     ChessRules _rules;
     Colour _user_colour;
     State *_current_state;

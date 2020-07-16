@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::restartGame(Colour colour){
+    _info_label->setText("New game started");
     _user_is_white = colour == White;
     _game = new ChessGame(_user_is_white);
     _legal_moves_for_current_state.clear();

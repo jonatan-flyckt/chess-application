@@ -12,7 +12,6 @@ public:
     void resizeEvent(QResizeEvent *event);
 
     void mouseReleaseEvent(QMouseEvent *event){
-        qDebug() << "mouse released in big boi";
     }
 
 private:

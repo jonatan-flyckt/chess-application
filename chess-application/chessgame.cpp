@@ -13,6 +13,7 @@ ChessGame::ChessGame(bool _user_is_white, string difficulty){
     _state_vector = new vector<State*>();
     _state_vector->push_back(_current_state);
     updatePGN();
+    _state_seen_count = new map<string, int>();
     _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state, Queen);
 }
 
@@ -92,7 +93,6 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     _square_under_check = _rules._square_under_check;
 
     setFenForState(_current_state);
-    qDebug() << QString::fromStdString(_current_state->_fen_notation);
     if (_current_state->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
         _current_state->_is_game_over = true;
 
@@ -119,6 +119,13 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
         _is_draw = true;
         _game_over_reason = "50 move rule";
     }
+    if (moveToMake._piece._type == Pawn)
+        _state_seen_count->clear();
+    if (_rules.numberOfTimesThisStateSeen(_current_state->_fen_notation, _state_seen_count) >= 3){
+        _current_state->_is_game_over = true;
+        _is_draw = true;
+        _game_over_reason = "Threefold repetition";
+    }
 
 
     _is_game_over = _current_state->_is_game_over;
@@ -133,13 +140,11 @@ void ChessGame::performEnPassantMove(Move move, State *state){
     state->_board.at(rowFrom).at(colTo) = nullptr;
 }
 
-State *ChessGame::getCurrent_state() const
-{
+State *ChessGame::getCurrent_state() const{
     return _current_state;
 }
 
-void ChessGame::setCurrent_state(State *current_state)
-{
+void ChessGame::setCurrent_state(State *current_state){
     _current_state = current_state;
 }
 
@@ -302,14 +307,14 @@ void ChessGame::setFenForState(State *state){
         fenBuilder.push_back('-');
     }
     else{
-        if (!state->_castling_info._white_king_has_moved && !state->_castling_info._white_long_rook_has_moved)
-            fenBuilder.push_back('Q');
         if (!state->_castling_info._white_king_has_moved && !state->_castling_info._white_short_rook_has_moved)
             fenBuilder.push_back('K');
-        if (!state->_castling_info._black_king_has_moved && !state->_castling_info._black_long_rook_has_moved)
-            fenBuilder.push_back('q');
+        if (!state->_castling_info._white_king_has_moved && !state->_castling_info._white_long_rook_has_moved)
+            fenBuilder.push_back('Q');
         if (!state->_castling_info._black_king_has_moved && !state->_castling_info._black_short_rook_has_moved)
             fenBuilder.push_back('k');
+        if (!state->_castling_info._black_king_has_moved && !state->_castling_info._black_long_rook_has_moved)
+            fenBuilder.push_back('q');
     }
     fenBuilder.push_back(' ');
     for (auto strChar: enPassantTargetSquareForFEN(state->_move_to_state))

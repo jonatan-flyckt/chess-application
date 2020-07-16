@@ -56,7 +56,6 @@ void SquareWidget::mouseMoveEvent(QMouseEvent *ev){
 }
 
 void SquareWidget::mouseReleaseEvent(QMouseEvent *ev){
-    qDebug() << "mouse was released in square";
     if (!getDraggingMoveStatus())
         return;
     QString origin = emit getMoveOriginSquare();
