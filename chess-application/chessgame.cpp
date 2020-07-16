@@ -77,6 +77,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     _current_state = resultingState;
     _current_state->_white_king_is_in_check = _rules.whiteKingIsInCheck(_current_state);
     _current_state->_black_king_is_in_check = _rules.blackKingIsInCheck(_current_state);
+    _square_under_check = _rules._square_under_check;
 
     if (_current_state->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
         _is_game_over = true;

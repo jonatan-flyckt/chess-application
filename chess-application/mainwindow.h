@@ -64,8 +64,8 @@ public:
     void removeHighlightPreviousMove();
     void highlightCurrentMovingFromSquare(QString highlightSquare);
     void removeHighlightCurrentMovingFromSquare(QString highlightSquare);
-    void highlightCheck(QString squareStr);
-    void doNotHightlightCheck(QString squareStr);
+    void highlightCheck();
+    void doNotHightlightCheck();
 signals:
     void on_set_white_button_clicked();
 

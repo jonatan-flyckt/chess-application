@@ -549,6 +549,7 @@ bool ChessRules::whiteKingIsInCheck(State *state){
     vector<Move> legalResultingMovesForBlack = getLegalMoves(fakeState, Queen, false);
     for (auto move: legalResultingMovesForBlack){
         if (move._destination_square == whiteKingSquare){
+            _square_under_check = whiteKingSquare;
             return true;
         }
     }
@@ -574,6 +575,7 @@ bool ChessRules::blackKingIsInCheck(State *state){
     vector<Move> legalResultingMovesForWhite = getLegalMoves(fakeState, Queen, false);
     for (auto move: legalResultingMovesForWhite){
         if (move._destination_square == blackKingSquare){
+            _square_under_check = blackKingSquare;
             return true;
         }
     }

@@ -48,6 +48,7 @@ public:
     bool _is_draw;
     bool _white_won;
     bool _black_won;
+    string _square_under_check;
 
 private:
 
@@ -56,7 +57,7 @@ private:
     State *_current_state;
     vector<State*> *_state_vector;
     string _difficulty;
-    PieceType _piece_selected_from_promotion;
+    PieceType _piece_selected_from_promotion;    
     string _pgn;
     vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
 };

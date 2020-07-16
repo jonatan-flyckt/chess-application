@@ -280,6 +280,8 @@ void MainWindow::completeClickingMove(QString destinationSquare){
         qDebug() << "move was not legal";
         _clicking_move_in_progress = false;
         highlightPreviousMove();
+        if (_game->getCurrent_state()->_white_king_is_in_check || _game->getCurrent_state()->_black_king_is_in_check)
+            highlightCheck();
         return;
     }
     if (!completeMove(destinationSquare))
@@ -337,24 +339,8 @@ bool MainWindow::completeMove(QString destinationSquare){
     if (moveMade._move_type == EnPassant)
         removeEnPassantCapturedPieceGraphically(moveMade);
 
-    QString whiteKingSquare;
-    QString blackKingSquare;
     State *currentState = _game->getCurrent_state();
-    for (int i = 0; i < currentState->_board.size(); i++){
-        for (int j = 0; j < currentState->_board.at(i).size(); j++){
-            if (currentState->_board.at(i).at(j) != nullptr){
-                if (currentState->_board.at(i).at(j)->_type == King){
-                    if (currentState->_board.at(i).at(j)->_colour == White)
-                        whiteKingSquare = QString::fromStdString(_game->squareIDFromIndices(i, j));
-                    else
-                        blackKingSquare = QString::fromStdString(_game->squareIDFromIndices(i, j));
-                }
-            }
-        }
-    }
-    currentState->_white_king_is_in_check ? highlightCheck(whiteKingSquare) : doNotHightlightCheck(whiteKingSquare);
-    currentState->_black_king_is_in_check ? highlightCheck(blackKingSquare) : doNotHightlightCheck(blackKingSquare);
-    //TODO: Re-highlight king check if king started being dragged but was not moved
+    currentState->_white_king_is_in_check || currentState->_black_king_is_in_check  ? highlightCheck() : doNotHightlightCheck();
 
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
@@ -380,10 +366,10 @@ bool MainWindow::completeMove(QString destinationSquare){
     return true;
 }
 
-void MainWindow::highlightCheck(QString squareStr){
+void MainWindow::highlightCheck(){
     _info_label->setText("Check");
     for (auto square: _square_widgets){
-        if (square->id() == squareStr){
+        if (square->id() == QString::fromStdString(_game->_square_under_check)){
             if (square->getDenotation() == "white")
                 square->changePixmap(_graphics_info._check_highlight_white);
             else
@@ -392,9 +378,9 @@ void MainWindow::highlightCheck(QString squareStr){
     }
 }
 
-void MainWindow::doNotHightlightCheck(QString squareStr){
+void MainWindow::doNotHightlightCheck(){
     for (auto square: _square_widgets){
-        if (square->id() == squareStr){
+        if (square->id() == QString::fromStdString(_game->_square_under_check)){
             if (square->getDenotation() == "white")
                 square->changePixmap(_graphics_info._white_square);
             else
@@ -546,6 +532,8 @@ void MainWindow::completeDraggingMove(){
         _piece_widget_of_moved_from_square->populateWithPixmap();
         _piece_widget_currently_dragged = nullptr;
         highlightPreviousMove();
+        if (_game->getCurrent_state()->_white_king_is_in_check || _game->getCurrent_state()->_black_king_is_in_check)
+            highlightCheck();
         return;
     }
     if (!completeMove(_currently_hovered_square)){
@@ -556,6 +544,8 @@ void MainWindow::completeDraggingMove(){
         _piece_widget_of_moved_from_square->populateWithPixmap();
         _piece_widget_currently_dragged = nullptr;
         highlightPreviousMove();
+        if (_game->getCurrent_state()->_white_king_is_in_check || _game->getCurrent_state()->_black_king_is_in_check)
+            highlightCheck();
         return;
     }
     _legal_destination_squares_for_origin_square.clear();

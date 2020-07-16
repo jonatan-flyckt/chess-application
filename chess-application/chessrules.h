@@ -41,7 +41,10 @@ public:
     bool squareIsUnderAttack(int row, int col, State *state);
     void performCheckCheckEnPassantMove(Move move, State *state);
     void performCheckCheckCastlingMove(Move move, State *state);
+
+    string _square_under_check;
 private:
+
     vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};
