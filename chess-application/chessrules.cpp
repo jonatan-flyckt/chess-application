@@ -585,6 +585,7 @@ bool ChessRules::blackKingIsInCheck(State *state){
 bool ChessRules::isInsufficientMaterial(State *state){
     int whiteMinorPieceCount = 0;
     int blackMinorPieceCount = 0;
+    vector<pair<Piece, Colour>> minorPieces; //second element denotes colour of square
     for (int i = 0; i < state->_board.size(); i++){
         for (int j = 0; j < state->_board.at(i).size(); j++){
             if (state->_board.at(i).at(j) != nullptr){
@@ -594,6 +595,9 @@ bool ChessRules::isInsufficientMaterial(State *state){
                         state->_board.at(i).at(j)->_type == Pawn)
                     return false;
                 else if (state->_board.at(i).at(j)->_type == Bishop || state->_board.at(i).at(j)->_type == Knight){
+                    minorPieces.push_back(make_pair<Piece, Colour>(
+                                              Piece(state->_board.at(i).at(j)->_colour, state->_board.at(i).at(j)->_type),
+                                              i+j % 2 == 0 ? Black : White));
                     if (state->_board.at(i).at(j)->_colour == White)
                         whiteMinorPieceCount += 1;
                     if (state->_board.at(i).at(j)->_colour == Black)
@@ -608,6 +612,13 @@ bool ChessRules::isInsufficientMaterial(State *state){
             || (blackMinorPieceCount == 1 && whiteMinorPieceCount == 0) ||
                 (whiteMinorPieceCount == 0 && blackMinorPieceCount == 0))
         return true;
+    if (blackMinorPieceCount == 1 && whiteMinorPieceCount == 1){
+        //Insufficient if the only two minor pieces left are bishops on the same colour square
+        if (minorPieces.at(0).first._type == Bishop &&
+                minorPieces.at(1).first._type == Bishop &&
+                minorPieces.at(0).second == minorPieces.at(1).second)
+            return true;
+    }
     return false;
 }
 

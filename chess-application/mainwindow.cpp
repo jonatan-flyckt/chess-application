@@ -331,8 +331,7 @@ bool MainWindow::completeMove(QString destinationSquare){
         }
     }
     if (moveMade._move_type == Promotion || moveMade._move_type == PromotionCapture){
-        //TODO: popup välj pjäs
-        _game->setPiece_selected_from_promotion(Queen);
+        promotedPawnSelection();
         _move_was_promotion = true;
         _promotion_move = moveMade;
     }
@@ -373,8 +372,28 @@ bool MainWindow::completeMove(QString destinationSquare){
         for (auto square: _square_widgets) //TODO: handle locking the ui in some way (also for player whose turn it is not to move)
             square->setEnabled(false);
     }
-    //TODO: Check if it is check, game over and indicate graphically
+
     return true;
+}
+
+void MainWindow::promotedPawnSelection(){
+    QMessageBox msgBox;
+    msgBox.setWindowFlag(Qt::FramelessWindowHint);
+    msgBox.setText(tr("Pawn promotion:"));
+    msgBox.setInformativeText("Select piece");
+    QAbstractButton* pButtonYes = msgBox.addButton(tr("Queen"), QMessageBox::YesRole);
+    msgBox.addButton(tr("Rook"), QMessageBox::YesRole);
+    msgBox.addButton(tr("Bishop"), QMessageBox::YesRole);
+    msgBox.addButton(tr("Knight"), QMessageBox::YesRole);
+    msgBox.exec();
+    if (msgBox.clickedButton()->text() == "Queen")
+        _game->setPiece_selected_from_promotion(Queen);
+    else if (msgBox.clickedButton()->text() == "Rook")
+        _game->setPiece_selected_from_promotion(Rook);
+    else if (msgBox.clickedButton()->text() == "Bishop")
+        _game->setPiece_selected_from_promotion(Bishop);
+    else if (msgBox.clickedButton()->text() == "Knight")
+        _game->setPiece_selected_from_promotion(Knight);
 }
 
 void MainWindow::highlightCheck(){

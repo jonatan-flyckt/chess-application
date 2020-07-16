@@ -22,6 +22,7 @@
 #include <QPair>
 #include <chessgame.h>
 #include <QClipboard>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -68,6 +69,7 @@ public:
     void highlightCheck();
     void doNotHightlightCheck();
 
+    void promotedPawnSelection();
 signals:
     void on_set_white_button_clicked();
 

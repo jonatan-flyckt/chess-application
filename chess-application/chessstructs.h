@@ -83,27 +83,6 @@ struct State{
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
     };
 
-    //TODO: Determine if bitboard is needed
-    //Bitboard notation:
-    //First dimension: each piece type
-    //Second dimension: rows 1 through 8
-    //Third dimension: columns a through h
-    /*bool _bit_board[12][8][8];
-    map<int, pair<Colour, Piece>> _bitboard_piece_map ={
-        {0, make_pair(White, Pawn)},
-        {1, make_pair(White, Rook)},
-        {2, make_pair(White, Knight)},
-        {3, make_pair(White, Bishop)},
-        {4, make_pair(White, Queen)},
-        {5, make_pair(White, King)},
-        {6, make_pair(Black, Pawn)},
-        {7, make_pair(Black, Rook)},
-        {8, make_pair(Black, Knight)},
-        {9, make_pair(Black, Bishop)},
-        {10, make_pair(Black, Queen)},
-        {11, make_pair(Black, King)}
-    };*/
-
     string _fen_notation;
 };
 

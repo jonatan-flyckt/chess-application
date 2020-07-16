@@ -127,10 +127,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
         _game_over_reason = "Threefold repetition";
     }
 
-
     _is_game_over = _current_state->_is_game_over;
-    //TODO: 3 move repeating rule and other game enders
-
     return true;
 }
 
