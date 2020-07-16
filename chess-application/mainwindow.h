@@ -21,6 +21,7 @@
 #include <QMouseEvent>
 #include <QPair>
 #include <chessgame.h>
+#include <QClipboard>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -66,6 +67,7 @@ public:
     void removeHighlightCurrentMovingFromSquare(QString highlightSquare);
     void highlightCheck();
     void doNotHightlightCheck();
+
 signals:
     void on_set_white_button_clicked();
 
@@ -104,6 +106,8 @@ public slots:
 
     bool mouseIsInsideBoard();
 
+    void copyFENToClipboard();
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;
@@ -114,8 +118,10 @@ private:
     ChessGame *_game;
 
     QLabel *_info_label;
+    QLabel *_fen_label;
     QPushButton *_set_white_button;
     QPushButton *_set_black_button;
+    QPushButton *_copy_fen;
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;
     QVector<PieceWidget*> _piece_widgets;

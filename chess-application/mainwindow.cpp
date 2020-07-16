@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     _clicking_move_in_progress = false;
 
     initiateUIComponents();
+    _fen_label->setText("FEN:\t" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 
     resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
 }
@@ -39,6 +40,7 @@ void MainWindow::restartGame(Colour colour){
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
         _legal_moves_for_current_state.append(legalMove);
     }
+    _fen_label->setText("FEN:\t" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 }
 
 MainWindow::~MainWindow(){
@@ -221,6 +223,16 @@ void MainWindow::initiateUIComponents(){
     _info_label->setStyleSheet("color: rgb(255, 0, 0)");
     _main_grid_layout->addWidget(_info_label, 0, 1);
 
+    _fen_label = new QLabel();
+    _fen_label->setFont(f);
+    _fen_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    _main_grid_layout->addWidget(_fen_label, 2, 1);
+
+    _copy_fen = new QPushButton(this);
+    _copy_fen->setText("Copy FEN");
+    connect(_copy_fen, SIGNAL(clicked()), this, SLOT(copyFENToClipboard()));
+    _main_grid_layout->addWidget(_copy_fen, 3, 1);
+
     _set_white_button = new QPushButton(this);
     _set_white_button->setText("Play as white");
     connect(_set_white_button, SIGNAL(clicked()), this, SLOT(setPlayerWhite()));
@@ -344,6 +356,7 @@ bool MainWindow::completeMove(QString destinationSquare){
         _legal_moves_for_current_state.append(legalMove);
     }
     highlightPreviousMove();
+    _fen_label->setText("FEN:\t" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 
     if (_game->_is_game_over){
         QString gameOverString = "";
@@ -590,6 +603,12 @@ void MainWindow::movePieceWidget(QPoint mousePos){
     int newX = mousePos.x() - widgetSize.width()/2;
     int newY = mousePos.y() - widgetSize.height()/2;
     _piece_widget_currently_dragged->move(newX, newY);
+}
+
+void MainWindow::copyFENToClipboard(){
+    qDebug() << "clicked copy FEN";
+    QClipboard *clipBoard = QApplication::clipboard();
+    clipBoard->setText(_fen_label->text().split('\t').at(1));
 }
 
 void MainWindow::setPlayerWhite(){

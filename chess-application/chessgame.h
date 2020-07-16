@@ -24,8 +24,6 @@ public:
     void initiatePieces(State *startingState);
 
     void setFenForState(State *state);
-    void setBitBoardForState(State *state);
-    void setAlgebraicNotationForMove(Move move);
 
     vector<Move> getLegalMovesForSquare(State *state, string square);
 
@@ -48,8 +46,12 @@ public:
     bool _is_draw;
     bool _white_won;
     bool _black_won;
+    bool _white_resigned;
+    bool _black_resigned;
     string _square_under_check;
 
+    string enPassantTargetSquareForFEN(Move move);
+    string algebraicNotationForMove(Move move);
 private:
 
     ChessRules _rules;

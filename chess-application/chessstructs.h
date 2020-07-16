@@ -64,7 +64,7 @@ struct State{
     CastlingInfo _castling_info;
     int _moves_without_capture_or_pawn_advancement;
 
-    bool _is_game_over;
+    bool _is_game_over = false;
     bool _white_king_is_in_check;
     bool _black_king_is_in_check;
 

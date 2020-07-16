@@ -7,6 +7,8 @@ ChessGame::ChessGame(bool _user_is_white, string difficulty){
     _is_draw = false;
     _white_won = false;
     _black_won = false;
+    _white_resigned = false;
+    _black_resigned = false;
     _current_state = gameStartingState();
     _state_vector = new vector<State*>();
     _state_vector->push_back(_current_state);
@@ -25,6 +27,18 @@ vector<Move> ChessGame::getLegalMovesForCurrentState(){
 }
 
 bool ChessGame::makeMove(string originSquare, string destinationSquare){
+    if (_white_resigned){
+        _current_state->_is_game_over = true;
+        _is_game_over = true;
+        _black_won = true;
+        return true;
+    }
+    else if (_black_resigned){
+        _current_state->_is_game_over = true;
+        _is_game_over = true;
+        _white_won = true;
+        return true;
+    }
     Move moveToMake;
     bool moveWasLegal = false;
     for (auto move: _current_state->_legal_moves_from_state){
@@ -77,8 +91,11 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     _current_state->_black_king_is_in_check = _rules.blackKingIsInCheck(_current_state);
     _square_under_check = _rules._square_under_check;
 
+    setFenForState(_current_state);
+    qDebug() << QString::fromStdString(_current_state->_fen_notation);
     if (_current_state->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
-        _is_game_over = true;
+        _current_state->_is_game_over = true;
+
         if (_current_state->_colour_to_move == Black && _current_state->_black_king_is_in_check){
             _white_won = true;
             _game_over_reason = "Check Mate";
@@ -93,16 +110,18 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
         }
     }
     if (_rules.isInsufficientMaterial(_current_state)){
-        _is_game_over = true;
+        _current_state->_is_game_over = true;
         _is_draw = true;
         _game_over_reason = "Insufficient mating material";
     }
     if (_current_state->_moves_without_capture_or_pawn_advancement >= 100){
-        _is_game_over = true;
+        _current_state->_is_game_over = true;
         _is_draw = true;
         _game_over_reason = "50 move rule";
     }
 
+
+    _is_game_over = _current_state->_is_game_over;
     //TODO: 3 move repeating rule and other game enders
 
     return true;
@@ -210,7 +229,6 @@ State* ChessGame::gameStartingState(){
     startingState->_moves_without_capture_or_pawn_advancement = 0;
     initiatePieces(startingState);
     setFenForState(startingState);
-    setBitBoardForState(startingState);
     return startingState;
 }
 
@@ -242,14 +260,86 @@ void ChessGame::updatePGN(){
 }
 
 void ChessGame::setFenForState(State *state){
-
+    string fenBuilder = "";
+    for (int i = state->_board.size()-1; i >= 0; i--){
+        int emptySquareCounter = 0;
+        bool pieceFoundOnLastSquare = false;
+        for (int j = 0; j < state->_board.size(); j++){
+            if (state->_board.at(i).at(j) == nullptr){
+                emptySquareCounter++;
+            }
+            else{
+                if (j == 7)
+                   pieceFoundOnLastSquare = true;
+                if (emptySquareCounter > 0){
+                    fenBuilder += to_string(emptySquareCounter);
+                }
+                emptySquareCounter = 0;
+                if (state->_board.at(i).at(j)->_type == Pawn)
+                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'P' : 'p');
+                else if (state->_board.at(i).at(j)->_type == Rook)
+                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'R' : 'r');
+                else if (state->_board.at(i).at(j)->_type == Bishop)
+                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'B' : 'b');
+                else if (state->_board.at(i).at(j)->_type == Knight)
+                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'N' : 'n');
+                else if (state->_board.at(i).at(j)->_type == Queen)
+                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'Q' : 'q');
+                else if (state->_board.at(i).at(j)->_type == King)
+                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'K' : 'k');
+            }
+        }
+        if (!pieceFoundOnLastSquare)
+            fenBuilder += to_string(emptySquareCounter);
+        if (i > 0)
+            fenBuilder.push_back('/');
+    }
+    fenBuilder.push_back(' ');
+    fenBuilder.push_back(state->_colour_to_move == White ? 'w' : 'b');
+    fenBuilder.push_back(' ');
+    if ((state->_castling_info._white_castled || state->_castling_info._white_king_has_moved) &&
+            (state->_castling_info._black_castled || state->_castling_info._black_king_has_moved)){
+        fenBuilder.push_back('-');
+    }
+    else{
+        if (!state->_castling_info._white_king_has_moved && !state->_castling_info._white_long_rook_has_moved)
+            fenBuilder.push_back('Q');
+        if (!state->_castling_info._white_king_has_moved && !state->_castling_info._white_short_rook_has_moved)
+            fenBuilder.push_back('K');
+        if (!state->_castling_info._black_king_has_moved && !state->_castling_info._black_long_rook_has_moved)
+            fenBuilder.push_back('q');
+        if (!state->_castling_info._black_king_has_moved && !state->_castling_info._black_short_rook_has_moved)
+            fenBuilder.push_back('k');
+    }
+    fenBuilder.push_back(' ');
+    for (auto strChar: enPassantTargetSquareForFEN(state->_move_to_state))
+        fenBuilder.push_back(strChar);
+    fenBuilder.push_back(' ');
+    fenBuilder += to_string(state->_moves_without_capture_or_pawn_advancement);
+    fenBuilder.push_back(' ');
+    fenBuilder += to_string(int((state->_number_of_moves+2) / 2));
+    state->_fen_notation = fenBuilder;
 }
 
-void ChessGame::setBitBoardForState(State *state){
+string ChessGame::enPassantTargetSquareForFEN(Move move){
+    if (move._piece._type != Pawn)
+        return "-";
+    int rowFrom = IndicesFromSquareID(move._origin_square).first;
+    int colFrom = IndicesFromSquareID(move._origin_square).second;
+    int rowTo = IndicesFromSquareID(move._destination_square).first;
+    int colTo = IndicesFromSquareID(move._destination_square).second;
 
+    if (abs(rowFrom - rowTo) < 2)
+        return "-";
+    else{
+        if (move._colour_performing_move == White)
+            return squareIDFromIndices(rowTo-1, colTo);
+        else
+            return squareIDFromIndices(rowTo+1, colTo);
+    }
 }
 
-void ChessGame::setAlgebraicNotationForMove(Move move){
+string ChessGame::algebraicNotationForMove(Move move){
 
 }
 
