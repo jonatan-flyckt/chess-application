@@ -604,8 +604,11 @@ bool ChessRules::isInsufficientMaterial(State *state){
                 return false;
         }
     }
-    return true;
-    //TODO: Fix function, not proper atm.
+    if ((whiteMinorPieceCount == 1 && blackMinorPieceCount == 0)
+            || (blackMinorPieceCount == 1 && whiteMinorPieceCount == 0) ||
+                (whiteMinorPieceCount == 0 && blackMinorPieceCount == 0))
+        return true;
+    return false;
 }
 
 int ChessRules::numberOfTimesThisStateSeen(string fen, map<string, int> *stateSeenCount){
