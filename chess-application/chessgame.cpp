@@ -50,7 +50,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     resultingState->_move_to_state = moveToMake;
     resultingState->_previous_state = _current_state;
     resultingState->_number_of_moves = _current_state->_number_of_moves+1;
-    resultingState->_moves_without_capture = (moveToMake._move_type == Capture || moveToMake._move_type == EnPassant || moveToMake._move_type == PromotionCapture) ? _current_state->_moves_without_capture+1 : 0;
+    resultingState->_moves_without_capture_or_pawn_advancement = (moveToMake._move_type == Capture || moveToMake._piece._type == Pawn) ? 0 : _current_state->_moves_without_capture_or_pawn_advancement+1;
     resultingState->_castling_info = _current_state->_castling_info;
 
     for (int i = 0; i < _current_state->_board.size(); i++){
@@ -67,8 +67,6 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
         performCastlingMove(moveToMake, resultingState);
     if (moveToMake._move_type == Promotion || moveToMake._move_type == PromotionCapture)
         resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, _piece_selected_from_promotion);
-    if (moveToMake._move_type == Capture || moveToMake._move_type == PromotionCapture || moveToMake._move_type == EnPassant)
-        resultingState->_moves_without_capture = 0;
     if (moveToMake._move_type == EnPassant)
         performEnPassantMove(moveToMake, resultingState);
 
@@ -93,6 +91,16 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
             _is_draw = true;
             _game_over_reason = "Stalemate";
         }
+    }
+    if (_rules.isInsufficientMaterial(_current_state)){
+        _is_game_over = true;
+        _is_draw = true;
+        _game_over_reason = "Insufficient mating material";
+    }
+    if (_current_state->_moves_without_capture_or_pawn_advancement >= 100){
+        _is_game_over = true;
+        _is_draw = true;
+        _game_over_reason = "50 move rule";
     }
 
     //TODO: 3 move repeating rule and other game enders
@@ -199,7 +207,7 @@ State* ChessGame::gameStartingState(){
     startingState->_colour_to_move = White;
     startingState->_number_of_moves = 0;
     startingState->_previous_state = nullptr;
-    startingState->_moves_without_capture = 0;
+    startingState->_moves_without_capture_or_pawn_advancement = 0;
     initiatePieces(startingState);
     setFenForState(startingState);
     setBitBoardForState(startingState);

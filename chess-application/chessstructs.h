@@ -62,7 +62,7 @@ struct State{
     vector<Move> _legal_moves_from_state;
     State *_previous_state;
     CastlingInfo _castling_info;
-    int _moves_without_capture;
+    int _moves_without_capture_or_pawn_advancement;
 
     bool _is_game_over;
     bool _white_king_is_in_check;

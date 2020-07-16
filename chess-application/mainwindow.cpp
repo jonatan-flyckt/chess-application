@@ -328,9 +328,6 @@ bool MainWindow::completeMove(QString destinationSquare){
     if (!_game->makeMove(_move_in_progress_origin_square.toStdString(), destinationSquare.toStdString()))
         return false;
 
-    //TODO: Handle captures, castling, promotion, en passant graphically
-    //TODO: Only allow the user to move if its their turn
-
     //Move the rook if castled (king is moved in normal move function)
     if (moveMade._move_type == LongCastle || moveMade._move_type == ShortCastle)
         moveRookForCastlingGraphically(moveMade);

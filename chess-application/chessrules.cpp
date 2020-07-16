@@ -75,7 +75,7 @@ vector<Move> ChessRules::checkIfMovesCauseCheckForSelf(vector<Move> movesToCheck
         if (move._move_type == Promotion || move._move_type == PromotionCapture)
             resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, promotionPiece);
         if (move._move_type == Capture || move._move_type == PromotionCapture || move._move_type == EnPassant)
-            resultingState->_moves_without_capture = 0;
+            resultingState->_moves_without_capture_or_pawn_advancement = 0;
         if (move._move_type == EnPassant)
             performCheckCheckEnPassantMove(move, resultingState);
 
@@ -582,20 +582,29 @@ bool ChessRules::blackKingIsInCheck(State *state){
     return false;
 }
 
-bool ChessRules::isGameOver(State *state){
-
-}
-
-bool ChessRules::isWhiteWin(State *state){
-
-}
-
-bool ChessRules::isBlackWin(State *state){
-
-}
-
-bool ChessRules::isDraw(State *state){
-
+bool ChessRules::isInsufficientMaterial(State *state){
+    int whiteMinorPieceCount = 0;
+    int blackMinorPieceCount = 0;
+    for (int i = 0; i < state->_board.size(); i++){
+        for (int j = 0; j < state->_board.at(i).size(); j++){
+            if (state->_board.at(i).at(j) != nullptr){
+                //Not insufficient material if pawn, queen, or rook is still in play
+                if (state->_board.at(i).at(j)->_type == Queen ||
+                        state->_board.at(i).at(j)->_type == Rook ||
+                        state->_board.at(i).at(j)->_type == Pawn)
+                    return false;
+                else if (state->_board.at(i).at(j)->_type == Bishop || state->_board.at(i).at(j)->_type == Knight){
+                    if (state->_board.at(i).at(j)->_colour == White)
+                        whiteMinorPieceCount += 1;
+                    if (state->_board.at(i).at(j)->_colour == Black)
+                        blackMinorPieceCount += 1;
+                }
+            }
+            if (whiteMinorPieceCount > 1 || blackMinorPieceCount > 1)
+                return false;
+        }
+    }
+    return true;
 }
 
 string ChessRules::squareIDFromIndices(int row, int col){

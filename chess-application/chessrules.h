@@ -16,14 +16,6 @@ public:
 
     bool blackKingIsInCheck(State *state);
 
-    bool isGameOver(State *state);
-
-    bool isWhiteWin(State *state);
-
-    bool isBlackWin(State *state);
-
-    bool isDraw(State *state);
-
     string squareIDFromIndices(int row, int col);
 
     vector<Move> checkIfMovesCauseCheckForSelf(vector<Move> movesToCheck, vector<vector<Piece *> > board, Colour colourToMove, State *state, PieceType promotionPiece);
@@ -43,6 +35,7 @@ public:
     void performCheckCheckCastlingMove(Move move, State *state);
 
     string _square_under_check;
+    bool isInsufficientMaterial(State *state);
 private:
 
     vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
