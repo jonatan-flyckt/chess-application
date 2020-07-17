@@ -9,7 +9,7 @@ void GraphicsInfo::setGraphicsFromPath(QString path){
     QFileInfo checkFile(path);
     bool dirExists = (checkFile.exists() && checkFile.isDir());
     if (!dirExists)
-        graphicsPath = ":/images/images/placeholders/";
+        graphicsPath = ":/images/images/standard/";
     else
         graphicsPath = path;
 

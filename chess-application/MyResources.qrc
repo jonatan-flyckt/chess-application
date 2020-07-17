@@ -20,5 +20,25 @@
         <file>images/placeholders/legal_move_highlight_white.png</file>
         <file>images/placeholders/misc_square_highlight_black.png</file>
         <file>images/placeholders/misc_square_highlight_white.png</file>
+        <file>images/standard/black_bishop.png</file>
+        <file>images/standard/black_king.png</file>
+        <file>images/standard/black_knight.png</file>
+        <file>images/standard/black_pawn.png</file>
+        <file>images/standard/black_queen.png</file>
+        <file>images/standard/black_rook.png</file>
+        <file>images/standard/black_square.png</file>
+        <file>images/standard/check_highlight_black.png</file>
+        <file>images/standard/check_highlight_white.png</file>
+        <file>images/standard/legal_move_highlight_black.png</file>
+        <file>images/standard/legal_move_highlight_white.png</file>
+        <file>images/standard/misc_square_highlight_black.png</file>
+        <file>images/standard/misc_square_highlight_white.png</file>
+        <file>images/standard/white_bishop.png</file>
+        <file>images/standard/white_king.png</file>
+        <file>images/standard/white_knight.png</file>
+        <file>images/standard/white_pawn.png</file>
+        <file>images/standard/white_queen.png</file>
+        <file>images/standard/white_rook.png</file>
+        <file>images/standard/white_square.png</file>
     </qresource>
 </RCC>
