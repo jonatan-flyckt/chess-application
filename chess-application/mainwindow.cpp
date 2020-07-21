@@ -212,6 +212,7 @@ void MainWindow::initiateUIComponents(){
     _board_grid_layout->setSpacing(0);
 
     _board_aspect_ratio_widget = new BoardAspectRatioWidget(_board_grid_layout, SMALLEST_BOARD_SIZE, SMALLEST_BOARD_SIZE, _ui->centralwidget);
+    connect(_board_aspect_ratio_widget, &BoardAspectRatioWidget::getSquareWidgets, this, &MainWindow::sendSquareWidgets);
 
     _main_grid_layout->setColumnMinimumWidth(BOARD_GRID_COL, SMALLEST_BOARD_SIZE);
     _main_grid_layout->setRowMinimumHeight(BOARD_GRID_ROW, SMALLEST_BOARD_SIZE);
@@ -631,6 +632,10 @@ void MainWindow::copyFENToClipboard(){
     clipBoard->setText(_fen_label->text().split('\t').at(1));
 }
 
+QVector<SquareWidget *> MainWindow::sendSquareWidgets(){
+    return _square_widgets;
+}
+
 void MainWindow::setPlayerWhite(){
     qDebug() << "playing as white";
     _user_is_white = true;
@@ -721,6 +726,7 @@ void MainWindow::initiateBoardSquaresUI(){
         }
     }
     addCoordinateWidgets();
+
 }
 
 void MainWindow::connectSquareToSignals(SquareWidget *square){

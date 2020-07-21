@@ -110,6 +110,8 @@ public slots:
 
     void copyFENToClipboard();
 
+    QVector<SquareWidget*> sendSquareWidgets();
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;

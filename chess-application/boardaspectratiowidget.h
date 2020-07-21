@@ -5,14 +5,19 @@
 #include <QGridLayout>
 #include <QResizeEvent>
 #include <QDebug>
+#include <squarewidget.h>
 
 class BoardAspectRatioWidget: public QWidget{
+Q_OBJECT
 public:
     BoardAspectRatioWidget(QGridLayout *boardLayout, float width, float height, QWidget *parent = 0);
     void resizeEvent(QResizeEvent *event);
 
     void mouseReleaseEvent(QMouseEvent *event){
     }
+
+signals:
+    QVector<SquareWidget*> getSquareWidgets();
 
 private:
     QBoxLayout *layout;

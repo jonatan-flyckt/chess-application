@@ -7,13 +7,17 @@ SquareWidget::SquareWidget(QString id, QPixmap pixmap, QString denotation){
     _id = id;
     _square_pixmap = pixmap;
     _denotation = denotation;
+    _square_scale_factor = 50;
     populateWithPixmap();
     this->setLayout(_inner_layout);
 }
 
+void SquareWidget::setSquareScaleFactor(int size){
+    _square_scale_factor = size;
+}
+
 void SquareWidget::populateWithPixmap(){
-    this->setPixmap(_square_pixmap.scaled(5, 5, Qt::KeepAspectRatio));
-    this->setScaledContents(true);
+    this->setPixmap(_square_pixmap.scaled(_square_scale_factor, _square_scale_factor, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 
 void SquareWidget::enterEvent(QEvent *event){ //User started hovering square
@@ -117,4 +121,11 @@ QPixmap SquareWidget::getSquare_pixmap() const
 void SquareWidget::setSquare_pixmap(const QPixmap &square_pixmap)
 {
     _square_pixmap = square_pixmap;
+}
+
+void SquareWidget::resizeEvent(QResizeEvent *event)
+{
+    //qDebug() << "hej";
+    //this->setGeometry(x(), y(), 50, 50);
+
 }

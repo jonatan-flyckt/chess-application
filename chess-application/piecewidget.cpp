@@ -5,7 +5,7 @@ PieceWidget::PieceWidget(QString denotation){
 }
 
 void PieceWidget::populateWithPixmap(){
-    this->setPixmap(_piece_pixmap.scaled(500, 500, Qt::KeepAspectRatio));
+    this->setPixmap(_piece_pixmap.scaled(1000, 1000, Qt::KeepAspectRatio));
     this->setScaledContents(true);
 }
 

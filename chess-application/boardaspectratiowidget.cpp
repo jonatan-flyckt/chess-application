@@ -28,4 +28,11 @@ void BoardAspectRatioWidget::resizeEvent(QResizeEvent *event){
     layout->setStretch(0, outerStretch);
     layout->setStretch(1, widgetStretch);
     layout->setStretch(2, outerStretch);
+
+
+    for(auto square: emit getSquareWidgets()){
+        square->setSquareScaleFactor(std::min(this->width()/10, this->height()/10));
+        square->populateWithPixmap();
+    }
+
 }

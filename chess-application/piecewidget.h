@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <QWidget>
 #include <QLabel>
+#include <QDebug>
 
 class PieceWidget : public QLabel{
 

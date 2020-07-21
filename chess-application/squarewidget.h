@@ -40,6 +40,9 @@ public:
     QPixmap getSquare_pixmap() const;
     void setSquare_pixmap(const QPixmap &square_pixmap);
 
+    void resizeEvent(QResizeEvent *event);
+
+    void setSquareScaleFactor(int size);
 signals:
     void signalInfoMessage(QString message);
 
@@ -73,6 +76,8 @@ private:
     QString _id;
     QPixmap _square_pixmap;
     QString _denotation;
+    int _square_scale_factor;
+
     QBoxLayout *_inner_layout;
 };
 
