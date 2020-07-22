@@ -28,6 +28,8 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QSizePolicy>
+#include <QGroupBox>
+#include <QScrollArea>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -139,6 +141,12 @@ private:
     QPushButton *_set_black_button;
     QPushButton *_copy_fen;
     QPushButton *_contact_button;
+    QPushButton *_about_button;
+    QHBoxLayout *_play_as_layout;
+    QPushButton *_new_game_button;
+    QPushButton *_resign_game_button;
+    QScrollArea *_algebraic_notation_scroll_area;
+    QVBoxLayout *_algebraic_notation_vertical_layout;
 
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;

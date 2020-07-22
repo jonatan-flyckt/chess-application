@@ -52,6 +52,8 @@ public:
 
     string enPassantTargetSquareForFEN(Move move);
     string algebraicNotationForMove(Move move);
+    Colour getUser_colour() const;
+
 private:
 
     map<string, int> *_state_seen_count;

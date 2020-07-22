@@ -345,6 +345,11 @@ string ChessGame::algebraicNotationForMove(Move move){
 
 }
 
+Colour ChessGame::getUser_colour() const
+{
+    return _user_colour;
+}
+
 vector<Move> ChessGame::getLegalMovesForSquare(State *state, string square){
 
 }

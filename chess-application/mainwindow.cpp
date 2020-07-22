@@ -220,6 +220,7 @@ void MainWindow::initiateUIComponents(){
     _main_grid_layout->setColumnStretch(BOARD_GRID_COL, 100);
     _main_grid_layout->setRowStretch(BOARD_GRID_ROW, 100);
     _main_grid_layout->addWidget(_board_aspect_ratio_widget, BOARD_GRID_ROW, BOARD_GRID_COL);
+    _board_aspect_ratio_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     setLeftLayout();
     setRightLayout();
@@ -233,35 +234,77 @@ void MainWindow::setTopLayout(){
     _main_grid_layout->addLayout(_top_horizontal_layout, TOP_LAYOUT_ROW, BOARD_GRID_COL);
     _main_grid_layout->setRowStretch(TOP_LAYOUT_ROW, 0);
 
+    _about_button = new QPushButton(this);
+    _about_button->setText("About");
+    _about_button->setFixedSize(80, 40);
+    _top_horizontal_layout->addWidget(_about_button);
+
     _contact_button = new QPushButton(this);
     _contact_button->setText("Contact");
-    //_contact_button->setMaximumSize(100, 100);
+    _contact_button->setFixedSize(80, 40);
     _top_horizontal_layout->addWidget(_contact_button);
+    _top_horizontal_layout->addStretch(1);
 }
 
 void MainWindow::setLeftLayout(){
     _left_vertical_layout = new QVBoxLayout();
+    _left_vertical_layout->setAlignment(Qt::AlignTop);
     _main_grid_layout->addLayout(_left_vertical_layout, BOARD_GRID_ROW, LEFT_LAYOUT_COL);
     _main_grid_layout->setColumnStretch(LEFT_LAYOUT_COL, 0);
+
+    _new_game_button = new QPushButton();
+    _new_game_button->setText("Start New Game");
+    _new_game_button->setFixedSize(160, 40);
+    _left_vertical_layout->addWidget(_new_game_button);
+
 
     _set_white_button = new QPushButton(this);
     _set_white_button->setText("Play as white");
     connect(_set_white_button, SIGNAL(clicked()), this, SLOT(setPlayerWhite()));
-    _left_vertical_layout->addWidget(_set_white_button);
     _set_white_button->setEnabled(false);
-    _set_white_button->setMaximumSize(100, 100);
+    _set_white_button->setFixedSize(80, 20);
 
     _set_black_button = new QPushButton(this);
     _set_black_button->setText("Play as black");
     connect(_set_black_button, SIGNAL(clicked()), this, SLOT(setPlayerBlack()));
-    _left_vertical_layout->addWidget(_set_black_button);
-    _set_black_button->setMaximumSize(100, 100);
+    _set_black_button->setFixedSize(80, 20);
+
+    _play_as_layout = new QHBoxLayout();
+    _play_as_layout->addWidget(_set_white_button);
+    _play_as_layout->addWidget(_set_black_button);
+
+    _left_vertical_layout->addLayout(_play_as_layout);
+
+    _left_vertical_layout->addStretch(1);
+
 }
 
 void MainWindow::setRightLayout(){
     _right_vertical_layout = new QVBoxLayout();
     _main_grid_layout->addLayout(_right_vertical_layout, BOARD_GRID_ROW, RIGHT_LAYOUT_COL);
     _main_grid_layout->setColumnStretch(RIGHT_LAYOUT_COL, 0);
+
+    _algebraic_notation_scroll_area = new QScrollArea();
+    _algebraic_notation_scroll_area->setFixedWidth(400);
+    _algebraic_notation_scroll_area->setMinimumHeight(300);
+    _algebraic_notation_scroll_area->setWidgetResizable(true);
+
+    _algebraic_notation_vertical_layout = new QVBoxLayout(_algebraic_notation_scroll_area);
+    _algebraic_notation_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //_algebraic_notation_scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+    QWidget *w = new QWidget();
+    w->setLayout(_algebraic_notation_vertical_layout);
+    _algebraic_notation_scroll_area->setWidget(w);
+
+    _right_vertical_layout->addWidget(_algebraic_notation_scroll_area);
+
+
+    for (int i = 0; i < 40; i++)
+        _algebraic_notation_vertical_layout->addWidget(new QLabel("hej"));
+    _algebraic_notation_vertical_layout->addStretch(1);
+    //_algebraic_notation_scroll_area->show();
+
 
     _info_label = new QLabel();
     _info_label->setFont(_graphics_info._info_font);
@@ -275,7 +318,7 @@ void MainWindow::setRightLayout(){
     _copy_fen = new QPushButton(this);
     _copy_fen->setText("Copy FEN");
     connect(_copy_fen, SIGNAL(clicked()), this, SLOT(copyFENToClipboard()));
-    _copy_fen->setMaximumSize(100, 100);
+    _copy_fen->setFixedSize(60, 20);
     _right_vertical_layout->addWidget(_copy_fen);
 }
 
@@ -288,12 +331,21 @@ void MainWindow::setCurrentHovered(QString id){
 }
 
 void MainWindow::startClickingMove(QString originSquare){
+    if (_game->_is_game_over)
+        return;
     bool squareContainsPiece = false;
+    bool liftingOpponentPiece = false;
     for (auto piece: _piece_widgets){
-        if (piece->piece_position() == originSquare)
+        if (piece->piece_position() == originSquare){
+            if ((piece->denotation() == "white" && _game->getUser_colour() == Black) ||
+                    (piece->denotation() == "black" && _game->getUser_colour() == White)){
+                //liftingOpponentPiece = true;
+                //TODO: uncomment this when bot exists.
+            }
             squareContainsPiece = true;
+        }
     }
-    if (!squareContainsPiece)
+    if (!squareContainsPiece || liftingOpponentPiece)
         return;
     _clicking_move_in_progress = true;
     _dragging_move_in_progress = false;
@@ -395,10 +447,7 @@ bool MainWindow::completeMove(QString destinationSquare){
             gameOverString += "DRAW\n";
         gameOverString += "by " + QString::fromStdString(_game->_game_over_reason);
         _info_label->setText(gameOverString);
-        for (auto square: _square_widgets) //TODO: handle locking the ui in some way (also for player whose turn it is not to move)
-            square->setEnabled(false);
     }
-
     return true;
 }
 
@@ -510,12 +559,22 @@ void MainWindow::moveRookForCastlingGraphically(Move move){
 }
 
 void MainWindow::startDraggingMove(QString originSquare){
+    if (_game->_is_game_over)
+        return;
     bool squareContainsPiece = false;
+    bool liftingOpponentPiece = false;
     for (auto piece: _piece_widgets){
-        if (piece->piece_position() == originSquare)
+
+        if (piece->piece_position() == originSquare){
+            if ((piece->denotation() == "white" && _game->getUser_colour() == Black) ||
+                    (piece->denotation() == "black" && _game->getUser_colour() == White)){
+                //liftingOpponentPiece = true;
+                //TODO: uncomment this when bot exists.
+            }
             squareContainsPiece = true;
+        }
     }
-    if (!squareContainsPiece)
+    if (!squareContainsPiece || liftingOpponentPiece)
         return;
     _clicking_move_in_progress = false;
     _dragging_move_in_progress = true;
@@ -704,14 +763,10 @@ bool MainWindow::mouseIsInsideBoard(){
     upperLeft = upperLeftSquare->parentWidget()->mapToGlobal(upperLeftSquare->pos());
     lowerRight.setX(lowerRightSquare->parentWidget()->mapToGlobal(lowerRightSquare->pos()).x() + lowerRightSquare->size().width());
     lowerRight.setY(lowerRightSquare->parentWidget()->mapToGlobal(lowerRightSquare->pos()).y() + lowerRightSquare->size().height());
-
     QPoint mousePos = mapTo(this, QCursor::pos());
 
-    qDebug() << mousePos.x() << upperLeft.x() << mousePos.y() << upperLeft.y() <<
-                         mousePos.y() << lowerRight.y() << mousePos.x() << lowerRight.x();
-
-    return (mousePos.x() >= upperLeft.x() && mousePos.y() >= upperLeft.y() &&
-            mousePos.y() <= lowerRight.y() && mousePos.x() <= lowerRight.x());
+    return (mousePos.x() > upperLeft.x() && mousePos.y() > upperLeft.y() &&
+            mousePos.y() < lowerRight.y() && mousePos.x() < lowerRight.x());
 }
 
 void MainWindow::initiateBoardSquaresUI(){
@@ -822,14 +877,6 @@ void MainWindow::updateFontSizes(){
         _graphics_info._header_font.setPointSize(int(scaleFactor*HEADER_FONT_SIZE));
     for (auto label: _board_header_labels)
         label->setFont(_graphics_info._header_font);
-
-    if (int(scaleFactor*FEN_FONT_SIZE) == 0)
-        _graphics_info._fen_font.setPointSize(START_FEN_FONT_SIZE);
-    else if (int(scaleFactor*FEN_FONT_SIZE) > 12)
-        _graphics_info._fen_font.setPointSize(LARGEST_FEN_FONT_SIZE);
-    else
-        _graphics_info._fen_font.setPointSize(int(scaleFactor*FEN_FONT_SIZE));
-    _fen_label->setFont(_graphics_info._fen_font);
 
     if (int(scaleFactor*INFO_FONT_SIZE) == 0)
         _graphics_info._info_font.setPointSize(START_INFO_FONT_SIZE);
