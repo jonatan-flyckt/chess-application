@@ -64,7 +64,7 @@ MainWindow::~MainWindow(){
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
-   updateCoordinateFontSize();
+   updateFontSizes();
 }
 
 void MainWindow::initiatePiecesGraphically(){
@@ -219,22 +219,14 @@ void MainWindow::initiateUIComponents(){
     _main_grid_layout->setColumnStretch(BOARD_GRID_COL, 100);
     _main_grid_layout->setRowStretch(BOARD_GRID_ROW, 100);
 
-    _info_label = new QLabel();
-    QFont f( "Arial", 15);
-    _info_label->setFont(f);
-    _info_label->setStyleSheet("color: rgb(255, 0, 0)");
-    _main_grid_layout->addWidget(_info_label, 0, 1);
+    setLeftLayout();
+    setRightLayout();
+    _main_grid_layout->addWidget(_board_aspect_ratio_widget, BOARD_GRID_ROW, BOARD_GRID_COL);
+    initiateBoardSquaresUI();
+    initiatePiecesGraphically();
+}
 
-    _fen_label = new QLabel();
-    _fen_label->setFont(f);
-    _fen_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    _main_grid_layout->addWidget(_fen_label, 2, 1);
-
-    _copy_fen = new QPushButton(this);
-    _copy_fen->setText("Copy FEN");
-    connect(_copy_fen, SIGNAL(clicked()), this, SLOT(copyFENToClipboard()));
-    _main_grid_layout->addWidget(_copy_fen, 3, 1);
-
+void MainWindow::setLeftLayout(){
     _set_white_button = new QPushButton(this);
     _set_white_button->setText("Play as white");
     connect(_set_white_button, SIGNAL(clicked()), this, SLOT(setPlayerWhite()));
@@ -245,13 +237,22 @@ void MainWindow::initiateUIComponents(){
     _set_black_button->setText("Play as black");
     connect(_set_black_button, SIGNAL(clicked()), this, SLOT(setPlayerBlack()));
     _main_grid_layout->addWidget(_set_black_button, 2, 3);
+}
 
+void MainWindow::setRightLayout(){
+    _info_label = new QLabel();
+    _info_label->setFont(_graphics_info._info_font);
+    _main_grid_layout->addWidget(_info_label, 0, 1);
 
-    _main_grid_layout->addWidget(_board_aspect_ratio_widget, BOARD_GRID_ROW, BOARD_GRID_COL);
+    _fen_label = new QLabel();
+    _fen_label->setFont(_graphics_info._fen_font);
+    _fen_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    _main_grid_layout->addWidget(_fen_label, 2, 1);
 
-    initiateBoardSquaresUI();
-
-    initiatePiecesGraphically();
+    _copy_fen = new QPushButton(this);
+    _copy_fen->setText("Copy FEN");
+    connect(_copy_fen, SIGNAL(clicked()), this, SLOT(copyFENToClipboard()));
+    _main_grid_layout->addWidget(_copy_fen, 3, 1);
 }
 
 void MainWindow::setInfoMessage(QString message){
@@ -746,7 +747,7 @@ void MainWindow::connectSquareToSignals(SquareWidget *square){
 }
 
 void MainWindow::addCoordinateWidgets(){
-    updateCoordinateFontSize();
+    updateFontSizes();
     for (int i = 1; i < 9; i++){
         if (_user_is_white){
             QLabel *number1 = new QLabel(QString::number(abs(9-i)) + " ");
@@ -787,15 +788,28 @@ void MainWindow::addCoordinateWidgets(){
     }
 }
 
-void MainWindow::updateCoordinateFontSize(){
+void MainWindow::updateFontSizes(){
     int boardSize = std::min(_board_aspect_ratio_widget->size().width(), _board_aspect_ratio_widget->size().height());
     float scaleFactor = float(boardSize) / SMALLEST_BOARD_SIZE;
+
     if (int(scaleFactor*HEADER_FONT_SIZE) == 0)
         _graphics_info._header_font.setPointSize(START_HEADER_FONT_SIZE);
     else
         _graphics_info._header_font.setPointSize(int(scaleFactor*HEADER_FONT_SIZE));
     for (auto label: _board_header_labels)
         label->setFont(_graphics_info._header_font);
+
+    if (int(scaleFactor*FEN_FONT_SIZE) == 0)
+        _graphics_info._fen_font.setPointSize(START_FEN_FONT_SIZE);
+    else
+        _graphics_info._fen_font.setPointSize(int(scaleFactor*FEN_FONT_SIZE));
+    _fen_label->setFont(_graphics_info._fen_font);
+
+    if (int(scaleFactor*INFO_FONT_SIZE) == 0)
+        _graphics_info._fen_font.setPointSize(START_INFO_FONT_SIZE);
+    else
+        _graphics_info._fen_font.setPointSize(int(scaleFactor*INFO_FONT_SIZE));
+    _fen_label->setFont(_graphics_info._fen_font);
 }
 
 void MainWindow::clearBoardUI(){

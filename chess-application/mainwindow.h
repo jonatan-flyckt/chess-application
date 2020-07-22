@@ -51,7 +51,7 @@ public:
 
     QPixmap setPixmapFromType(QString type);
 
-    void updateCoordinateFontSize();
+    void updateFontSizes();
 
     void resizeEvent(QResizeEvent* event);
 
@@ -70,6 +70,8 @@ public:
     void doNotHightlightCheck();
 
     void promotedPawnSelection();
+    void setLeftLayout();
+    void setRightLayout();
 signals:
     void on_set_white_button_clicked();
 

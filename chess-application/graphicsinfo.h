@@ -4,6 +4,12 @@
 #define HEADER_FONT_SIZE 12
 #define START_HEADER_FONT_SIZE 21
 
+#define FEN_FONT_SIZE 5
+#define START_FEN_FONT_SIZE 8
+
+#define INFO_FONT_SIZE 8
+#define START_INFO_FONT_SIZE 12
+
 #include <QPixmap>
 #include <QFileInfo>
 #include <QDebug>
@@ -42,6 +48,8 @@ public:
     QPixmap _black_pawn;
 
     QFont _header_font;
+    QFont _fen_font;
+    QFont _info_font;
 
 private:
 

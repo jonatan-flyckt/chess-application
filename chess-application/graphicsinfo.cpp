@@ -38,4 +38,6 @@ void GraphicsInfo::setGraphicsFromPath(QString path){
     _black_pawn.load(graphicsPath+"black_pawn.png");
 
     _header_font = QFont("Arial", HEADER_FONT_SIZE, QFont::Bold);
+    _fen_font = QFont("Arial", FEN_FONT_SIZE);
+    _info_font = QFont("Arial", INFO_FONT_SIZE, QFont::Cursive);
 }
