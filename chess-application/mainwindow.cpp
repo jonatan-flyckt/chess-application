@@ -223,8 +223,20 @@ void MainWindow::initiateUIComponents(){
 
     setLeftLayout();
     setRightLayout();
+    setTopLayout();
     initiateBoardSquaresUI();
     initiatePiecesGraphically();
+}
+
+void MainWindow::setTopLayout(){
+    _top_horizontal_layout = new QHBoxLayout();
+    _main_grid_layout->addLayout(_top_horizontal_layout, TOP_LAYOUT_ROW, BOARD_GRID_COL);
+    _main_grid_layout->setRowStretch(TOP_LAYOUT_ROW, 0);
+
+    _contact_button = new QPushButton(this);
+    _contact_button->setText("Contact");
+    //_contact_button->setMaximumSize(100, 100);
+    _top_horizontal_layout->addWidget(_contact_button);
 }
 
 void MainWindow::setLeftLayout(){
@@ -237,11 +249,13 @@ void MainWindow::setLeftLayout(){
     connect(_set_white_button, SIGNAL(clicked()), this, SLOT(setPlayerWhite()));
     _left_vertical_layout->addWidget(_set_white_button);
     _set_white_button->setEnabled(false);
+    _set_white_button->setMaximumSize(100, 100);
 
     _set_black_button = new QPushButton(this);
     _set_black_button->setText("Play as black");
     connect(_set_black_button, SIGNAL(clicked()), this, SLOT(setPlayerBlack()));
     _left_vertical_layout->addWidget(_set_black_button);
+    _set_black_button->setMaximumSize(100, 100);
 }
 
 void MainWindow::setRightLayout(){
@@ -261,6 +275,7 @@ void MainWindow::setRightLayout(){
     _copy_fen = new QPushButton(this);
     _copy_fen->setText("Copy FEN");
     connect(_copy_fen, SIGNAL(clicked()), this, SLOT(copyFENToClipboard()));
+    _copy_fen->setMaximumSize(100, 100);
     _right_vertical_layout->addWidget(_copy_fen);
 }
 
@@ -686,14 +701,14 @@ bool MainWindow::mouseIsInsideBoard(){
         }
     }
 
-    // I don't know why addind 24 and 39 works, but it does for all window sizes...
+    upperLeft = upperLeftSquare->parentWidget()->mapToGlobal(upperLeftSquare->pos());
+    lowerRight.setX(lowerRightSquare->parentWidget()->mapToGlobal(lowerRightSquare->pos()).x() + lowerRightSquare->size().width());
+    lowerRight.setY(lowerRightSquare->parentWidget()->mapToGlobal(lowerRightSquare->pos()).y() + lowerRightSquare->size().height());
 
-    upperLeft = mapToGlobal(upperLeftSquare->pos());
-    upperLeft.setX(upperLeft.x() + 24);
-    upperLeft.setY(upperLeft.y() + 39);
-    lowerRight.setX(mapToGlobal(lowerRightSquare->pos()).x() + lowerRightSquare->size().width() + 24);
-    lowerRight.setY(mapToGlobal(lowerRightSquare->pos()).y() + lowerRightSquare->size().height() + 39);
     QPoint mousePos = mapTo(this, QCursor::pos());
+
+    qDebug() << mousePos.x() << upperLeft.x() << mousePos.y() << upperLeft.y() <<
+                         mousePos.y() << lowerRight.y() << mousePos.x() << lowerRight.x();
 
     return (mousePos.x() >= upperLeft.x() && mousePos.y() >= upperLeft.y() &&
             mousePos.y() <= lowerRight.y() && mousePos.x() <= lowerRight.x());

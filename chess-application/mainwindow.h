@@ -7,6 +7,7 @@
 
 #define LEFT_LAYOUT_COL 0
 #define RIGHT_LAYOUT_COL 2
+#define TOP_LAYOUT_ROW 0
 
 #include <QMainWindow>
 #include <QGridLayout>
@@ -76,6 +77,7 @@ public:
     void promotedPawnSelection();
     void setLeftLayout();
     void setRightLayout();
+    void setTopLayout();
 signals:
     void on_set_white_button_clicked();
 
@@ -125,6 +127,7 @@ private:
     BoardAspectRatioWidget *_board_aspect_ratio_widget;
     QVBoxLayout *_left_vertical_layout;
     QVBoxLayout *_right_vertical_layout;
+    QHBoxLayout *_top_horizontal_layout;
 
     GraphicsInfo _graphics_info;
     bool _user_is_white;
@@ -135,6 +138,7 @@ private:
     QPushButton *_set_white_button;
     QPushButton *_set_black_button;
     QPushButton *_copy_fen;
+    QPushButton *_contact_button;
 
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;
