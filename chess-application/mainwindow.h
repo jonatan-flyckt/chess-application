@@ -30,6 +30,7 @@
 #include <QSizePolicy>
 #include <QGroupBox>
 #include <QScrollArea>
+#include <QComboBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -147,6 +148,9 @@ private:
     QPushButton *_resign_game_button;
     QScrollArea *_algebraic_notation_scroll_area;
     QVBoxLayout *_algebraic_notation_vertical_layout;
+    QComboBox *_difficulty_combo_box;
+    QComboBox *_theme_combo_box;
+    QPushButton *_export_pgn_notation_button;
 
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;

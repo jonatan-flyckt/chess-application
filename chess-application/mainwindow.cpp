@@ -248,7 +248,6 @@ void MainWindow::setTopLayout(){
 
 void MainWindow::setLeftLayout(){
     _left_vertical_layout = new QVBoxLayout();
-    _left_vertical_layout->setAlignment(Qt::AlignTop);
     _main_grid_layout->addLayout(_left_vertical_layout, BOARD_GRID_ROW, LEFT_LAYOUT_COL);
     _main_grid_layout->setColumnStretch(LEFT_LAYOUT_COL, 0);
 
@@ -275,7 +274,23 @@ void MainWindow::setLeftLayout(){
 
     _left_vertical_layout->addLayout(_play_as_layout);
 
+    _left_vertical_layout->addWidget(new QLabel("Select Difficulty:"));
+
+    _difficulty_combo_box = new QComboBox();
+    _difficulty_combo_box->addItem("Easy");
+    _difficulty_combo_box->addItem("Normal");
+    _difficulty_combo_box->setItemText(0, "Easy");
+    _difficulty_combo_box->setFixedWidth(160);
+    _left_vertical_layout->addWidget(_difficulty_combo_box);
+
     _left_vertical_layout->addStretch(1);
+
+    _left_vertical_layout->addWidget(new QLabel("Change Theme:"));
+    _theme_combo_box = new QComboBox();
+    _theme_combo_box->addItem("Standard");
+    _theme_combo_box->setItemText(0, "Standard");
+    _theme_combo_box->setFixedWidth(160);
+    _left_vertical_layout->addWidget(_theme_combo_box);
 
 }
 
@@ -283,6 +298,11 @@ void MainWindow::setRightLayout(){
     _right_vertical_layout = new QVBoxLayout();
     _main_grid_layout->addLayout(_right_vertical_layout, BOARD_GRID_ROW, RIGHT_LAYOUT_COL);
     _main_grid_layout->setColumnStretch(RIGHT_LAYOUT_COL, 0);
+
+    _export_pgn_notation_button = new QPushButton();
+    _export_pgn_notation_button->setText("Export Game Notation (PGN)");
+    _export_pgn_notation_button->setFixedHeight(50);
+    _right_vertical_layout->addWidget(_export_pgn_notation_button);
 
     _algebraic_notation_scroll_area = new QScrollArea();
     _algebraic_notation_scroll_area->setFixedWidth(400);
@@ -303,7 +323,8 @@ void MainWindow::setRightLayout(){
     for (int i = 0; i < 40; i++)
         _algebraic_notation_vertical_layout->addWidget(new QLabel("hej"));
     _algebraic_notation_vertical_layout->addStretch(1);
-    //_algebraic_notation_scroll_area->show();
+
+
 
 
     _info_label = new QLabel();
@@ -776,12 +797,12 @@ void MainWindow::initiateBoardSquaresUI(){
             for (int j = 8; j > 0; j--){
                 SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info._black_square, "black");
+                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info._white_square, "white");
                     _board_grid_layout->addWidget(square, abs(8-i), j);
                     _square_widgets.append(square);
                 }
                 else{
-                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info._white_square, "white");
+                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info._black_square, "black");
                     _board_grid_layout->addWidget(square, abs(8-i), j);
                     _square_widgets.append(square);
                 }
