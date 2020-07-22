@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     _clicking_move_in_progress = false;
 
     initiateUIComponents();
-    _fen_label->setText("FEN:\t" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
+    _fen_label->setText("FEN:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 
     resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
 }
@@ -41,7 +41,7 @@ void MainWindow::restartGame(Colour colour){
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
         _legal_moves_for_current_state.append(legalMove);
     }
-    _fen_label->setText("FEN:\t" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
+    _fen_label->setText("FEN:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 }
 
 MainWindow::~MainWindow(){
@@ -207,8 +207,9 @@ void MainWindow::removePieceGraphically(PieceWidget *piece){
 void MainWindow::initiateUIComponents(){
     _main_grid_layout = new QGridLayout();
     _ui->centralwidget->setLayout(_main_grid_layout);
-    _board_grid_layout = new QGridLayout();
+    _main_grid_layout->setSpacing(0);
 
+    _board_grid_layout = new QGridLayout();
     _board_grid_layout->setSpacing(0);
 
     _board_aspect_ratio_widget = new BoardAspectRatioWidget(_board_grid_layout, SMALLEST_BOARD_SIZE, SMALLEST_BOARD_SIZE, _ui->centralwidget);
@@ -218,41 +219,49 @@ void MainWindow::initiateUIComponents(){
     _main_grid_layout->setRowMinimumHeight(BOARD_GRID_ROW, SMALLEST_BOARD_SIZE);
     _main_grid_layout->setColumnStretch(BOARD_GRID_COL, 100);
     _main_grid_layout->setRowStretch(BOARD_GRID_ROW, 100);
+    _main_grid_layout->addWidget(_board_aspect_ratio_widget, BOARD_GRID_ROW, BOARD_GRID_COL);
 
     setLeftLayout();
     setRightLayout();
-    _main_grid_layout->addWidget(_board_aspect_ratio_widget, BOARD_GRID_ROW, BOARD_GRID_COL);
     initiateBoardSquaresUI();
     initiatePiecesGraphically();
 }
 
 void MainWindow::setLeftLayout(){
+    _left_vertical_layout = new QVBoxLayout();
+    _main_grid_layout->addLayout(_left_vertical_layout, BOARD_GRID_ROW, LEFT_LAYOUT_COL);
+    _main_grid_layout->setColumnStretch(LEFT_LAYOUT_COL, 0);
+
     _set_white_button = new QPushButton(this);
     _set_white_button->setText("Play as white");
     connect(_set_white_button, SIGNAL(clicked()), this, SLOT(setPlayerWhite()));
-    _main_grid_layout->addWidget(_set_white_button, 2, 2);
+    _left_vertical_layout->addWidget(_set_white_button);
     _set_white_button->setEnabled(false);
 
     _set_black_button = new QPushButton(this);
     _set_black_button->setText("Play as black");
     connect(_set_black_button, SIGNAL(clicked()), this, SLOT(setPlayerBlack()));
-    _main_grid_layout->addWidget(_set_black_button, 2, 3);
+    _left_vertical_layout->addWidget(_set_black_button);
 }
 
 void MainWindow::setRightLayout(){
+    _right_vertical_layout = new QVBoxLayout();
+    _main_grid_layout->addLayout(_right_vertical_layout, BOARD_GRID_ROW, RIGHT_LAYOUT_COL);
+    _main_grid_layout->setColumnStretch(RIGHT_LAYOUT_COL, 0);
+
     _info_label = new QLabel();
     _info_label->setFont(_graphics_info._info_font);
-    _main_grid_layout->addWidget(_info_label, 0, 1);
+    _right_vertical_layout->addWidget(_info_label);
 
     _fen_label = new QLabel();
     _fen_label->setFont(_graphics_info._fen_font);
     _fen_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    _main_grid_layout->addWidget(_fen_label, 2, 1);
+    _right_vertical_layout->addWidget(_fen_label);
 
     _copy_fen = new QPushButton(this);
     _copy_fen->setText("Copy FEN");
     connect(_copy_fen, SIGNAL(clicked()), this, SLOT(copyFENToClipboard()));
-    _main_grid_layout->addWidget(_copy_fen, 3, 1);
+    _right_vertical_layout->addWidget(_copy_fen);
 }
 
 void MainWindow::setInfoMessage(QString message){
@@ -358,7 +367,7 @@ bool MainWindow::completeMove(QString destinationSquare){
         _legal_moves_for_current_state.append(legalMove);
     }
     highlightPreviousMove();
-    _fen_label->setText("FEN:\t" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
+    _fen_label->setText("FEN:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 
     if (_game->_is_game_over){
         QString gameOverString = "";
@@ -630,7 +639,7 @@ void MainWindow::movePieceWidget(QPoint mousePos){
 void MainWindow::copyFENToClipboard(){
     qDebug() << "clicked copy FEN";
     QClipboard *clipBoard = QApplication::clipboard();
-    clipBoard->setText(_fen_label->text().split('\t').at(1));
+    clipBoard->setText(_fen_label->text().split('\n').at(1));
 }
 
 QVector<SquareWidget *> MainWindow::sendSquareWidgets(){
@@ -801,15 +810,17 @@ void MainWindow::updateFontSizes(){
 
     if (int(scaleFactor*FEN_FONT_SIZE) == 0)
         _graphics_info._fen_font.setPointSize(START_FEN_FONT_SIZE);
+    else if (int(scaleFactor*FEN_FONT_SIZE) > 12)
+        _graphics_info._fen_font.setPointSize(LARGEST_FEN_FONT_SIZE);
     else
         _graphics_info._fen_font.setPointSize(int(scaleFactor*FEN_FONT_SIZE));
     _fen_label->setFont(_graphics_info._fen_font);
 
     if (int(scaleFactor*INFO_FONT_SIZE) == 0)
-        _graphics_info._fen_font.setPointSize(START_INFO_FONT_SIZE);
+        _graphics_info._info_font.setPointSize(START_INFO_FONT_SIZE);
     else
-        _graphics_info._fen_font.setPointSize(int(scaleFactor*INFO_FONT_SIZE));
-    _fen_label->setFont(_graphics_info._fen_font);
+        _graphics_info._info_font.setPointSize(int(scaleFactor*INFO_FONT_SIZE));
+    _info_label->setFont(_graphics_info._info_font);
 }
 
 void MainWindow::clearBoardUI(){

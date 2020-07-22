@@ -10,16 +10,16 @@ QWidget(parent), arWidth(width), arHeight(height){
 
 //Make sure the board keeps a square aspect ratio if the window is resized
 void BoardAspectRatioWidget::resizeEvent(QResizeEvent *event){
-
     float thisAspectRatio = (float)event->size().width() / event->size().height();
     int widgetStretch, outerStretch;
 
-    if (thisAspectRatio > (arWidth/arHeight)){ // too wide
+    layout->setDirection(QBoxLayout::TopToBottom);
+    if (thisAspectRatio > (arWidth/arHeight)){//Too wide, set spacers on the sides
         layout->setDirection(QBoxLayout::LeftToRight);
         widgetStretch = height() * (arWidth/arHeight);
         outerStretch = (width() - widgetStretch) / 2 + 0.5;
     }
-    else{ // too tall
+    else{//Too tall, set spacers on the top and bottom
         layout->setDirection(QBoxLayout::TopToBottom);
         widgetStretch = width() * (arHeight/arWidth);
         outerStretch = (height() - widgetStretch) / 2 + 0.5;
@@ -29,9 +29,8 @@ void BoardAspectRatioWidget::resizeEvent(QResizeEvent *event){
     layout->setStretch(1, widgetStretch);
     layout->setStretch(2, outerStretch);
 
-
     for(auto square: emit getSquareWidgets()){
-        square->setSquareScaleFactor(std::min(this->width()/10, this->height()/10));
+        square->setSquareScaleFactor(std::min(parentWidget()->size().height()/10, this->width()/10));
         square->populateWithPixmap();
     }
 

@@ -7,6 +7,9 @@
 #include <QDebug>
 #include <squarewidget.h>
 
+#include <QGuiApplication>
+#include <QScreen>
+
 class BoardAspectRatioWidget: public QWidget{
 Q_OBJECT
 public:

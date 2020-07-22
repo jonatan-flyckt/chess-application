@@ -5,6 +5,9 @@
 #define BOARD_GRID_ROW 1
 #define SMALLEST_BOARD_SIZE 500
 
+#define LEFT_LAYOUT_COL 0
+#define RIGHT_LAYOUT_COL 2
+
 #include <QMainWindow>
 #include <QGridLayout>
 #include <QLabel>
@@ -23,6 +26,7 @@
 #include <chessgame.h>
 #include <QClipboard>
 #include <QMessageBox>
+#include <QSizePolicy>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -119,6 +123,9 @@ private:
     QGridLayout *_board_grid_layout;
     QGridLayout *_main_grid_layout;
     BoardAspectRatioWidget *_board_aspect_ratio_widget;
+    QVBoxLayout *_left_vertical_layout;
+    QVBoxLayout *_right_vertical_layout;
+
     GraphicsInfo _graphics_info;
     bool _user_is_white;
     ChessGame *_game;
@@ -128,6 +135,7 @@ private:
     QPushButton *_set_white_button;
     QPushButton *_set_black_button;
     QPushButton *_copy_fen;
+
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;
     QVector<PieceWidget*> _piece_widgets;

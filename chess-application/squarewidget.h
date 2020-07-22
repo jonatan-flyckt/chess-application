@@ -40,9 +40,9 @@ public:
     QPixmap getSquare_pixmap() const;
     void setSquare_pixmap(const QPixmap &square_pixmap);
 
-    void resizeEvent(QResizeEvent *event);
-
     void setSquareScaleFactor(int size);
+    int getSquare_scale_factor() const;
+
 signals:
     void signalInfoMessage(QString message);
 

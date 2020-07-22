@@ -16,6 +16,10 @@ void SquareWidget::setSquareScaleFactor(int size){
     _square_scale_factor = size;
 }
 
+int SquareWidget::getSquare_scale_factor() const{
+    return _square_scale_factor;
+}
+
 void SquareWidget::populateWithPixmap(){
     this->setPixmap(_square_pixmap.scaled(_square_scale_factor, _square_scale_factor, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
@@ -121,11 +125,4 @@ QPixmap SquareWidget::getSquare_pixmap() const
 void SquareWidget::setSquare_pixmap(const QPixmap &square_pixmap)
 {
     _square_pixmap = square_pixmap;
-}
-
-void SquareWidget::resizeEvent(QResizeEvent *event)
-{
-    //qDebug() << "hej";
-    //this->setGeometry(x(), y(), 50, 50);
-
 }
