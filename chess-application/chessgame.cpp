@@ -128,6 +128,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     }
 
     _is_game_over = _current_state->_is_game_over;
+    _current_state->_move_to_state._algebraic_notation = algebraicNotationForMove(_current_state->_move_to_state);
     return true;
 }
 
@@ -342,7 +343,7 @@ string ChessGame::enPassantTargetSquareForFEN(Move move){
 }
 
 string ChessGame::algebraicNotationForMove(Move move){
-
+    return move._origin_square + " - " + move._destination_square;
 }
 
 Colour ChessGame::getUser_colour() const

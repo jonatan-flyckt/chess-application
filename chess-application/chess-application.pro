@@ -22,6 +22,7 @@ SOURCES += \
     graphicsinfo.cpp \
     main.cpp \
     mainwindow.cpp \
+    notationwidget.cpp \
     piecewidget.cpp \
     squarewidget.cpp
 
@@ -32,6 +33,7 @@ HEADERS += \
     chessstructs.h \
     graphicsinfo.h \
     mainwindow.h \
+    notationwidget.h \
     piecewidget.h \
     squarewidget.h
 

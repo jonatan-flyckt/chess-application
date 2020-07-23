@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+//TODO: properly destroy all pointers in all classes with a refactor
+//TODO: use the Colour enum instead of bool or string for all classes
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _ui(new Ui::MainWindow){
@@ -14,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     _board_aspect_ratio_widget = nullptr;
     _piece_widget_currently_dragged = nullptr;
 
+    _in_exploration_mode = false;
     _dragging_move_ready_to_complete = false;
     _user_is_white = true;
     _game = new ChessGame(_user_is_white);
@@ -35,8 +39,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::restartGame(Colour colour){
     _info_label->setText("New game started");
+    _in_exploration_mode = false;
     _user_is_white = colour == White;
     _game = new ChessGame(_user_is_white);
+    _notation_widgets.clear();
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
         _legal_moves_for_current_state.append(legalMove);
@@ -59,6 +65,33 @@ MainWindow::~MainWindow(){
     if (_board_aspect_ratio_widget != nullptr)
         delete _board_aspect_ratio_widget;
     delete _ui;
+}
+
+void MainWindow::addNotationWidgetForMove(State *resultingState){
+
+    NotationWidget *widget = new NotationWidget(resultingState);
+    connect(widget, &NotationWidget::clickedSendState, this, &MainWindow::notationWidgetClicked);
+    _notation_widgets.append(widget);
+    if (resultingState->_move_to_state._piece._colour == White){
+        QHBoxLayout *moveLayout = new QHBoxLayout();
+        moveLayout->addWidget(new QLabel(QString::number((int)(resultingState->_move_to_state._move_number+1)/2) + ". "));
+        moveLayout->addWidget(widget);
+        _algebraic_notation_horizontal_layouts.append(moveLayout);
+        _algebraic_notation_vertical_layout->insertLayout(_algebraic_notation_vertical_layout->count()-1, moveLayout);
+    }
+    else{
+        _algebraic_notation_horizontal_layouts.last()->addWidget(widget);
+    }
+}
+
+void MainWindow::notationWidgetClicked(State *state){
+    for (auto widget: _notation_widgets){
+        widget->setStyleSheet("");
+        if (widget->state()->_number_of_moves == state->_number_of_moves){
+            widget->setStyleSheet("background-color: blue");
+        }
+    }
+    qDebug() << "notation widget clicked: " << QString::fromStdString(state->_move_to_state._algebraic_notation);
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
@@ -311,6 +344,8 @@ void MainWindow::setLeftLayout(){
 }
 
 void MainWindow::setRightLayout(){
+    _algebraic_notation_horizontal_layouts.clear();
+
     _right_vertical_layout = new QVBoxLayout();
     _main_grid_layout->addLayout(_right_vertical_layout, BOARD_GRID_ROW, RIGHT_LAYOUT_COL);
     _main_grid_layout->setColumnStretch(RIGHT_LAYOUT_COL, 0);
@@ -326,6 +361,7 @@ void MainWindow::setRightLayout(){
     _algebraic_notation_scroll_area->setWidgetResizable(true);
 
     _algebraic_notation_vertical_layout = new QVBoxLayout(_algebraic_notation_scroll_area);
+    _algebraic_notation_vertical_layout->addStretch(1);
     _algebraic_notation_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     QWidget *w = new QWidget();
@@ -335,10 +371,7 @@ void MainWindow::setRightLayout(){
     _right_vertical_layout->addWidget(_algebraic_notation_scroll_area);
 
 
-    //TODO: remove temp
-    for (int i = 0; i < 40; i++)
-        _algebraic_notation_vertical_layout->addWidget(new QLabel("hej"));
-    _algebraic_notation_vertical_layout->addStretch(1);
+
 
 
 
@@ -489,6 +522,7 @@ bool MainWindow::completeMove(QString destinationSquare){
         gameOverString += "by " + QString::fromStdString(_game->_game_over_reason);
         _info_label->setText(gameOverString);
     }
+    addNotationWidgetForMove(currentState);
     return true;
 }
 

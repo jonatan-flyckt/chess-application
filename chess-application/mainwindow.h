@@ -31,6 +31,7 @@
 #include <QGroupBox>
 #include <QScrollArea>
 #include <QComboBox>
+#include "notationwidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -81,6 +82,7 @@ public:
     void setLeftLayout();
     void setRightLayout();
     void setTopLayout();
+    void addNotationWidgetForMove(State *resultingState);
 signals:
     void on_set_white_button_clicked();
 
@@ -123,6 +125,8 @@ public slots:
 
     QVector<SquareWidget*> sendSquareWidgets();
 
+    void notationWidgetClicked(State *state);
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;
@@ -135,6 +139,7 @@ private:
     GraphicsInfo _graphics_info;
     bool _user_is_white;
     ChessGame *_game;
+    bool _in_exploration_mode;
 
     QLabel *_info_label;
     QLabel *_fen_label;
@@ -148,6 +153,8 @@ private:
     QPushButton *_resign_game_button;
     QScrollArea *_algebraic_notation_scroll_area;
     QVBoxLayout *_algebraic_notation_vertical_layout;
+    QVector<QHBoxLayout*> _algebraic_notation_horizontal_layouts;
+    QVector<NotationWidget*> _notation_widgets;
     QComboBox *_difficulty_combo_box;
     QComboBox *_theme_combo_box;
     QPushButton *_export_pgn_notation_button;
