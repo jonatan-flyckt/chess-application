@@ -143,7 +143,7 @@ private:
     QPushButton *_copy_fen;
     QPushButton *_contact_button;
     QPushButton *_about_button;
-    QHBoxLayout *_play_as_layout;
+    QHBoxLayout *_play_as_horizontal_layout;
     QPushButton *_new_game_button;
     QPushButton *_resign_game_button;
     QScrollArea *_algebraic_notation_scroll_area;
@@ -151,6 +151,8 @@ private:
     QComboBox *_difficulty_combo_box;
     QComboBox *_theme_combo_box;
     QPushButton *_export_pgn_notation_button;
+    QPushButton *_links_and_download_button;
+    QHBoxLayout *_fen_horizontal_layout;
 
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;

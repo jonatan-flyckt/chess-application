@@ -234,15 +234,24 @@ void MainWindow::setTopLayout(){
     _main_grid_layout->addLayout(_top_horizontal_layout, TOP_LAYOUT_ROW, BOARD_GRID_COL);
     _main_grid_layout->setRowStretch(TOP_LAYOUT_ROW, 0);
 
+    _top_horizontal_layout->addStretch(1);
+
     _about_button = new QPushButton(this);
     _about_button->setText("About");
-    _about_button->setFixedSize(80, 40);
+    _about_button->setFixedSize(100, 60);
     _top_horizontal_layout->addWidget(_about_button);
+
+    _links_and_download_button = new QPushButton(this);
+    _links_and_download_button->setText("Links / Download");
+    _links_and_download_button->setFixedSize(100, 60);
+    _top_horizontal_layout->addWidget(_links_and_download_button);
 
     _contact_button = new QPushButton(this);
     _contact_button->setText("Contact");
-    _contact_button->setFixedSize(80, 40);
+    _contact_button->setFixedSize(100, 60);
     _top_horizontal_layout->addWidget(_contact_button);
+    _top_horizontal_layout->addStretch(1);
+
     _top_horizontal_layout->addStretch(1);
 }
 
@@ -250,6 +259,8 @@ void MainWindow::setLeftLayout(){
     _left_vertical_layout = new QVBoxLayout();
     _main_grid_layout->addLayout(_left_vertical_layout, BOARD_GRID_ROW, LEFT_LAYOUT_COL);
     _main_grid_layout->setColumnStretch(LEFT_LAYOUT_COL, 0);
+
+    _left_vertical_layout->addStretch(1);
 
     _new_game_button = new QPushButton();
     _new_game_button->setText("Start New Game");
@@ -268,11 +279,11 @@ void MainWindow::setLeftLayout(){
     connect(_set_black_button, SIGNAL(clicked()), this, SLOT(setPlayerBlack()));
     _set_black_button->setFixedSize(80, 20);
 
-    _play_as_layout = new QHBoxLayout();
-    _play_as_layout->addWidget(_set_white_button);
-    _play_as_layout->addWidget(_set_black_button);
+    _play_as_horizontal_layout = new QHBoxLayout();
+    _play_as_horizontal_layout->addWidget(_set_white_button);
+    _play_as_horizontal_layout->addWidget(_set_black_button);
 
-    _left_vertical_layout->addLayout(_play_as_layout);
+    _left_vertical_layout->addLayout(_play_as_horizontal_layout);
 
     _left_vertical_layout->addWidget(new QLabel("Select Difficulty:"));
 
@@ -282,6 +293,11 @@ void MainWindow::setLeftLayout(){
     _difficulty_combo_box->setItemText(0, "Easy");
     _difficulty_combo_box->setFixedWidth(160);
     _left_vertical_layout->addWidget(_difficulty_combo_box);
+
+    _resign_game_button = new QPushButton();
+    _resign_game_button->setText("Resign Game");
+    _resign_game_button->setFixedSize(160, 40);
+    _left_vertical_layout->addWidget(_resign_game_button);
 
     _left_vertical_layout->addStretch(1);
 
@@ -311,7 +327,6 @@ void MainWindow::setRightLayout(){
 
     _algebraic_notation_vertical_layout = new QVBoxLayout(_algebraic_notation_scroll_area);
     _algebraic_notation_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //_algebraic_notation_scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     QWidget *w = new QWidget();
     w->setLayout(_algebraic_notation_vertical_layout);
@@ -320,27 +335,32 @@ void MainWindow::setRightLayout(){
     _right_vertical_layout->addWidget(_algebraic_notation_scroll_area);
 
 
+    //TODO: remove temp
     for (int i = 0; i < 40; i++)
         _algebraic_notation_vertical_layout->addWidget(new QLabel("hej"));
     _algebraic_notation_vertical_layout->addStretch(1);
 
 
 
-
-    _info_label = new QLabel();
-    _info_label->setFont(_graphics_info._info_font);
-    _right_vertical_layout->addWidget(_info_label);
-
     _fen_label = new QLabel();
     _fen_label->setFont(_graphics_info._fen_font);
     _fen_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    _right_vertical_layout->addWidget(_fen_label);
 
     _copy_fen = new QPushButton(this);
-    _copy_fen->setText("Copy FEN");
+    _copy_fen->setText("Copy");
     connect(_copy_fen, SIGNAL(clicked()), this, SLOT(copyFENToClipboard()));
-    _copy_fen->setFixedSize(60, 20);
-    _right_vertical_layout->addWidget(_copy_fen);
+    _copy_fen->setFixedSize(40, 20);
+
+    _fen_horizontal_layout = new QHBoxLayout();
+    _fen_horizontal_layout->addWidget(_fen_label);
+    _fen_horizontal_layout->addWidget(_copy_fen);
+    _right_vertical_layout->addLayout(_fen_horizontal_layout);
+
+
+    _info_label = new QLabel();
+    _info_label->setFont(_graphics_info._info_font);
+    _info_label->setStyleSheet("color: red");
+    _right_vertical_layout->addWidget(_info_label);
 }
 
 void MainWindow::setInfoMessage(QString message){
@@ -600,6 +620,8 @@ void MainWindow::startDraggingMove(QString originSquare){
     _clicking_move_in_progress = false;
     _dragging_move_in_progress = true;
     _move_in_progress_origin_square = originSquare;
+
+    highlightLegalSquares(originSquare);
 
     QSize widgetSize;
     PieceWidget *pieceToMove;
