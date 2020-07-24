@@ -42,12 +42,26 @@ void MainWindow::restartGame(Colour colour){
     _in_exploration_mode = false;
     _user_is_white = colour == White;
     _game = new ChessGame(_user_is_white);
+    clearAlgebraicNotationView();
     _notation_widgets.clear();
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
         _legal_moves_for_current_state.append(legalMove);
     }
     _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
+    _explore_last_button->setEnabled(false);
+    _state_being_viewed = _game->getCurrent_state();
+}
+
+void MainWindow::clearAlgebraicNotationView(){
+    while(!_algebraic_notation_vertical_layout->isEmpty()) {
+        QLayout *moveLayout = _algebraic_notation_vertical_layout->takeAt(0)->layout();
+        while(!moveLayout->isEmpty()) {
+            QWidget *w = moveLayout->takeAt(0)->widget();
+            delete w;
+        }
+        delete moveLayout;
+    }
 }
 
 MainWindow::~MainWindow(){
@@ -88,22 +102,90 @@ void MainWindow::addNotationWidgetForMove(State *resultingState){
         _algebraic_notation_horizontal_layouts.last()->addWidget(widget);
         _algebraic_notation_horizontal_layouts.last()->addStretch(4);
     }
+    _algebraic_notation_scroll_area->verticalScrollBar()->setValue(_algebraic_notation_scroll_area->verticalScrollBar()->maximum());
 }
 
 void MainWindow::notationWidgetClicked(State *state){
+    loadStateGraphically(state);
+    qDebug() << "notation widget clicked: " << QString::fromStdString(state->_move_to_state._algebraic_notation);
+}
+
+void MainWindow::loadStateGraphically(State *state){
     for (auto widget: _notation_widgets){
         widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 0px");
         if (widget->state()->_number_of_moves == state->_number_of_moves){
             widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 1px solid blue");
         }
     }
-    qDebug() << "notation widget clicked: " << QString::fromStdString(state->_move_to_state._algebraic_notation);
+    _in_exploration_mode = state->_number_of_moves != _game->getCurrent_state()->_number_of_moves;
+    _state_being_viewed = state;
+    removeAllSquareHighlights();
+    _explore_last_button->setEnabled(_in_exploration_mode);
+    _explore_next_button->setEnabled(_in_exploration_mode);
+    _explore_previous_button->setEnabled(state->_number_of_moves > 0);
+    _explore_first_button->setEnabled(state->_number_of_moves > 0);
+
+    if (state->_number_of_moves > 0)
+        highlightPreviousMove(state);
+    if (state->_white_king_is_in_check || state->_black_king_is_in_check)
+        highlightCheck(state);
+    clearAllPiecesFromBoard();
+    addPiecesToBoardFromState(state);
+}
+
+void MainWindow::addPiecesToBoardFromState(State *state){
+    for (int i = 0; i < state->_board.size(); i++){
+        for (int j = 0; j < state->_board.at(i).size(); j++){
+            if (state->_board.at(i).at(j) != nullptr){
+                Piece *piece = state->_board.at(i).at(j);
+                if (piece->_type == Pawn)
+                    addPieceGraphically(piece->_colour == White ? _graphics_info._white_pawn : _graphics_info._black_pawn,
+                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        piece->_colour == White ? "white" : "black");
+                else if (piece->_type == Rook)
+                    addPieceGraphically(piece->_colour == White ? _graphics_info._white_rook : _graphics_info._black_rook,
+                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        piece->_colour == White ? "white" : "black");
+                else if (piece->_type == Bishop)
+                    addPieceGraphically(piece->_colour == White ? _graphics_info._white_bishop : _graphics_info._black_bishop,
+                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        piece->_colour == White ? "white" : "black");
+                else if (piece->_type == Knight)
+                    addPieceGraphically(piece->_colour == White ? _graphics_info._white_knight : _graphics_info._black_knight,
+                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        piece->_colour == White ? "white" : "black");
+                else if (piece->_type == Queen)
+                    addPieceGraphically(piece->_colour == White ? _graphics_info._white_queen : _graphics_info._black_queen,
+                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        piece->_colour == White ? "white" : "black");
+                else if (piece->_type == King)
+                    addPieceGraphically(piece->_colour == White ? _graphics_info._white_king : _graphics_info._black_king,
+                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        piece->_colour == White ? "white" : "black");
+            }
+        }
+    }
+}
+
+void MainWindow::clearAllPiecesFromBoard(){
+    for (auto square: _square_widgets){
+        while(!square->inner_layout()->isEmpty()) {
+            QWidget *w = square->inner_layout()->takeAt(0)->widget();
+            delete w;
+        }
+    }
+    _piece_widgets.clear();
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
    updateFontSizes();
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event){
+    qDebug() << event;
+    //TODO: make states navigatable through left and right arrows
 }
 
 void MainWindow::initiatePiecesGraphically(){
@@ -149,8 +231,7 @@ void MainWindow::highlightLegalSquares(QString originSquare){
     }
 }
 
-void MainWindow::highlightPreviousMove(){
-    State *state = _game->getCurrent_state();
+void MainWindow::highlightPreviousMove(State *state){
     QVector<QString> previousMoveSquares;
     if (state->_number_of_moves > 0){
         previousMoveSquares.append(QString::fromStdString(state->_move_to_state._origin_square));
@@ -165,6 +246,15 @@ void MainWindow::highlightPreviousMove(){
                     square->changePixmap(_graphics_info._misc_highlight_black);
             }
         }
+    }
+}
+
+void MainWindow::removeAllSquareHighlights(){
+    for (auto square: _square_widgets){
+        if (square->getDenotation()  == "white")
+            square->changePixmap(_graphics_info._white_square);
+        else
+            square->changePixmap(_graphics_info._black_square);
     }
 }
 
@@ -285,6 +375,11 @@ void MainWindow::setTopLayout(){
     _links_and_download_button->setFixedSize(100, 60);
     _top_horizontal_layout->addWidget(_links_and_download_button);
 
+    _bug_report_button = new QPushButton(this);
+    _bug_report_button->setText("Report a bug");
+    _bug_report_button->setFixedSize(100, 60);
+    _top_horizontal_layout->addWidget(_bug_report_button);
+
     _contact_button = new QPushButton(this);
     _contact_button->setText("Contact");
     _contact_button->setFixedSize(100, 60);
@@ -340,7 +435,7 @@ void MainWindow::setLeftLayout(){
 
     _left_vertical_layout->addStretch(1);
 
-    _left_vertical_layout->addWidget(new QLabel("Change Theme:"));
+    _left_vertical_layout->addWidget(new QLabel("Select Theme:"));
     _theme_combo_box = new QComboBox();
     _theme_combo_box->addItem("Standard");
     _theme_combo_box->setItemText(0, "Standard");
@@ -380,21 +475,39 @@ void MainWindow::setRightLayout(){
     _exploration_navigation_horizontal_layout = new QHBoxLayout();
     _explore_first_button = new QPushButton();
     _explore_first_button->setText("<<");
+    _explore_first_button->setEnabled(false);
+    connect(_explore_first_button, SIGNAL(clicked()), this, SLOT(exploreFirstState()));
     _exploration_navigation_horizontal_layout->addWidget(_explore_first_button);
 
     _explore_previous_button = new QPushButton();
     _explore_previous_button->setText("<");
+    _explore_previous_button->setEnabled(false);
+    connect(_explore_previous_button, SIGNAL(clicked()), this, SLOT(explorePreviousState()));
     _exploration_navigation_horizontal_layout->addWidget(_explore_previous_button);
 
     _explore_next_button = new QPushButton();
     _explore_next_button->setText(">");
+    _explore_next_button->setEnabled(false);
+    connect(_explore_next_button, SIGNAL(clicked()), this, SLOT(exploreNextState()));
     _exploration_navigation_horizontal_layout->addWidget(_explore_next_button);
 
     _explore_last_button = new QPushButton();
     _explore_last_button->setText(">>");
+    _explore_last_button->setEnabled(false);
+    connect(_explore_last_button, SIGNAL(clicked()), this, SLOT(exploreLastState()));
     _exploration_navigation_horizontal_layout->addWidget(_explore_last_button);
 
     _right_vertical_layout->addLayout(_exploration_navigation_horizontal_layout);
+
+    _colour_to_move_horizontal_layout = new QHBoxLayout();
+
+    _colour_to_move_horizontal_layout->addWidget(new QLabel("Colour to move: "));
+    _colour_to_move_label = new QLabel();
+    _colour_to_move_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
+    _colour_to_move_horizontal_layout->addWidget(_colour_to_move_label);
+    _colour_to_move_horizontal_layout->addStretch(1);
+    _right_vertical_layout->addLayout(_colour_to_move_horizontal_layout);
+
 
     _fen_label = new QLabel();
     _fen_label->setFont(_graphics_info._fen_font);
@@ -417,6 +530,26 @@ void MainWindow::setRightLayout(){
     _right_vertical_layout->addWidget(_info_label);
 }
 
+void MainWindow::exploreFirstState(){
+    loadStateGraphically(_game->getState_vector()->at(0));
+}
+
+void MainWindow::explorePreviousState(){
+    if (_state_being_viewed->_previous_state != nullptr){
+        loadStateGraphically(_state_being_viewed->_previous_state);
+    }
+}
+
+void MainWindow::exploreNextState(){
+    if (_state_being_viewed->_next_state != nullptr)
+        loadStateGraphically(_state_being_viewed->_next_state);
+}
+
+void MainWindow::exploreLastState(){
+    if (_game->getState_vector()->size() > 0)
+        loadStateGraphically(_game->getState_vector()->at(_game->getState_vector()->size()-1));
+}
+
 void MainWindow::setInfoMessage(QString message){
     _info_label->setText(message);
 }
@@ -426,7 +559,7 @@ void MainWindow::setCurrentHovered(QString id){
 }
 
 void MainWindow::startClickingMove(QString originSquare){
-    if (_game->_is_game_over)
+    if (_game->_is_game_over || _in_exploration_mode)
         return;
     bool squareContainsPiece = false;
     bool liftingOpponentPiece = false;
@@ -465,9 +598,9 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     if (!_legal_destination_squares_for_origin_square.contains(destinationSquare)){
         qDebug() << "move was not legal";
         _clicking_move_in_progress = false;
-        highlightPreviousMove();
+        highlightPreviousMove(_game->getCurrent_state());
         if (_game->getCurrent_state()->_white_king_is_in_check || _game->getCurrent_state()->_black_king_is_in_check)
-            highlightCheck();
+            highlightCheck(_game->getCurrent_state());
         return;
     }
     if (!completeMove(destinationSquare))
@@ -522,14 +655,18 @@ bool MainWindow::completeMove(QString destinationSquare){
         removeEnPassantCapturedPieceGraphically(moveMade);
 
     State *currentState = _game->getCurrent_state();
-    currentState->_white_king_is_in_check || currentState->_black_king_is_in_check  ? highlightCheck() : doNotHightlightCheck();
+    currentState->_white_king_is_in_check || currentState->_black_king_is_in_check  ? highlightCheck(_game->getCurrent_state()) : doNotHightlightCheck();
 
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
         _legal_moves_for_current_state.append(legalMove);
     }
-    highlightPreviousMove();
+    highlightPreviousMove(_game->getCurrent_state());
     _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
+    if (moveMade._piece._colour == White)
+        _colour_to_move_label->setPixmap(_graphics_info._black_king.scaled(65, 65, Qt::KeepAspectRatio));
+    else
+        _colour_to_move_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
 
     if (_game->_is_game_over){
         QString gameOverString = "";
@@ -544,6 +681,10 @@ bool MainWindow::completeMove(QString destinationSquare){
         _info_label->setText(gameOverString);
     }
     addNotationWidgetForMove(currentState);
+
+    _explore_first_button->setEnabled(true);
+    _explore_previous_button->setEnabled(true);
+    _state_being_viewed = currentState;
     return true;
 }
 
@@ -567,10 +708,11 @@ void MainWindow::promotedPawnSelection(){
         _game->setPiece_selected_from_promotion(Knight);
 }
 
-void MainWindow::highlightCheck(){
-    _info_label->setText("Check");
+void MainWindow::highlightCheck(State *state){
+    if (!_in_exploration_mode && !_game->_is_game_over)
+        _info_label->setText("Check");
     for (auto square: _square_widgets){
-        if (square->id() == QString::fromStdString(_game->_square_under_check)){
+        if (square->id() == QString::fromStdString(state->_square_under_check)){
             if (square->getDenotation() == "white")
                 square->changePixmap(_graphics_info._check_highlight_white);
             else
@@ -655,7 +797,7 @@ void MainWindow::moveRookForCastlingGraphically(Move move){
 }
 
 void MainWindow::startDraggingMove(QString originSquare){
-    if (_game->_is_game_over)
+    if (_game->_is_game_over || _in_exploration_mode)
         return;
     bool squareContainsPiece = false;
     bool liftingOpponentPiece = false;
@@ -744,9 +886,9 @@ void MainWindow::completeDraggingMove(){
         _piece_widget_of_moved_from_square->setPiece_pixmap(_pixmap_of_dragged_piece);
         _piece_widget_of_moved_from_square->populateWithPixmap();
         _piece_widget_currently_dragged = nullptr;
-        highlightPreviousMove();
+        highlightPreviousMove(_game->getCurrent_state());
         if (_game->getCurrent_state()->_white_king_is_in_check || _game->getCurrent_state()->_black_king_is_in_check)
-            highlightCheck();
+            highlightCheck(_game->getCurrent_state());
         return;
     }
     if (!completeMove(_currently_hovered_square)){
@@ -756,9 +898,9 @@ void MainWindow::completeDraggingMove(){
         _piece_widget_of_moved_from_square->setPiece_pixmap(_pixmap_of_dragged_piece);
         _piece_widget_of_moved_from_square->populateWithPixmap();
         _piece_widget_currently_dragged = nullptr;
-        highlightPreviousMove();
+        highlightPreviousMove(_game->getCurrent_state());
         if (_game->getCurrent_state()->_white_king_is_in_check || _game->getCurrent_state()->_black_king_is_in_check)
-            highlightCheck();
+            highlightCheck(_game->getCurrent_state());
         return;
     }
     _legal_destination_squares_for_origin_square.clear();

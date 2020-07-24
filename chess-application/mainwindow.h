@@ -30,6 +30,7 @@
 #include <QSizePolicy>
 #include <QGroupBox>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QComboBox>
 #include "notationwidget.h"
 
@@ -63,6 +64,7 @@ public:
     void updateFontSizes();
 
     void resizeEvent(QResizeEvent* event);
+    void keyPressEvent(QKeyEvent *event);
 
     bool completeMove(QString destinationSquare);
     void restartGame(Colour colour);
@@ -71,11 +73,11 @@ public:
     void performPawnPromotionGraphically(Move move);
     void removeCapturedPieceGraphically(Move move);
     void removeEnPassantCapturedPieceGraphically(Move move);
-    void highlightPreviousMove();
+    void highlightPreviousMove(State *state);
     void removeHighlightPreviousMove();
     void highlightCurrentMovingFromSquare(QString highlightSquare);
     void removeHighlightCurrentMovingFromSquare(QString highlightSquare);
-    void highlightCheck();
+    void highlightCheck(State *state);
     void doNotHightlightCheck();
 
     void promotedPawnSelection();
@@ -83,6 +85,11 @@ public:
     void setRightLayout();
     void setTopLayout();
     void addNotationWidgetForMove(State *resultingState);
+    void clearAlgebraicNotationView();
+    void loadStateGraphically(State *state);
+    void removeAllSquareHighlights();
+    void addPiecesToBoardFromState(State *state);
+
 signals:
     void on_set_white_button_clicked();
 
@@ -127,6 +134,16 @@ public slots:
 
     void notationWidgetClicked(State *state);
 
+    void clearAllPiecesFromBoard();
+
+    void exploreFirstState();
+
+    void explorePreviousState();
+
+    void exploreNextState();
+
+    void exploreLastState();
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;
@@ -140,6 +157,7 @@ private:
     bool _user_is_white;
     ChessGame *_game;
     bool _in_exploration_mode;
+    State *_state_being_viewed;
 
     QLabel *_info_label;
     QLabel *_fen_label;
@@ -159,12 +177,15 @@ private:
     QComboBox *_theme_combo_box;
     QPushButton *_export_pgn_notation_button;
     QPushButton *_links_and_download_button;
+    QPushButton *_bug_report_button;
     QHBoxLayout *_fen_horizontal_layout;
     QHBoxLayout *_exploration_navigation_horizontal_layout;
     QPushButton *_explore_next_button;
     QPushButton *_explore_previous_button;
     QPushButton *_explore_first_button;
     QPushButton *_explore_last_button;
+    QHBoxLayout *_colour_to_move_horizontal_layout;
+    QLabel *_colour_to_move_label;
 
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;

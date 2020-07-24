@@ -54,6 +54,8 @@ public:
     string algebraicNotationForMove(State *state);
     Colour getUser_colour() const;
 
+    vector<State *> *getState_vector() const;
+
 private:
 
     map<string, int> *_state_seen_count;

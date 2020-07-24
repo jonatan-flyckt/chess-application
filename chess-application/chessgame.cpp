@@ -87,9 +87,12 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
 
     resultingState->_legal_moves_from_state = _rules.getLegalMoves(resultingState, _piece_selected_from_promotion);
     _state_vector->push_back(resultingState);
+    _current_state->_next_state = resultingState;
     _current_state = resultingState;
     _current_state->_white_king_is_in_check = _rules.whiteKingIsInCheck(_current_state);
     _current_state->_black_king_is_in_check = _rules.blackKingIsInCheck(_current_state);
+    if (_current_state->_white_king_is_in_check || _current_state->_black_king_is_in_check)
+        _current_state->_square_under_check = _rules._square_under_check;
     _square_under_check = _rules._square_under_check;
 
     setFenForState(_current_state);
@@ -371,7 +374,7 @@ string ChessGame::algebraicNotationForMove(State *state){
     }
     for (auto p: possibleOriginSquares)
         qDebug() << QString::fromStdString(p);
-    if (possibleOriginSquares.size() > 1){ //Need to indicate which piece made the move
+    if (possibleOriginSquares.size() > 1 && move._move_type != EnPassant){ //Need to indicate which piece made the move
         char file = move._origin_square[0];
         bool multipleOnSameFile = false;
         int count = 0;
@@ -397,6 +400,8 @@ string ChessGame::algebraicNotationForMove(State *state){
         else if (multipleOnSameRank)
             notation += file;
     }
+    if (move._move_type == EnPassant)
+        notation += move._origin_square[0];
 
     if (move._move_type == Capture || move._move_type == EnPassant || move._move_type == PromotionCapture)
         notation += "x";
@@ -432,6 +437,11 @@ string ChessGame::algebraicNotationForMove(State *state){
 Colour ChessGame::getUser_colour() const
 {
     return _user_colour;
+}
+
+vector<State *> *ChessGame::getState_vector() const
+{
+    return _state_vector;
 }
 
 vector<Move> ChessGame::getLegalMovesForSquare(State *state, string square){
