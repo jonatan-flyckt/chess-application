@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     _clicking_move_in_progress = false;
 
     initiateUIComponents();
-    _fen_label->setText("FEN:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
+    _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 
     resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
 }
@@ -47,7 +47,7 @@ void MainWindow::restartGame(Colour colour){
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
         _legal_moves_for_current_state.append(legalMove);
     }
-    _fen_label->setText("FEN:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
+    _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 }
 
 MainWindow::~MainWindow(){
@@ -70,25 +70,31 @@ MainWindow::~MainWindow(){
 void MainWindow::addNotationWidgetForMove(State *resultingState){
 
     NotationWidget *widget = new NotationWidget(resultingState);
+    widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 0px");
+    widget->setFixedHeight(30);
+    widget->setFixedWidth(100);
     connect(widget, &NotationWidget::clickedSendState, this, &MainWindow::notationWidgetClicked);
     _notation_widgets.append(widget);
     if (resultingState->_move_to_state._piece._colour == White){
         QHBoxLayout *moveLayout = new QHBoxLayout();
         moveLayout->addWidget(new QLabel(QString::number((int)(resultingState->_move_to_state._move_number+1)/2) + ". "));
+        moveLayout->addStretch(2);
         moveLayout->addWidget(widget);
+        moveLayout->addStretch(3);
         _algebraic_notation_horizontal_layouts.append(moveLayout);
         _algebraic_notation_vertical_layout->insertLayout(_algebraic_notation_vertical_layout->count()-1, moveLayout);
     }
     else{
         _algebraic_notation_horizontal_layouts.last()->addWidget(widget);
+        _algebraic_notation_horizontal_layouts.last()->addStretch(4);
     }
 }
 
 void MainWindow::notationWidgetClicked(State *state){
     for (auto widget: _notation_widgets){
-        widget->setStyleSheet("");
+        widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 0px");
         if (widget->state()->_number_of_moves == state->_number_of_moves){
-            widget->setStyleSheet("background-color: blue");
+            widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 1px solid blue");
         }
     }
     qDebug() << "notation widget clicked: " << QString::fromStdString(state->_move_to_state._algebraic_notation);
@@ -371,9 +377,24 @@ void MainWindow::setRightLayout(){
     _right_vertical_layout->addWidget(_algebraic_notation_scroll_area);
 
 
+    _exploration_navigation_horizontal_layout = new QHBoxLayout();
+    _explore_first_button = new QPushButton();
+    _explore_first_button->setText("<<");
+    _exploration_navigation_horizontal_layout->addWidget(_explore_first_button);
 
+    _explore_previous_button = new QPushButton();
+    _explore_previous_button->setText("<");
+    _exploration_navigation_horizontal_layout->addWidget(_explore_previous_button);
 
+    _explore_next_button = new QPushButton();
+    _explore_next_button->setText(">");
+    _exploration_navigation_horizontal_layout->addWidget(_explore_next_button);
 
+    _explore_last_button = new QPushButton();
+    _explore_last_button->setText(">>");
+    _exploration_navigation_horizontal_layout->addWidget(_explore_last_button);
+
+    _right_vertical_layout->addLayout(_exploration_navigation_horizontal_layout);
 
     _fen_label = new QLabel();
     _fen_label->setFont(_graphics_info._fen_font);
@@ -508,7 +529,7 @@ bool MainWindow::completeMove(QString destinationSquare){
         _legal_moves_for_current_state.append(legalMove);
     }
     highlightPreviousMove();
-    _fen_label->setText("FEN:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
+    _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 
     if (_game->_is_game_over){
         QString gameOverString = "";

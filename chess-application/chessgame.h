@@ -51,7 +51,7 @@ public:
     string _square_under_check;
 
     string enPassantTargetSquareForFEN(Move move);
-    string algebraicNotationForMove(Move move);
+    string algebraicNotationForMove(State *state);
     Colour getUser_colour() const;
 
 private:

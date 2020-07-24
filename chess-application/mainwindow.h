@@ -160,6 +160,11 @@ private:
     QPushButton *_export_pgn_notation_button;
     QPushButton *_links_and_download_button;
     QHBoxLayout *_fen_horizontal_layout;
+    QHBoxLayout *_exploration_navigation_horizontal_layout;
+    QPushButton *_explore_next_button;
+    QPushButton *_explore_previous_button;
+    QPushButton *_explore_first_button;
+    QPushButton *_explore_last_button;
 
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;

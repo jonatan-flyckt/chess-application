@@ -128,7 +128,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     }
 
     _is_game_over = _current_state->_is_game_over;
-    _current_state->_move_to_state._algebraic_notation = algebraicNotationForMove(_current_state->_move_to_state);
+    _current_state->_move_to_state._algebraic_notation = algebraicNotationForMove(_current_state);
     return true;
 }
 
@@ -342,8 +342,91 @@ string ChessGame::enPassantTargetSquareForFEN(Move move){
     }
 }
 
-string ChessGame::algebraicNotationForMove(Move move){
-    return move._origin_square + " - " + move._destination_square;
+string ChessGame::algebraicNotationForMove(State *state){
+    string notation = "";
+    Move move = state->_move_to_state;
+    if (move._move_type == LongCastle)
+        return "0-0-0";
+    else if (move._move_type == ShortCastle)
+        return "0-0";
+
+    if (move._piece._type == Rook)
+        notation += "R";
+    else if (move._piece._type == Bishop)
+        notation += "B";
+    else if (move._piece._type == Knight)
+        notation += "N";
+    else if (move._piece._type == Queen)
+        notation += "Q";
+    else if (move._piece._type == King)
+        notation += "K";
+
+    State *previousState = state->_previous_state;
+    vector<string> possibleOriginSquares;
+    for (auto legalMove: previousState->_legal_moves_from_state){
+        int i = IndicesFromSquareID(legalMove._origin_square).first;
+        int j = IndicesFromSquareID(legalMove._origin_square).second;
+        if (previousState->_board.at(i).at(j)->_type == move._piece._type && legalMove._destination_square == move._destination_square)
+            possibleOriginSquares.push_back(legalMove._origin_square);
+    }
+    for (auto p: possibleOriginSquares)
+        qDebug() << QString::fromStdString(p);
+    if (possibleOriginSquares.size() > 1){ //Need to indicate which piece made the move
+        char file = move._origin_square[0];
+        bool multipleOnSameFile = false;
+        int count = 0;
+        for (auto square: possibleOriginSquares){
+            if (square[0] == file)
+                count++;
+        }
+        if (count > 1)
+            multipleOnSameFile = true;
+        char rank = move._origin_square[1];
+        bool multipleOnSameRank = false;
+        count = 0;
+        for (auto square: possibleOriginSquares){
+            if (square[1] == rank)
+                count++;
+        }
+        if (count > 1)
+            multipleOnSameRank = true;
+        if (multipleOnSameFile && multipleOnSameRank)
+            notation += move._origin_square;
+        else if (multipleOnSameFile)
+            notation += rank;
+        else if (multipleOnSameRank)
+            notation += file;
+    }
+
+    if (move._move_type == Capture || move._move_type == EnPassant || move._move_type == PromotionCapture)
+        notation += "x";
+
+    notation += move._destination_square;
+
+    if (move._move_type == EnPassant)
+        notation += "e.p.";
+
+    if (move._move_type == Promotion || move._move_type == PromotionCapture){
+        int i = IndicesFromSquareID(move._destination_square).first;
+        int j = IndicesFromSquareID(move._destination_square).second;
+        if (state->_board.at(i).at(j)->_type == Queen)
+            notation += "Q";
+        else if (state->_board.at(i).at(j)->_type == Rook)
+            notation += "R";
+        else if (state->_board.at(i).at(j)->_type == Bishop)
+            notation += "B";
+        else if (state->_board.at(i).at(j)->_type == Knight)
+            notation += "N";
+    }
+
+    if (state->_white_king_is_in_check || state->_black_king_is_in_check){
+        if (state->_is_game_over)
+            notation += "#";
+        else
+            notation += "+";
+    }
+
+    return notation;
 }
 
 Colour ChessGame::getUser_colour() const
