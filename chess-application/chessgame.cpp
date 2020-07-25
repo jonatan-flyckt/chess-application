@@ -305,19 +305,19 @@ void ChessGame::updatePGN(){
             if (state->_move_to_state._move_type == LongCastle){
                 _portable_game_notation += "O-O-O";
                 if (state->_white_king_is_in_check || state->_black_king_is_in_check)
-                    _portable_game_notation += (_is_game_over) ? "#" : "+";
+                    _portable_game_notation += (state->_is_game_over) ? "#" : "+";
             }
             else if (state->_move_to_state._move_type == ShortCastle){
                 _portable_game_notation += "O-O";
                 if (state->_white_king_is_in_check || state->_black_king_is_in_check)
-                    _portable_game_notation += (_is_game_over) ? "#" : "+";
+                    _portable_game_notation += (state->_is_game_over) ? "#" : "+";
             }
             else if (state->_move_to_state._move_type == Promotion || state->_move_to_state._move_type == PromotionCapture){
                 if (state->_white_king_is_in_check || state->_black_king_is_in_check){
                     char capturePiece = state->_move_to_state._algebraic_notation[state->_move_to_state._algebraic_notation.size()-2];
                     string notation = state->_move_to_state._algebraic_notation.substr(0, state->_move_to_state._algebraic_notation.size()-2);
                     _portable_game_notation += notation + "=" + capturePiece;
-                    _portable_game_notation += (_is_game_over) ? "#" : "+";
+                    _portable_game_notation += (state->_is_game_over) ? "#" : "+";
                 }
                 else{
                     char capturePiece = state->_move_to_state._algebraic_notation[state->_move_to_state._algebraic_notation.size()-1];
@@ -331,11 +331,11 @@ void ChessGame::updatePGN(){
     }
     if (_is_game_over){
         if (_white_won)
-            _portable_game_notation += " 1-0";
+            _portable_game_notation += "\n\n1-0";
         else if(_black_won)
-            _portable_game_notation += " 0-1";
+            _portable_game_notation += "\n\n0-1";
         else
-            _portable_game_notation += " 1/2-1/2";
+            _portable_game_notation += "\n\n1/2-1/2";
     }
 }
 
