@@ -92,7 +92,7 @@ void MainWindow::addNotationWidgetForMove(State *resultingState){
     if (resultingState->_move_to_state._piece._colour == White){
         QHBoxLayout *moveLayout = new QHBoxLayout();
         moveLayout->addWidget(new QLabel(QString::number((int)(resultingState->_move_to_state._move_number+1)/2) + ". "));
-        moveLayout->addStretch(2);
+        moveLayout->addStretch(1);
         moveLayout->addWidget(widget);
         moveLayout->addStretch(3);
         _algebraic_notation_horizontal_layouts.append(moveLayout);
@@ -100,7 +100,8 @@ void MainWindow::addNotationWidgetForMove(State *resultingState){
     }
     else{
         _algebraic_notation_horizontal_layouts.last()->addWidget(widget);
-        _algebraic_notation_horizontal_layouts.last()->addStretch(4);
+        _algebraic_notation_horizontal_layouts.last()->setStretch(1, 4);
+        _algebraic_notation_horizontal_layouts.last()->addStretch(3);
     }
     _algebraic_notation_scroll_area->verticalScrollBar()->setValue(_algebraic_notation_scroll_area->verticalScrollBar()->maximum());
 }
@@ -180,11 +181,6 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
    updateFontSizes();
-}
-
-void MainWindow::keyPressEvent(QKeyEvent *event){
-    qDebug() << event;
-    //TODO: make states navigatable through left and right arrows
 }
 
 void MainWindow::initiatePiecesGraphically(){
@@ -684,6 +680,12 @@ bool MainWindow::completeMove(QString destinationSquare){
     _explore_first_button->setEnabled(true);
     _explore_previous_button->setEnabled(true);
     _state_being_viewed = currentState;
+    for (auto widget: _notation_widgets){
+        widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 0px");
+        if (widget->state()->_number_of_moves == currentState->_number_of_moves){
+            widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 1px solid blue");
+        }
+    }
     return true;
 }
 

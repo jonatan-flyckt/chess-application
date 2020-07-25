@@ -64,7 +64,6 @@ public:
     void updateFontSizes();
 
     void resizeEvent(QResizeEvent* event);
-    void keyPressEvent(QKeyEvent *event);
 
     bool completeMove(QString destinationSquare);
     void restartGame(Colour colour);
