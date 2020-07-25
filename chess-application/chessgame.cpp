@@ -325,6 +325,9 @@ void ChessGame::updatePGN(){
                     _portable_game_notation += notation + "=" + capturePiece;
                 }
             }
+            else if (state->_move_to_state._move_type == EnPassant){
+                _portable_game_notation += state->_move_to_state._algebraic_notation.substr(0, state->_move_to_state._algebraic_notation.size()-4);
+            }
             else
                 _portable_game_notation += state->_move_to_state._algebraic_notation;
         }
@@ -490,7 +493,7 @@ string ChessGame::algebraicNotationForMove(State *state){
         else
             notation += file;
     }
-    if (move._move_type == EnPassant)
+    if (move._move_type == EnPassant || (move._move_type == Capture && move._piece._type == Pawn) || move._move_type == PromotionCapture)
         notation += move._origin_square[0];
 
     if (move._move_type == Capture || move._move_type == EnPassant || move._move_type == PromotionCapture)
