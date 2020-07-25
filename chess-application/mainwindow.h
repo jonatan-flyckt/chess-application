@@ -33,6 +33,7 @@
 #include <QScrollBar>
 #include <QComboBox>
 #include "notationwidget.h"
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

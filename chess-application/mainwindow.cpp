@@ -20,7 +20,9 @@ MainWindow::MainWindow(QWidget *parent)
     _in_exploration_mode = false;
     _dragging_move_ready_to_complete = false;
     _user_is_white = true;
-    _game = new ChessGame(_user_is_white);
+
+    QString date = QDateTime::currentDateTime().toString("yyyy.MM.dd");
+    _game = new ChessGame(_user_is_white, date.toStdString());
 
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
@@ -41,7 +43,8 @@ void MainWindow::restartGame(Colour colour){
     _info_label->setText("New game started");
     _in_exploration_mode = false;
     _user_is_white = colour == White;
-    _game = new ChessGame(_user_is_white);
+    QString date = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+    _game = new ChessGame(_user_is_white, date.toStdString());
     clearAlgebraicNotationView();
     _notation_widgets.clear();
     _legal_moves_for_current_state.clear();

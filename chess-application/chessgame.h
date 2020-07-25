@@ -14,7 +14,7 @@ using namespace std;
 class ChessGame
 {
 public:
-    ChessGame(bool _user_is_white, string difficulty = "standard");
+    ChessGame(bool _user_is_white, string date, string difficulty = "standard");
     ~ChessGame();
 
     string fenFromState(State state);
@@ -64,7 +64,9 @@ private:
     State *_current_state;
     vector<State*> *_state_vector;
     string _difficulty;
-    PieceType _piece_selected_from_promotion;    
+    string _date;
+    string _portable_game_notation;
+    PieceType _piece_selected_from_promotion;
     string _pgn;
     vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
 };
