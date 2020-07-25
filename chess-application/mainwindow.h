@@ -34,6 +34,9 @@
 #include <QComboBox>
 #include "notationwidget.h"
 #include <QDateTime>
+#include <QFileDialog>
+#include <QFile>
+#include <QException>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -143,6 +146,8 @@ public slots:
     void exploreNextState();
 
     void exploreLastState();
+
+    void exportPGNFile();
 
 private:
     Ui::MainWindow *_ui;

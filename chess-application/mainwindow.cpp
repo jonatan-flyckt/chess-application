@@ -180,8 +180,7 @@ void MainWindow::clearAllPiecesFromBoard(){
     _piece_widgets.clear();
 }
 
-void MainWindow::resizeEvent(QResizeEvent* event)
-{
+void MainWindow::resizeEvent(QResizeEvent* event){
    QMainWindow::resizeEvent(event);
    updateFontSizes();
 }
@@ -452,6 +451,7 @@ void MainWindow::setRightLayout(){
     _export_pgn_notation_button = new QPushButton();
     _export_pgn_notation_button->setText("Export Game Notation (PGN)");
     _export_pgn_notation_button->setFixedHeight(50);
+    connect(_export_pgn_notation_button, SIGNAL(clicked()), this, SLOT(exportPGNFile()));
     _right_vertical_layout->addWidget(_export_pgn_notation_button);
 
     _algebraic_notation_scroll_area = new QScrollArea();
@@ -546,6 +546,27 @@ void MainWindow::exploreNextState(){
 void MainWindow::exploreLastState(){
     if (_game->getState_vector()->size() > 0)
         loadStateGraphically(_game->getState_vector()->at(_game->getState_vector()->size()-1));
+}
+
+void MainWindow::exportPGNFile(){
+    QString defaultName = QString::fromStdString(_game->getDate()) + "_escape_chess_bot_" + QString::fromStdString(_game->getDifficulty());
+    bool saveSuccessful = true;
+    try {
+        QString defaultFile = QDir::homePath()+"/"+defaultName;
+        QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save file"), defaultFile, tr("Portable Game Notation (*.pgn)"));
+        qDebug() << fileName;
+        QFile file(fileName);
+        file.open(QIODevice::WriteOnly);
+        file.write(QString::fromStdString(_game->getPortable_game_notation()).toUtf8());
+        file.close();
+    } catch (QException *e) {
+        saveSuccessful = false;
+    }
+    if (saveSuccessful)
+        _info_label->setText("File saved");
+    else
+        _info_label->setText("File save failed\nMake sure that directory exists\nand has write access");
 }
 
 void MainWindow::setInfoMessage(QString message){

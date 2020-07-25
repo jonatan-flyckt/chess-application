@@ -56,6 +56,12 @@ public:
 
     vector<State *> *getState_vector() const;
 
+    string getDate() const;
+
+    string getDifficulty() const;
+
+    string getPortable_game_notation() const;
+
 private:
 
     map<string, int> *_state_seen_count;

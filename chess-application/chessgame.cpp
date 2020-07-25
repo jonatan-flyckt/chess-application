@@ -276,10 +276,10 @@ void ChessGame::updatePGN(){
     _portable_game_notation += "\"]\n";
     _portable_game_notation += "[Round \"?\"]\n";
     _portable_game_notation += "[White \"";
-    _portable_game_notation += _user_colour == White ? "Player, Unknown" : "Excape Chess Bot, " + _difficulty;
+    _portable_game_notation += _user_colour == White ? "Player, Unknown" : "Escape Chess Bot, " + _difficulty;
     _portable_game_notation += "\"]\n";
     _portable_game_notation += "[Black \"";
-    _portable_game_notation += _user_colour == Black ? "Player, Unknown" : "Excape Chess Bot, " + _difficulty;
+    _portable_game_notation += _user_colour == Black ? "Player, Unknown" : "Escape Chess Bot, " + _difficulty;
     _portable_game_notation += "\"]\n";
     _portable_game_notation += "[Result \"";
     if (!_is_game_over)
@@ -302,18 +302,40 @@ void ChessGame::updatePGN(){
         }
         if (state->_number_of_moves > 0){
             _portable_game_notation += " ";
-            if (state->_move_to_state._move_type == LongCastle)
+            if (state->_move_to_state._move_type == LongCastle){
                 _portable_game_notation += "O-O-O";
-            else if (state->_move_to_state._move_type == ShortCastle)
+                if (state->_white_king_is_in_check || state->_black_king_is_in_check)
+                    _portable_game_notation += (_is_game_over) ? "#" : "+";
+            }
+            else if (state->_move_to_state._move_type == ShortCastle){
                 _portable_game_notation += "O-O";
+                if (state->_white_king_is_in_check || state->_black_king_is_in_check)
+                    _portable_game_notation += (_is_game_over) ? "#" : "+";
+            }
             else if (state->_move_to_state._move_type == Promotion || state->_move_to_state._move_type == PromotionCapture){
-                char capturePiece = state->_move_to_state._algebraic_notation[state->_move_to_state._algebraic_notation.size()-1];
-                string notation = state->_move_to_state._algebraic_notation.substr(0, state->_move_to_state._algebraic_notation.size()-1);
-                _portable_game_notation += notation + "=" + capturePiece;
+                if (state->_white_king_is_in_check || state->_black_king_is_in_check){
+                    char capturePiece = state->_move_to_state._algebraic_notation[state->_move_to_state._algebraic_notation.size()-2];
+                    string notation = state->_move_to_state._algebraic_notation.substr(0, state->_move_to_state._algebraic_notation.size()-2);
+                    _portable_game_notation += notation + "=" + capturePiece;
+                    _portable_game_notation += (_is_game_over) ? "#" : "+";
+                }
+                else{
+                    char capturePiece = state->_move_to_state._algebraic_notation[state->_move_to_state._algebraic_notation.size()-1];
+                    string notation = state->_move_to_state._algebraic_notation.substr(0, state->_move_to_state._algebraic_notation.size()-1);
+                    _portable_game_notation += notation + "=" + capturePiece;
+                }
             }
             else
                 _portable_game_notation += state->_move_to_state._algebraic_notation;
         }
+    }
+    if (_is_game_over){
+        if (_white_won)
+            _portable_game_notation += " 1-0";
+        else if(_black_won)
+            _portable_game_notation += " 0-1";
+        else
+            _portable_game_notation += " 1/2-1/2";
     }
 }
 
@@ -400,10 +422,24 @@ string ChessGame::enPassantTargetSquareForFEN(Move move){
 string ChessGame::algebraicNotationForMove(State *state){
     string notation = "";
     Move move = state->_move_to_state;
-    if (move._move_type == LongCastle)
-        return "0-0-0";
-    else if (move._move_type == ShortCastle)
-        return "0-0";
+    if (move._move_type == LongCastle){
+        if (state->_white_king_is_in_check || state->_black_king_is_in_check){
+            string str = "0-0-0";
+            str += (_is_game_over) ? "#" : "+";
+            return str;
+        }
+        else
+            return "0-0-0";
+    }
+    else if (move._move_type == ShortCastle){
+        if (state->_white_king_is_in_check || state->_black_king_is_in_check){
+            string str = "0-0";
+            str += (_is_game_over) ? "#" : "+";
+            return str;
+        }
+        else
+            return "0-0";
+    }
 
     if (move._piece._type == Rook)
         notation += "R";
@@ -465,13 +501,6 @@ string ChessGame::algebraicNotationForMove(State *state){
     if (move._move_type == EnPassant)
         notation += "e.p.";
 
-    if (state->_white_king_is_in_check || state->_black_king_is_in_check){
-        if (state->_is_game_over)
-            notation += "#";
-        else
-            notation += "+";
-    }
-
     if (move._move_type == Promotion || move._move_type == PromotionCapture){
         int i = IndicesFromSquareID(move._destination_square).first;
         int j = IndicesFromSquareID(move._destination_square).second;
@@ -485,6 +514,13 @@ string ChessGame::algebraicNotationForMove(State *state){
             notation += "N";
     }
 
+    if (state->_white_king_is_in_check || state->_black_king_is_in_check){
+        if (state->_is_game_over)
+            notation += "#";
+        else
+            notation += "+";
+    }
+
     return notation;
 }
 
@@ -496,6 +532,18 @@ Colour ChessGame::getUser_colour() const
 vector<State *> *ChessGame::getState_vector() const
 {
     return _state_vector;
+}
+
+string ChessGame::getDate() const{
+    return _date;
+}
+
+string ChessGame::getDifficulty() const{
+    return _difficulty;
+}
+
+string ChessGame::getPortable_game_notation() const{
+    return _portable_game_notation;
 }
 
 vector<Move> ChessGame::getLegalMovesForSquare(State *state, string square){
