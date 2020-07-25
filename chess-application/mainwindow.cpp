@@ -134,6 +134,7 @@ void MainWindow::loadStateGraphically(State *state){
         highlightCheck(state);
     clearAllPiecesFromBoard();
     addPiecesToBoardFromState(state);
+    _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(state->_fen_notation));
 }
 
 void MainWindow::addPiecesToBoardFromState(State *state){
