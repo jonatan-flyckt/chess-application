@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <chessstructs.h>
 #include <QDebug>
+#include <QToolTip>
 
 class NotationWidget : public QPushButton
 {
@@ -14,10 +15,6 @@ public:
     NotationWidget(State *state);
 
     void setToolTipText();
-
-    void enterEvent(QEvent *e);
-
-    void leaveEvent(QEvent *e);
 
     void mousePressEvent(QMouseEvent *e);
 

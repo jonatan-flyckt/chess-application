@@ -399,6 +399,8 @@ string ChessGame::algebraicNotationForMove(State *state){
             notation += rank;
         else if (multipleOnSameRank)
             notation += file;
+        else if (move._piece._type == Knight)
+            notation += rank;
     }
     if (move._move_type == EnPassant)
         notation += move._origin_square[0];

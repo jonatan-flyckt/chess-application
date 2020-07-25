@@ -107,7 +107,6 @@ void MainWindow::addNotationWidgetForMove(State *resultingState){
 
 void MainWindow::notationWidgetClicked(State *state){
     loadStateGraphically(state);
-    qDebug() << "notation widget clicked: " << QString::fromStdString(state->_move_to_state._algebraic_notation);
 }
 
 void MainWindow::loadStateGraphically(State *state){
@@ -733,7 +732,8 @@ void MainWindow::doNotHightlightCheck(){
 }
 
 void MainWindow::performPawnPromotionGraphically(Move move){
-    _info_label->setText("Pawn was promoted");
+    if (!_game->_is_game_over)
+        _info_label->setText("Pawn was promoted");
     QString square = QString::fromStdString(move._destination_square);
     PieceWidget *pieceToRemove;
     for (auto piece: _piece_widgets)
