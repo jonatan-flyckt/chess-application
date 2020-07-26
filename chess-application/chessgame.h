@@ -14,7 +14,7 @@ using namespace std;
 class ChessGame
 {
 public:
-    ChessGame(bool _user_is_white, string date, string difficulty, string name);
+    ChessGame(bool _user_is_white, string date, Difficulty difficulty, string name);
     ~ChessGame();
 
     string fenFromState(State state);
@@ -58,10 +58,11 @@ public:
 
     string getDate() const;
 
-    string getDifficulty() const;
+    Difficulty getDifficulty() const;
 
     string getPortable_game_notation() const;
 
+    string stringFromDifficulty(Difficulty difficulty);
 private:
 
     map<string, int> *_state_seen_count;
@@ -69,7 +70,7 @@ private:
     Colour _user_colour;
     State *_current_state;
     vector<State*> *_state_vector;
-    string _difficulty;
+    Difficulty _difficulty;
     string _date;
     string _portable_game_notation;
     PieceType _piece_selected_from_promotion;

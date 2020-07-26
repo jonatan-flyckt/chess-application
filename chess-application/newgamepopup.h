@@ -32,9 +32,11 @@ private slots:
 
     void on_start_game_button_clicked();
 
+    void on_name_line_edit_returnPressed();
+
 signals:
 
-    void startNewGame(Colour colour, QString difficulty, QString name);
+    void startNewGame(Colour colour, Difficulty difficulty, QString name);
 
 private:
 
@@ -46,7 +48,7 @@ private:
 
     QString _name;
 
-    QString _difficulty;
+    Difficulty _difficulty;
 
 };
 

@@ -3,14 +3,19 @@
 
 //TODO: properly destroy all pointers in all classes with a refactor
 //TODO: use the Colour enum instead of bool or string for all classes
+//Use difficulty enum with a map from string to enum and back (Only need to add new difficulty in one place)
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _ui(new Ui::MainWindow){
     _ui->setupUi(this);
+    this->setWindowTitle("Escape Chess Engine");
 
     _new_game_popup = new NewGamePopup();
     connect(_new_game_popup, &NewGamePopup::startNewGame, this, &MainWindow::restartGame);
+
+    _about_popup = new AboutPopup();
+
     _board_grid_layout = nullptr;
     _main_grid_layout = nullptr;
     _info_label = nullptr;
@@ -22,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     _user_is_white = true;
 
     QString date = QDateTime::currentDateTime().toString("yyyy.MM.dd");
-    _game = new ChessGame(_user_is_white, date.toStdString(), "Normal", "");
+    _game = new ChessGame(_user_is_white, date.toStdString(), Normal, "");
 
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
@@ -45,14 +50,15 @@ void MainWindow::showNewGamePopup(){
     _new_game_popup->show();
 }
 
-void MainWindow::restartGame(Colour colour, QString difficulty, QString name){
+
+void MainWindow::restartGame(Colour colour, Difficulty difficulty, QString name){
     _info_label->setText("New game started");
     _in_exploration_mode = false;
     _user_is_white = colour == White;
 
     QString date = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-    _game = new ChessGame(_user_is_white, date.toStdString(), difficulty.toStdString(), name.toStdString());
-    _difficulty_label->setText("Difficulty: " + difficulty);
+    _game = new ChessGame(_user_is_white, date.toStdString(), difficulty, name.toStdString());
+    _difficulty_label->setText("Difficulty: " + QString::fromStdString(_game->stringFromDifficulty(difficulty)));
     if (colour == White)
         _playing_as_colour_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
     else
@@ -394,6 +400,7 @@ void MainWindow::setTopLayout(){
     _about_button = new QPushButton(this);
     _about_button->setText("About");
     _about_button->setFixedSize(100, 60);
+    connect(_about_button, SIGNAL(clicked()), this, SLOT(aboutPopup()));
     _top_horizontal_layout->addWidget(_about_button);
 
     _links_and_download_button = new QPushButton(this);
@@ -436,7 +443,7 @@ void MainWindow::setLeftLayout(){
     _left_vertical_layout->addLayout(_playing_as_horizontal_layout);
 
     _difficulty_label = new QLabel();
-    _difficulty_label->setText("Difficulty: " + QString::fromStdString(_game->getDifficulty()));
+    _difficulty_label->setText("Difficulty: " + QString::fromStdString(_game->stringFromDifficulty(_game->getDifficulty())));
     _left_vertical_layout->addWidget(_difficulty_label);
 
     _resign_game_button = new QPushButton();
@@ -566,7 +573,7 @@ void MainWindow::exploreLastState(){
 }
 
 void MainWindow::exportPGNFile(){
-    QString defaultName = QString::fromStdString(_game->getDate()) + "_escape_chess_bot_" + QString::fromStdString(_game->getDifficulty());
+    QString defaultName = QString::fromStdString(_game->getDate()) + "_escape_chess_engine_" + QString::fromStdString(_game->stringFromDifficulty(_game->getDifficulty())).toLower();
     bool saveSuccessful = true;
     try {
         QString defaultFile = QDir::homePath()+"/"+defaultName;
@@ -753,6 +760,23 @@ void MainWindow::promotedPawnSelection(){
 
 void MainWindow::promotionSelected(PieceType type){
     _piece_selected_for_promotion = type;
+}
+
+void MainWindow::aboutPopup(){
+    _about_popup->setWindowTitle("About");
+    _about_popup->show();
+}
+
+void MainWindow::linksDownloadsPopup(){
+
+}
+
+void MainWindow::bugReportPopup(){
+
+}
+
+void MainWindow::contactPopup(){
+
 }
 
 void MainWindow::highlightCheck(State *state){

@@ -14,7 +14,7 @@ NewGamePopup::NewGamePopup(QWidget *parent) :
     _ui->difficulty_combo_box->addItem("Easy");
     _ui->difficulty_combo_box->addItem("Normal");
     _ui->difficulty_combo_box->setCurrentText("Normal");
-    _difficulty = "Normal";
+    _difficulty = Normal;
     _selected_colour = White;
 
 }
@@ -47,13 +47,27 @@ void NewGamePopup::on_black_button_clicked(){
 
 void NewGamePopup::on_name_line_edit_textChanged(const QString &arg1){
     _name = _ui->name_line_edit->text();
+    _ui->white_button->setDown(_selected_colour == White);
+    _ui->black_button->setDown(_selected_colour == Black);
 }
 
 void NewGamePopup::on_difficulty_combo_box_currentTextChanged(const QString &arg1){
-    _difficulty = _ui->difficulty_combo_box->currentText();
+    QString difficultyString = _ui->difficulty_combo_box->currentText();
+    if (difficultyString == "Easy")
+        _difficulty = Easy;
+    else if (difficultyString == "Normal")
+        _difficulty = Normal;
+
+    _ui->white_button->setDown(_selected_colour == White);
+    _ui->black_button->setDown(_selected_colour == Black);
 }
 
 void NewGamePopup::on_start_game_button_clicked(){
+    emit startNewGame(_selected_colour, _difficulty, _name);
+    this->close();
+}
+
+void NewGamePopup::on_name_line_edit_returnPressed(){
     emit startNewGame(_selected_colour, _difficulty, _name);
     this->close();
 }

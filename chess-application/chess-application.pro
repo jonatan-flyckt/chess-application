@@ -16,12 +16,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aboutpopup.cpp \
     boardaspectratiowidget.cpp \
     chessgame.cpp \
     chessrules.cpp \
     choosepromotionpopup.cpp \
     graphicsinfo.cpp \
-    informationpopup.cpp \
     main.cpp \
     mainwindow.cpp \
     newgamepopup.cpp \
@@ -30,13 +30,13 @@ SOURCES += \
     squarewidget.cpp
 
 HEADERS += \
+    aboutpopup.h \
     boardaspectratiowidget.h \
     chessgame.h \
     chessrules.h \
     chessstructs.h \
     choosepromotionpopup.h \
     graphicsinfo.h \
-    informationpopup.h \
     mainwindow.h \
     newgamepopup.h \
     notationwidget.h \
@@ -44,8 +44,8 @@ HEADERS += \
     squarewidget.h
 
 FORMS += \
+    aboutpopup.ui \
     choosepromotionpopup.ui \
-    informationpopup.ui \
     mainwindow.ui \
     newgamepopup.ui
 

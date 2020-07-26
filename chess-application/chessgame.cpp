@@ -1,6 +1,6 @@
 #include "chessgame.h"
 
-ChessGame::ChessGame(bool _user_is_white, string date, string difficulty, string name){
+ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, string name){
     _date = date;
     _user_colour = _user_is_white ? White : Black;
     _difficulty = difficulty;
@@ -282,10 +282,10 @@ void ChessGame::updatePGN(){
     _portable_game_notation += "\"]\n";
     _portable_game_notation += "[Round \"?\"]\n";
     _portable_game_notation += "[White \"";
-    _portable_game_notation += _user_colour == White ? playerString : "Escape Chess Engine, " + _difficulty;
+    _portable_game_notation += _user_colour == White ? playerString : "Escape Chess Engine, " + stringFromDifficulty(_difficulty);
     _portable_game_notation += "\"]\n";
     _portable_game_notation += "[Black \"";
-    _portable_game_notation += _user_colour == Black ? playerString : "Escape Chess Engine, " + _difficulty;
+    _portable_game_notation += _user_colour == Black ? playerString : "Escape Chess Engine, " + stringFromDifficulty(_difficulty);
     _portable_game_notation += "\"]\n";
     _portable_game_notation += "[Result \"";
     if (!_is_game_over)
@@ -346,6 +346,13 @@ void ChessGame::updatePGN(){
         else
             _portable_game_notation += "\n\n1/2-1/2";
     }
+}
+
+string ChessGame::stringFromDifficulty(Difficulty difficulty){
+    if (difficulty == Easy)
+        return "Easy";
+    else if (difficulty == Normal)
+        return "Normal";
 }
 
 void ChessGame::setFenForState(State *state){
@@ -547,7 +554,7 @@ string ChessGame::getDate() const{
     return _date;
 }
 
-string ChessGame::getDifficulty() const{
+Difficulty ChessGame::getDifficulty() const{
     return _difficulty;
 }
 

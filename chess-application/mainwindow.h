@@ -39,6 +39,7 @@
 #include <QException>
 #include "newgamepopup.h"
 #include "choosepromotionpopup.h"
+#include "aboutpopup.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -151,11 +152,19 @@ public slots:
 
     void showNewGamePopup();
 
-    void restartGame(Colour colour, QString difficulty, QString name);
+    void restartGame(Colour colour, Difficulty difficulty, QString name);
 
     void resignGame();
 
     void promotionSelected(PieceType type);
+
+    void aboutPopup();
+
+    void linksDownloadsPopup();
+
+    void bugReportPopup();
+
+    void contactPopup();
 
 private:
     Ui::MainWindow *_ui;
@@ -167,6 +176,7 @@ private:
     QHBoxLayout *_top_horizontal_layout;
     NewGamePopup *_new_game_popup;
     ChoosePromotionPopup *_choose_promotion_popup;
+    AboutPopup *_about_popup;
 
     GraphicsInfo _graphics_info;
     bool _user_is_white;
