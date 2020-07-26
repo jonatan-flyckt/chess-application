@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(_new_game_popup, &NewGamePopup::startNewGame, this, &MainWindow::restartGame);
 
     _about_popup = new AboutPopup();
+    _links_downloads_popup = new LinksDownladsPopup();
+    _bug_report_popup = new BugReportPopup();
+    _contact_popup = new ContactPopup();
 
     _board_grid_layout = nullptr;
     _main_grid_layout = nullptr;
@@ -58,7 +61,7 @@ void MainWindow::restartGame(Colour colour, Difficulty difficulty, QString name)
 
     QString date = QDateTime::currentDateTime().toString("yyyy-MM-dd");
     _game = new ChessGame(_user_is_white, date.toStdString(), difficulty, name.toStdString());
-    _difficulty_label->setText("Difficulty: " + QString::fromStdString(_game->stringFromDifficulty(difficulty)));
+    _difficulty_label->setText("Difficulty: " + QString::fromStdString(stringFromDifficulty(difficulty)));
     if (colour == White)
         _playing_as_colour_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
     else
@@ -404,18 +407,21 @@ void MainWindow::setTopLayout(){
     _top_horizontal_layout->addWidget(_about_button);
 
     _links_and_download_button = new QPushButton(this);
-    _links_and_download_button->setText("Links / Download");
+    _links_and_download_button->setText("Links / Downloads");
     _links_and_download_button->setFixedSize(100, 60);
+    connect(_links_and_download_button, SIGNAL(clicked()), this, SLOT(linksDownloadsPopup()));
     _top_horizontal_layout->addWidget(_links_and_download_button);
 
     _bug_report_button = new QPushButton(this);
     _bug_report_button->setText("Report a bug");
     _bug_report_button->setFixedSize(100, 60);
+    connect(_bug_report_button, SIGNAL(clicked()), this, SLOT(bugReportPopup()));
     _top_horizontal_layout->addWidget(_bug_report_button);
 
     _contact_button = new QPushButton(this);
     _contact_button->setText("Contact");
     _contact_button->setFixedSize(100, 60);
+    connect(_contact_button, SIGNAL(clicked()), this, SLOT(contactPopup()));
     _top_horizontal_layout->addWidget(_contact_button);
     _top_horizontal_layout->addStretch(1);
 
@@ -443,7 +449,7 @@ void MainWindow::setLeftLayout(){
     _left_vertical_layout->addLayout(_playing_as_horizontal_layout);
 
     _difficulty_label = new QLabel();
-    _difficulty_label->setText("Difficulty: " + QString::fromStdString(_game->stringFromDifficulty(_game->getDifficulty())));
+    _difficulty_label->setText("Difficulty: " + QString::fromStdString(stringFromDifficulty(_game->getDifficulty())));
     _left_vertical_layout->addWidget(_difficulty_label);
 
     _resign_game_button = new QPushButton();
@@ -573,7 +579,7 @@ void MainWindow::exploreLastState(){
 }
 
 void MainWindow::exportPGNFile(){
-    QString defaultName = QString::fromStdString(_game->getDate()) + "_escape_chess_engine_" + QString::fromStdString(_game->stringFromDifficulty(_game->getDifficulty())).toLower();
+    QString defaultName = QString::fromStdString(_game->getDate()) + "_escape_chess_engine_" + QString::fromStdString(stringFromDifficulty(_game->getDifficulty())).toLower();
     bool saveSuccessful = true;
     try {
         QString defaultFile = QDir::homePath()+"/"+defaultName;
@@ -768,15 +774,18 @@ void MainWindow::aboutPopup(){
 }
 
 void MainWindow::linksDownloadsPopup(){
-
+    _links_downloads_popup->setWindowTitle("Links / Downloads");
+    _links_downloads_popup->show();
 }
 
 void MainWindow::bugReportPopup(){
-
+    _bug_report_popup->setWindowTitle("Bug report");
+    _bug_report_popup->show();
 }
 
 void MainWindow::contactPopup(){
-
+    _contact_popup->setWindowTitle("Contact");
+    _contact_popup->show();
 }
 
 void MainWindow::highlightCheck(State *state){

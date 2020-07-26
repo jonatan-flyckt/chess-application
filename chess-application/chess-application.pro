@@ -18,34 +18,46 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     aboutpopup.cpp \
     boardaspectratiowidget.cpp \
+    bugreportpopup.cpp \
     chessgame.cpp \
     chessrules.cpp \
     choosepromotionpopup.cpp \
+    contactpopup.cpp \
     graphicsinfo.cpp \
+    linksdownladspopup.cpp \
     main.cpp \
     mainwindow.cpp \
     newgamepopup.cpp \
     notationwidget.cpp \
     piecewidget.cpp \
-    squarewidget.cpp
+    squarewidget.cpp \
+    utils.cpp
 
 HEADERS += \
     aboutpopup.h \
     boardaspectratiowidget.h \
+    bugreportpopup.h \
     chessgame.h \
     chessrules.h \
     chessstructs.h \
     choosepromotionpopup.h \
+    contactpopup.h \
     graphicsinfo.h \
+    linksdownladspopup.h \
     mainwindow.h \
     newgamepopup.h \
     notationwidget.h \
     piecewidget.h \
-    squarewidget.h
+    squarewidget.h \
+    utilityfunctions.h \
+    utils.h
 
 FORMS += \
     aboutpopup.ui \
+    bugreportpopup.ui \
     choosepromotionpopup.ui \
+    contactpopup.ui \
+    linksdownladspopup.ui \
     mainwindow.ui \
     newgamepopup.ui
 

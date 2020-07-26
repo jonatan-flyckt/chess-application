@@ -40,6 +40,10 @@
 #include "newgamepopup.h"
 #include "choosepromotionpopup.h"
 #include "aboutpopup.h"
+#include "linksdownladspopup.h"
+#include "bugreportpopup.h"
+#include "contactpopup.h"
+#include "utils.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -176,7 +180,11 @@ private:
     QHBoxLayout *_top_horizontal_layout;
     NewGamePopup *_new_game_popup;
     ChoosePromotionPopup *_choose_promotion_popup;
+
     AboutPopup *_about_popup;
+    LinksDownladsPopup *_links_downloads_popup;
+    BugReportPopup *_bug_report_popup;
+    ContactPopup *_contact_popup;
 
     GraphicsInfo _graphics_info;
     bool _user_is_white;

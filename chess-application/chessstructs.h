@@ -16,7 +16,7 @@ enum PieceType{Pawn, Rook, Knight, Bishop, Queen, King};
 
 enum MoveType{Standard, Capture, LongCastle, ShortCastle, EnPassant, Promotion, PromotionCapture};
 
-enum Difficulty{Easy, Normal};
+enum Difficulty{Easy, Normal, Hard, FakeLast};
 
 struct Piece{
     Piece(Colour colour, PieceType type){_colour = colour; _type = type;};

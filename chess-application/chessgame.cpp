@@ -348,13 +348,6 @@ void ChessGame::updatePGN(){
     }
 }
 
-string ChessGame::stringFromDifficulty(Difficulty difficulty){
-    if (difficulty == Easy)
-        return "Easy";
-    else if (difficulty == Normal)
-        return "Normal";
-}
-
 void ChessGame::setFenForState(State *state){
     string fenBuilder = "";
     for (int i = state->_board.size()-1; i >= 0; i--){

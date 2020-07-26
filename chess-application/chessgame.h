@@ -8,6 +8,7 @@
 #include <chessstructs.h>
 #include <chessrules.h>
 #include <QDebug>
+#include "utils.h"
 
 using namespace std;
 
@@ -62,7 +63,6 @@ public:
 
     string getPortable_game_notation() const;
 
-    string stringFromDifficulty(Difficulty difficulty);
 private:
 
     map<string, int> *_state_seen_count;

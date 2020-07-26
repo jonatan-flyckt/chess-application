@@ -5,6 +5,7 @@
 #include "graphicsinfo.h"
 #include "chessstructs.h"
 #include <QDebug>
+#include "utils.h"
 
 namespace Ui {
 class NewGamePopup;
