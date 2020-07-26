@@ -95,6 +95,7 @@ public:
     void addPiecesToBoardFromState(State *state);
 
 
+    void endGame();
 signals:
     void on_set_white_button_clicked();
 
@@ -151,6 +152,8 @@ public slots:
 
     void restartGame(Colour colour, QString difficulty, QString name);
 
+    void resignGame();
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;
@@ -190,6 +193,9 @@ private:
     QPushButton *_explore_last_button;
     QHBoxLayout *_colour_to_move_horizontal_layout;
     QLabel *_colour_to_move_label;
+    QHBoxLayout *_playing_as_horizontal_layout;
+    QLabel *_playing_as_colour_label;
+    QLabel *_difficulty_label;
 
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;

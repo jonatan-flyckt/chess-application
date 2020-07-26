@@ -1,9 +1,10 @@
 #include "chessgame.h"
 
-ChessGame::ChessGame(bool _user_is_white, string date, string difficulty){
+ChessGame::ChessGame(bool _user_is_white, string date, string difficulty, string name){
     _date = date;
     _user_colour = _user_is_white ? White : Black;
     _difficulty = difficulty;
+    _player_name = name;
     _is_game_over = false;
     _is_draw = false;
     _white_won = false;
@@ -268,6 +269,11 @@ void ChessGame::initiatePieces(State *startingState){
 }
 
 void ChessGame::updatePGN(){
+    string playerString = "";
+    if (_player_name == "")
+        playerString = "Player, Unknown";
+    else
+        playerString = "Player, " + _player_name;
     _portable_game_notation = "";
     _portable_game_notation += "[Event \"?\"]\n";
     _portable_game_notation += "[Site \"?\"]\n";
@@ -276,10 +282,10 @@ void ChessGame::updatePGN(){
     _portable_game_notation += "\"]\n";
     _portable_game_notation += "[Round \"?\"]\n";
     _portable_game_notation += "[White \"";
-    _portable_game_notation += _user_colour == White ? "Player, Unknown" : "Escape Chess Bot, " + _difficulty;
+    _portable_game_notation += _user_colour == White ? playerString : "Escape Chess Engine, " + _difficulty;
     _portable_game_notation += "\"]\n";
     _portable_game_notation += "[Black \"";
-    _portable_game_notation += _user_colour == Black ? "Player, Unknown" : "Escape Chess Bot, " + _difficulty;
+    _portable_game_notation += _user_colour == Black ? playerString : "Escape Chess Engine, " + _difficulty;
     _portable_game_notation += "\"]\n";
     _portable_game_notation += "[Result \"";
     if (!_is_game_over)

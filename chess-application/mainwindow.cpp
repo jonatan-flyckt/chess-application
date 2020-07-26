@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     _user_is_white = true;
 
     QString date = QDateTime::currentDateTime().toString("yyyy.MM.dd");
-    _game = new ChessGame(_user_is_white, date.toStdString());
+    _game = new ChessGame(_user_is_white, date.toStdString(), "Normal", "");
 
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
@@ -51,7 +51,12 @@ void MainWindow::restartGame(Colour colour, QString difficulty, QString name){
     _user_is_white = colour == White;
 
     QString date = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-    _game = new ChessGame(_user_is_white, date.toStdString());
+    _game = new ChessGame(_user_is_white, date.toStdString(), difficulty.toStdString(), name.toStdString());
+    _difficulty_label->setText("Difficulty: " + difficulty);
+    if (colour == White)
+        _playing_as_colour_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
+    else
+        _playing_as_colour_label->setPixmap(_graphics_info._black_king.scaled(65, 65, Qt::KeepAspectRatio));
 
     initiateBoardSquaresUI();
     initiatePiecesGraphically();
@@ -65,6 +70,22 @@ void MainWindow::restartGame(Colour colour, QString difficulty, QString name){
     _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
     _explore_last_button->setEnabled(false);
     _state_being_viewed = _game->getCurrent_state();
+}
+
+void MainWindow::resignGame(){
+    QMessageBox msgBox(QMessageBox::Question, "Resign", "Do you want to resign the game?",
+                       QMessageBox::Yes|QMessageBox::No, this,
+                       Qt::FramelessWindowHint);
+    int reply = msgBox.exec();
+    if (reply == QMessageBox::No)
+        return;
+
+    _game->_is_game_over = true;
+    QString playerColour = _user_is_white ? "White" : "Black";
+    _game->_game_over_reason = (playerColour + " resigned").toStdString();
+    _game->_white_won = !_user_is_white;
+    _game->_black_won = _user_is_white;
+    endGame();
 }
 
 void MainWindow::clearAlgebraicNotationView(){
@@ -407,9 +428,21 @@ void MainWindow::setLeftLayout(){
     connect(_new_game_button, SIGNAL(clicked()), this, SLOT(showNewGamePopup()));
     _left_vertical_layout->addWidget(_new_game_button);
 
+    _playing_as_horizontal_layout = new QHBoxLayout();
+    _playing_as_horizontal_layout->addWidget(new QLabel("Playing as: "));
+    _playing_as_colour_label = new QLabel();
+    _playing_as_colour_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
+    _playing_as_horizontal_layout->addWidget(_playing_as_colour_label);
+    _left_vertical_layout->addLayout(_playing_as_horizontal_layout);
+
+    _difficulty_label = new QLabel();
+    _difficulty_label->setText("Difficulty: " + QString::fromStdString(_game->getDifficulty()));
+    _left_vertical_layout->addWidget(_difficulty_label);
+
     _resign_game_button = new QPushButton();
     _resign_game_button->setText("Resign Game");
     _resign_game_button->setFixedSize(160, 40);
+    connect(_resign_game_button, SIGNAL(clicked()), this, SLOT(resignGame()));
     _left_vertical_layout->addWidget(_resign_game_button);
 
     _left_vertical_layout->addStretch(1);
@@ -421,6 +454,8 @@ void MainWindow::setLeftLayout(){
     _theme_combo_box->setFixedWidth(160);
     _left_vertical_layout->addWidget(_theme_combo_box);
 
+    _new_game_button->setEnabled(true);
+    _resign_game_button->setHidden(true);
 }
 
 void MainWindow::setRightLayout(){
@@ -670,16 +705,11 @@ bool MainWindow::completeMove(QString destinationSquare){
         _colour_to_move_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
 
     if (_game->_is_game_over){
-        QString gameOverString = "";
-        gameOverString += "Game is over\n";
-        if (_game->_white_won)
-            gameOverString += "win for WHITE\n";
-        else if (_game->_black_won)
-            gameOverString += "win for BLACK\n";
-        else
-            gameOverString += "DRAW\n";
-        gameOverString += "by " + QString::fromStdString(_game->_game_over_reason);
-        _info_label->setText(gameOverString);
+        endGame();
+    }
+    else{
+        _new_game_button->setEnabled(false);
+        _resign_game_button->setHidden(false);
     }
     addNotationWidgetForMove(currentState);
 
@@ -693,6 +723,21 @@ bool MainWindow::completeMove(QString destinationSquare){
         }
     }
     return true;
+}
+
+void MainWindow::endGame(){
+    QString gameOverString = "";
+    gameOverString += "Game is over\n";
+    if (_game->_white_won)
+        gameOverString += "WHITE WON\n";
+    else if (_game->_black_won)
+        gameOverString += "BLACK WON\n";
+    else
+        gameOverString += "DRAW\n";
+    gameOverString += QString::fromStdString(_game->_game_over_reason);
+    _info_label->setText(gameOverString);
+    _new_game_button->setEnabled(true);
+    _resign_game_button->setHidden(true);
 }
 
 void MainWindow::promotedPawnSelection(){

@@ -14,7 +14,7 @@ using namespace std;
 class ChessGame
 {
 public:
-    ChessGame(bool _user_is_white, string date, string difficulty = "standard");
+    ChessGame(bool _user_is_white, string date, string difficulty, string name);
     ~ChessGame();
 
     string fenFromState(State state);
@@ -74,6 +74,7 @@ private:
     string _portable_game_notation;
     PieceType _piece_selected_from_promotion;
     string _pgn;
+    string _player_name;
     vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
 };
 
