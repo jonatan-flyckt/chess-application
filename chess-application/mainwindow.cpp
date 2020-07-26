@@ -181,27 +181,27 @@ void MainWindow::addPiecesToBoardFromState(State *state){
                 Piece *piece = state->_board.at(i).at(j);
                 if (piece->_type == Pawn)
                     addPieceGraphically(piece->_colour == White ? _graphics_info._white_pawn : _graphics_info._black_pawn,
-                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        QString::fromStdString(squareIDFromIndices(i, j)),
                                         piece->_colour == White ? "white" : "black");
                 else if (piece->_type == Rook)
                     addPieceGraphically(piece->_colour == White ? _graphics_info._white_rook : _graphics_info._black_rook,
-                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        QString::fromStdString(squareIDFromIndices(i, j)),
                                         piece->_colour == White ? "white" : "black");
                 else if (piece->_type == Bishop)
                     addPieceGraphically(piece->_colour == White ? _graphics_info._white_bishop : _graphics_info._black_bishop,
-                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        QString::fromStdString(squareIDFromIndices(i, j)),
                                         piece->_colour == White ? "white" : "black");
                 else if (piece->_type == Knight)
                     addPieceGraphically(piece->_colour == White ? _graphics_info._white_knight : _graphics_info._black_knight,
-                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        QString::fromStdString(squareIDFromIndices(i, j)),
                                         piece->_colour == White ? "white" : "black");
                 else if (piece->_type == Queen)
                     addPieceGraphically(piece->_colour == White ? _graphics_info._white_queen : _graphics_info._black_queen,
-                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        QString::fromStdString(squareIDFromIndices(i, j)),
                                         piece->_colour == White ? "white" : "black");
                 else if (piece->_type == King)
                     addPieceGraphically(piece->_colour == White ? _graphics_info._white_king : _graphics_info._black_king,
-                                        QString::fromStdString(_game->squareIDFromIndices(i, j)),
+                                        QString::fromStdString(squareIDFromIndices(i, j)),
                                         piece->_colour == White ? "white" : "black");
             }
         }
@@ -225,8 +225,8 @@ void MainWindow::resizeEvent(QResizeEvent* event){
 
 void MainWindow::initiatePiecesGraphically(){
     for (int i = 0; i < 8; i++){
-        addPieceGraphically(_graphics_info._black_pawn, colsFromIndex.at(i) + "7", "black");
-        addPieceGraphically(_graphics_info._white_pawn, colsFromIndex.at(i) + "2", "white");
+        addPieceGraphically(_graphics_info._black_pawn, QString::fromStdString(_cols_from_index.at(i)) + "7", "black");
+        addPieceGraphically(_graphics_info._white_pawn, QString::fromStdString(_cols_from_index.at(i)) + "2", "white");
     }
 
     addPieceGraphically(_graphics_info._white_rook, "a1", "white");
@@ -835,9 +835,9 @@ void MainWindow::performPawnPromotionGraphically(Move move){
 }
 
 void MainWindow::removeEnPassantCapturedPieceGraphically(Move move){
-    int rowFrom = _game->IndicesFromSquareID(move._origin_square).first;
-    int colTo = _game->IndicesFromSquareID(move._destination_square).second;
-    QString square = QString::fromStdString(_game->squareIDFromIndices(rowFrom, colTo));
+    int rowFrom = IndicesFromSquareID(move._origin_square).first;
+    int colTo = IndicesFromSquareID(move._destination_square).second;
+    QString square = QString::fromStdString(squareIDFromIndices(rowFrom, colTo));
     PieceWidget *pieceToRemove;
     for (auto piece: _piece_widgets)
         if (piece->piece_position() == square)
@@ -1077,12 +1077,12 @@ void MainWindow::initiateBoardSquaresUI(){
             for (int j = 8; j > 0; j--){
                 SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info._white_square, "white");
+                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1), _graphics_info._white_square, "white");
                     _board_grid_layout->addWidget(square, abs(8-i), j);
                     _square_widgets.append(square);
                 }
                 else{
-                    square = new SquareWidget(colsFromIndex.at(j-1) + QString::number(i+1), _graphics_info._black_square, "black");
+                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1), _graphics_info._black_square, "black");
                     _board_grid_layout->addWidget(square, abs(8-i), j);
                     _square_widgets.append(square);
                 }
@@ -1093,12 +1093,12 @@ void MainWindow::initiateBoardSquaresUI(){
             for (int j = 0; j < 8; j++){
                 SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info._black_square, "black");
+                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1), _graphics_info._black_square, "black");
                     _board_grid_layout->addWidget(square, i+1, abs(8-j));
                     _square_widgets.append(square);
                 }
                 else{
-                    square = new SquareWidget(colsFromIndex.at(j) + QString::number(i+1), _graphics_info._white_square, "white");
+                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1), _graphics_info._white_square, "white");
                     _board_grid_layout->addWidget(square, i+1, abs(8-j));
                     _square_widgets.append(square);
                 }
@@ -1136,8 +1136,8 @@ void MainWindow::addCoordinateWidgets(){
             number2->setFont(_graphics_info._header_font);
             _board_grid_layout->addWidget(number1, i, 0, Qt::AlignRight);
             _board_grid_layout->addWidget(number2, i, 9, Qt::AlignLeft);
-            QLabel *letter1 = new QLabel(colsFromIndex.at(i-1));
-            QLabel *letter2 = new QLabel(colsFromIndex.at(i-1));
+            QLabel *letter1 = new QLabel(QString::fromStdString(_cols_from_index.at(i-1)));
+            QLabel *letter2 = new QLabel(QString::fromStdString(_cols_from_index.at(i-1)));
             letter1->setFont(_graphics_info._header_font);
             letter2->setFont(_graphics_info._header_font);
             _board_grid_layout->addWidget(letter1, 0, i, Qt::AlignHCenter | Qt::AlignBottom);
@@ -1154,8 +1154,8 @@ void MainWindow::addCoordinateWidgets(){
             number2->setFont(_graphics_info._header_font);
             _board_grid_layout->addWidget(number1, i, 0, Qt::AlignRight);
             _board_grid_layout->addWidget(number2, i, 9, Qt::AlignLeft);
-            QLabel *letter1 = new QLabel(colsFromIndex.at(abs(8-i)));
-            QLabel *letter2 = new QLabel(colsFromIndex.at(abs(8-i)));
+            QLabel *letter1 = new QLabel(QString::fromStdString(_cols_from_index.at(abs(8-i))));
+            QLabel *letter2 = new QLabel(QString::fromStdString(_cols_from_index.at(abs(8-i))));
             letter1->setFont(_graphics_info._header_font);
             letter2->setFont(_graphics_info._header_font);
             _board_grid_layout->addWidget(letter1, 0, i, Qt::AlignHCenter | Qt::AlignBottom);

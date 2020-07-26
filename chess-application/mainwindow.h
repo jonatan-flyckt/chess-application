@@ -237,8 +237,6 @@ private:
     PieceWidget *_piece_widget_currently_dragged;
     QPixmap _pixmap_of_dragged_piece;
     PieceWidget *_piece_widget_of_moved_from_square;
-
-    QVector<QString> colsFromIndex{"a", "b", "c", "d", "e", "f", "g", "h"};
 };
 #endif // MAINWINDOW_H
 

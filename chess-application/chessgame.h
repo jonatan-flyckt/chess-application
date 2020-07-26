@@ -21,7 +21,6 @@ public:
     string fenFromState(State state);
     State* gameStartingState();
     void updatePGN();
-    string squareIDFromIndices(int row, int col);
     void initiatePieces(State *startingState);
 
     void setFenForState(State *state);
@@ -30,7 +29,6 @@ public:
 
     bool makeMove(string originSquare, string destinationSquare);
     vector<Move> getLegalMovesForCurrentState();
-    pair<int, int> IndicesFromSquareID(string square);
     void updateCastlingInfo(Move move, State *state);
 
     void setPiece_selected_from_promotion(const PieceType &piece_selected_from_promotion);
@@ -76,7 +74,6 @@ private:
     PieceType _piece_selected_from_promotion;
     string _pgn;
     string _player_name;
-    vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
 };
 
 #endif // CHESSGAME_H
