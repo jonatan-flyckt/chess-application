@@ -22,6 +22,7 @@ SOURCES += \
     graphicsinfo.cpp \
     main.cpp \
     mainwindow.cpp \
+    newgamepopup.cpp \
     notationwidget.cpp \
     piecewidget.cpp \
     squarewidget.cpp
@@ -33,12 +34,14 @@ HEADERS += \
     chessstructs.h \
     graphicsinfo.h \
     mainwindow.h \
+    newgamepopup.h \
     notationwidget.h \
     piecewidget.h \
     squarewidget.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    newgamepopup.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

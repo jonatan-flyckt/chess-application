@@ -37,6 +37,7 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QException>
+#include "newgamepopup.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -70,7 +71,7 @@ public:
     void resizeEvent(QResizeEvent* event);
 
     bool completeMove(QString destinationSquare);
-    void restartGame(Colour colour);
+
 
     void moveRookForCastlingGraphically(Move move);
     void performPawnPromotionGraphically(Move move);
@@ -92,6 +93,7 @@ public:
     void loadStateGraphically(State *state);
     void removeAllSquareHighlights();
     void addPiecesToBoardFromState(State *state);
+
 
 signals:
     void on_set_white_button_clicked();
@@ -125,10 +127,6 @@ public slots:
 
     void movePieceWidget(QPoint mousePos);
 
-    void setPlayerWhite();
-
-    void setPlayerBlack();
-
     bool mouseIsInsideBoard();
 
     void copyFENToClipboard();
@@ -149,6 +147,10 @@ public slots:
 
     void exportPGNFile();
 
+    void showNewGamePopup();
+
+    void restartGame(Colour colour, QString difficulty, QString name);
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;
@@ -157,6 +159,7 @@ private:
     QVBoxLayout *_left_vertical_layout;
     QVBoxLayout *_right_vertical_layout;
     QHBoxLayout *_top_horizontal_layout;
+    NewGamePopup *_new_game_popup;
 
     GraphicsInfo _graphics_info;
     bool _user_is_white;
@@ -166,19 +169,15 @@ private:
 
     QLabel *_info_label;
     QLabel *_fen_label;
-    QPushButton *_set_white_button;
-    QPushButton *_set_black_button;
     QPushButton *_copy_fen;
     QPushButton *_contact_button;
     QPushButton *_about_button;
-    QHBoxLayout *_play_as_horizontal_layout;
     QPushButton *_new_game_button;
     QPushButton *_resign_game_button;
     QScrollArea *_algebraic_notation_scroll_area;
     QVBoxLayout *_algebraic_notation_vertical_layout;
     QVector<QHBoxLayout*> _algebraic_notation_horizontal_layouts;
     QVector<NotationWidget*> _notation_widgets;
-    QComboBox *_difficulty_combo_box;
     QComboBox *_theme_combo_box;
     QPushButton *_export_pgn_notation_button;
     QPushButton *_links_and_download_button;

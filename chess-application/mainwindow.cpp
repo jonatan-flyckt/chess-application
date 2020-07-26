@@ -9,10 +9,10 @@ MainWindow::MainWindow(QWidget *parent)
     , _ui(new Ui::MainWindow){
     _ui->setupUi(this);
 
+    _new_game_popup = new NewGamePopup();
+    connect(_new_game_popup, &NewGamePopup::startNewGame, this, &MainWindow::restartGame);
     _board_grid_layout = nullptr;
     _main_grid_layout = nullptr;
-    _set_white_button = nullptr;
-    _set_black_button = nullptr;
     _info_label = nullptr;
     _board_aspect_ratio_widget = nullptr;
     _piece_widget_currently_dragged = nullptr;
@@ -39,12 +39,23 @@ MainWindow::MainWindow(QWidget *parent)
     resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
 }
 
-void MainWindow::restartGame(Colour colour){
+void MainWindow::showNewGamePopup(){
+    _new_game_popup->setWindowModality(Qt::ApplicationModal);
+    _new_game_popup->setWindowFlag(Qt::FramelessWindowHint);
+    _new_game_popup->show();
+}
+
+void MainWindow::restartGame(Colour colour, QString difficulty, QString name){
     _info_label->setText("New game started");
     _in_exploration_mode = false;
     _user_is_white = colour == White;
+
     QString date = QDateTime::currentDateTime().toString("yyyy-MM-dd");
     _game = new ChessGame(_user_is_white, date.toStdString());
+
+    initiateBoardSquaresUI();
+    initiatePiecesGraphically();
+
     clearAlgebraicNotationView();
     _notation_widgets.clear();
     _legal_moves_for_current_state.clear();
@@ -73,10 +84,6 @@ MainWindow::~MainWindow(){
         delete _board_grid_layout;
     if (_main_grid_layout != nullptr)
         delete _main_grid_layout;
-    if (_set_white_button != nullptr)
-        delete _set_white_button;
-    if (_set_black_button != nullptr)
-        delete _set_black_button;
     if (_info_label != nullptr)
         delete _info_label;
     if (_board_aspect_ratio_widget != nullptr)
@@ -397,34 +404,8 @@ void MainWindow::setLeftLayout(){
     _new_game_button = new QPushButton();
     _new_game_button->setText("Start New Game");
     _new_game_button->setFixedSize(160, 40);
+    connect(_new_game_button, SIGNAL(clicked()), this, SLOT(showNewGamePopup()));
     _left_vertical_layout->addWidget(_new_game_button);
-
-
-    _set_white_button = new QPushButton(this);
-    _set_white_button->setText("Play as white");
-    connect(_set_white_button, SIGNAL(clicked()), this, SLOT(setPlayerWhite()));
-    _set_white_button->setEnabled(false);
-    _set_white_button->setFixedSize(80, 20);
-
-    _set_black_button = new QPushButton(this);
-    _set_black_button->setText("Play as black");
-    connect(_set_black_button, SIGNAL(clicked()), this, SLOT(setPlayerBlack()));
-    _set_black_button->setFixedSize(80, 20);
-
-    _play_as_horizontal_layout = new QHBoxLayout();
-    _play_as_horizontal_layout->addWidget(_set_white_button);
-    _play_as_horizontal_layout->addWidget(_set_black_button);
-
-    _left_vertical_layout->addLayout(_play_as_horizontal_layout);
-
-    _left_vertical_layout->addWidget(new QLabel("Select Difficulty:"));
-
-    _difficulty_combo_box = new QComboBox();
-    _difficulty_combo_box->addItem("Easy");
-    _difficulty_combo_box->addItem("Normal");
-    _difficulty_combo_box->setItemText(0, "Easy");
-    _difficulty_combo_box->setFixedWidth(160);
-    _left_vertical_layout->addWidget(_difficulty_combo_box);
 
     _resign_game_button = new QPushButton();
     _resign_game_button->setText("Resign Game");
@@ -985,26 +966,6 @@ void MainWindow::copyFENToClipboard(){
 
 QVector<SquareWidget *> MainWindow::sendSquareWidgets(){
     return _square_widgets;
-}
-
-void MainWindow::setPlayerWhite(){
-    qDebug() << "playing as white";
-    _user_is_white = true;
-    _set_white_button->setEnabled(false);
-    _set_black_button->setEnabled(true);
-    restartGame(White);
-    initiateBoardSquaresUI();
-    initiatePiecesGraphically();
-}
-
-void MainWindow::setPlayerBlack(){
-    qDebug() << "playing as black";
-    _user_is_white = false;
-    _set_white_button->setEnabled(true);
-    _set_black_button->setEnabled(false);
-    restartGame(Black);
-    initiateBoardSquaresUI();
-    initiatePiecesGraphically();
 }
 
 bool MainWindow::mouseIsInsideBoard(){
