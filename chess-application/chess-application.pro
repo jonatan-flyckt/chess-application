@@ -19,6 +19,7 @@ SOURCES += \
     aboutpopup.cpp \
     boardaspectratiowidget.cpp \
     bugreportpopup.cpp \
+    chessengine.cpp \
     chessgame.cpp \
     chessrules.cpp \
     choosepromotionpopup.cpp \
@@ -37,6 +38,7 @@ HEADERS += \
     aboutpopup.h \
     boardaspectratiowidget.h \
     bugreportpopup.h \
+    chessengine.h \
     chessgame.h \
     chessrules.h \
     chessstructs.h \
@@ -49,7 +51,6 @@ HEADERS += \
     notationwidget.h \
     piecewidget.h \
     squarewidget.h \
-    utilityfunctions.h \
     utils.h
 
 FORMS += \

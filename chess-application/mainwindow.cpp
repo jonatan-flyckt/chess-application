@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
     _dragging_move_ready_to_complete = false;
     _user_is_white = true;
 
+    _engine = new ChessEngine();
+
     QString date = QDateTime::currentDateTime().toString("yyyy.MM.dd");
     _game = new ChessGame(_user_is_white, date.toStdString(), Normal, "");
 
@@ -616,7 +618,7 @@ void MainWindow::startClickingMove(QString originSquare){
         if (piece->piece_position() == originSquare){
             if ((piece->denotation() == "white" && _game->getUser_colour() == Black) ||
                     (piece->denotation() == "black" && _game->getUser_colour() == White)){
-                //liftingOpponentPiece = true;
+                liftingOpponentPiece = true;
                 //TODO: uncomment this when bot exists.
             }
             squareContainsPiece = true;
@@ -652,7 +654,7 @@ void MainWindow::completeClickingMove(QString destinationSquare){
             highlightCheck(_game->getCurrent_state());
         return;
     }
-    if (!completeMove(destinationSquare))
+    if (!completeMove(_move_in_progress_origin_square, destinationSquare))
         return;
     _legal_destination_squares_for_origin_square.clear();
     PieceWidget *pieceToMove;
@@ -672,14 +674,32 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     if (_move_was_promotion)
         performPawnPromotionGraphically(_promotion_move);
     qDebug() << "completed clicking move to: " + destinationSquare;
+
+
+    getEngineMove();
 }
 
-bool MainWindow::completeMove(QString destinationSquare){
+void MainWindow::getEngineMove(){
+    if (((_game->getCurrent_state()->_colour_to_move == Black && _user_is_white) ||
+            (_game->getCurrent_state()->_colour_to_move == White && !_user_is_white)) && !_game->_is_game_over){
+        //TODO: perform calculations on new thread
+        Move move = _engine->selectMoveFromState(_game->getCurrent_state(), _user_is_white ? Black : White);
+        performEngineMove(move);
+    }
+}
+
+void MainWindow::performEngineMove(Move move){
+    //_move_in_progress_origin_square = QString::fromStdString(move._origin_square);
+    completeMove(QString::fromStdString(move._origin_square), QString::fromStdString(move._destination_square));
+    loadStateGraphically(_game->getCurrent_state());
+}
+
+bool MainWindow::completeMove(QString originSquare, QString destinationSquare){
     _info_label->setText("");
     Move moveMade;
     removeHighlightPreviousMove();
     for (auto move: _legal_moves_for_current_state){
-        if (QString::fromStdString(move._origin_square) == _move_in_progress_origin_square &&
+        if (QString::fromStdString(move._origin_square) == originSquare &&
                 QString::fromStdString(move._destination_square) == destinationSquare) {
             moveMade = move;
             break;
@@ -692,7 +712,7 @@ bool MainWindow::completeMove(QString destinationSquare){
     }
     else
         _move_was_promotion = false;
-    if (!_game->makeMove(_move_in_progress_origin_square.toStdString(), destinationSquare.toStdString()))
+    if (!_game->makeMove(originSquare.toStdString(), destinationSquare.toStdString()))
         return false;
 
     //Move the rook if castled (king is moved in normal move function)
@@ -735,6 +755,8 @@ bool MainWindow::completeMove(QString destinationSquare){
             widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 1px solid blue");
         }
     }
+
+
     return true;
 }
 
@@ -887,7 +909,7 @@ void MainWindow::startDraggingMove(QString originSquare){
         if (piece->piece_position() == originSquare){
             if ((piece->denotation() == "white" && _game->getUser_colour() == Black) ||
                     (piece->denotation() == "black" && _game->getUser_colour() == White)){
-                //liftingOpponentPiece = true;
+                liftingOpponentPiece = true;
                 //TODO: uncomment this when bot exists.
             }
             squareContainsPiece = true;
@@ -972,7 +994,7 @@ void MainWindow::completeDraggingMove(){
             highlightCheck(_game->getCurrent_state());
         return;
     }
-    if (!completeMove(_currently_hovered_square)){
+    if (!completeMove(_move_in_progress_origin_square, _currently_hovered_square)){
         qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
         removePieceGraphically(_piece_widget_currently_dragged);
@@ -1000,6 +1022,8 @@ void MainWindow::completeDraggingMove(){
     if (_move_was_promotion)
         performPawnPromotionGraphically(_promotion_move);
     qDebug() << "completed dragging move to: " + _currently_hovered_square;
+
+    getEngineMove();
 }
 
 bool MainWindow::sendClickingMoveStatus(){

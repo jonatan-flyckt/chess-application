@@ -44,6 +44,7 @@
 #include "bugreportpopup.h"
 #include "contactpopup.h"
 #include "utils.h"
+#include "chessengine.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -76,7 +77,7 @@ public:
 
     void resizeEvent(QResizeEvent* event);
 
-    bool completeMove(QString destinationSquare);
+    bool completeMove(QString originSquare, QString destinationSquare);
 
 
     void moveRookForCastlingGraphically(Move move);
@@ -102,6 +103,8 @@ public:
 
     void endGame();
 
+    void performEngineMove(Move move);
+    void getEngineMove();
 signals:
     void on_set_white_button_clicked();
 
@@ -191,6 +194,7 @@ private:
     ChessGame *_game;
     bool _in_exploration_mode;
     State *_state_being_viewed;
+    ChessEngine *_engine;
 
     QLabel *_info_label;
     QLabel *_fen_label;
