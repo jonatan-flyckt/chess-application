@@ -19,7 +19,9 @@ SOURCES += \
     boardaspectratiowidget.cpp \
     chessgame.cpp \
     chessrules.cpp \
+    choosepromotionpopup.cpp \
     graphicsinfo.cpp \
+    informationpopup.cpp \
     main.cpp \
     mainwindow.cpp \
     newgamepopup.cpp \
@@ -32,7 +34,9 @@ HEADERS += \
     chessgame.h \
     chessrules.h \
     chessstructs.h \
+    choosepromotionpopup.h \
     graphicsinfo.h \
+    informationpopup.h \
     mainwindow.h \
     newgamepopup.h \
     notationwidget.h \
@@ -40,6 +44,8 @@ HEADERS += \
     squarewidget.h
 
 FORMS += \
+    choosepromotionpopup.ui \
+    informationpopup.ui \
     mainwindow.ui \
     newgamepopup.ui
 

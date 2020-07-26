@@ -741,23 +741,18 @@ void MainWindow::endGame(){
 }
 
 void MainWindow::promotedPawnSelection(){
-    QMessageBox msgBox;
-    msgBox.setWindowFlag(Qt::FramelessWindowHint);
-    msgBox.setText(tr("Pawn promotion:"));
-    msgBox.setInformativeText("Select piece");
-    QAbstractButton* pButtonYes = msgBox.addButton(tr("Queen"), QMessageBox::YesRole);
-    msgBox.addButton(tr("Rook"), QMessageBox::YesRole);
-    msgBox.addButton(tr("Bishop"), QMessageBox::YesRole);
-    msgBox.addButton(tr("Knight"), QMessageBox::YesRole);
-    msgBox.exec();
-    if (msgBox.clickedButton()->text() == "Queen")
-        _game->setPiece_selected_from_promotion(Queen);
-    else if (msgBox.clickedButton()->text() == "Rook")
-        _game->setPiece_selected_from_promotion(Rook);
-    else if (msgBox.clickedButton()->text() == "Bishop")
-        _game->setPiece_selected_from_promotion(Bishop);
-    else if (msgBox.clickedButton()->text() == "Knight")
-        _game->setPiece_selected_from_promotion(Knight);
+    Colour colour = _user_is_white ? White : Black;
+    _choose_promotion_popup = new ChoosePromotionPopup(this, colour);
+    connect(_choose_promotion_popup, &ChoosePromotionPopup::promotionSelected, this, &MainWindow::promotionSelected);
+    _choose_promotion_popup->setWindowModality(Qt::ApplicationModal);
+    _choose_promotion_popup->setWindowFlag(Qt::FramelessWindowHint);
+    _choose_promotion_popup->exec();
+    _game->setPiece_selected_from_promotion(_piece_selected_for_promotion);
+    delete _choose_promotion_popup;
+}
+
+void MainWindow::promotionSelected(PieceType type){
+    _piece_selected_for_promotion = type;
 }
 
 void MainWindow::highlightCheck(State *state){

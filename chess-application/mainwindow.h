@@ -38,6 +38,7 @@
 #include <QFile>
 #include <QException>
 #include "newgamepopup.h"
+#include "choosepromotionpopup.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -94,8 +95,8 @@ public:
     void removeAllSquareHighlights();
     void addPiecesToBoardFromState(State *state);
 
-
     void endGame();
+
 signals:
     void on_set_white_button_clicked();
 
@@ -154,6 +155,8 @@ public slots:
 
     void resignGame();
 
+    void promotionSelected(PieceType type);
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;
@@ -163,6 +166,7 @@ private:
     QVBoxLayout *_right_vertical_layout;
     QHBoxLayout *_top_horizontal_layout;
     NewGamePopup *_new_game_popup;
+    ChoosePromotionPopup *_choose_promotion_popup;
 
     GraphicsInfo _graphics_info;
     bool _user_is_white;
@@ -196,6 +200,8 @@ private:
     QHBoxLayout *_playing_as_horizontal_layout;
     QLabel *_playing_as_colour_label;
     QLabel *_difficulty_label;
+
+    PieceType _piece_selected_for_promotion;
 
     QVector<SquareWidget*> _square_widgets;
     QVector<QLabel*> _board_header_labels;

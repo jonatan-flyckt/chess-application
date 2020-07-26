@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ChoosePromotionPopup</class>
+ <widget class="QWidget" name="ChoosePromotionPopup">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>613</width>
+    <height>152</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPushButton" name="queen_button">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>141</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="rook_button">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>10</y>
+     <width>141</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="bishop_button">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>10</y>
+     <width>141</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="knight_button">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>10</y>
+     <width>141</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
