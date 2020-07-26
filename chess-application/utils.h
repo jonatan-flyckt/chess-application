@@ -7,7 +7,7 @@
 
 using namespace std;
 
-const static vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
+static const vector<string> _cols_from_index{"a", "b", "c", "d", "e", "f", "g", "h"};
 
 string stringFromDifficulty(Difficulty dif);
 
