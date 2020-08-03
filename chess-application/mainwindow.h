@@ -45,6 +45,11 @@
 #include "contactpopup.h"
 #include "utils.h"
 #include "chessengine.h"
+#include <QTimer>
+#include <QtConcurrent/QtConcurrentRun>
+#include <QFuture>
+
+#include <future>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -110,6 +115,8 @@ signals:
 
     void on_set_black_button_clicked();
 
+    void signalToReloadStateGraphically();
+
 public slots:
     void setInfoMessage(QString message);
 
@@ -173,6 +180,10 @@ public slots:
 
     void contactPopup();
 
+    void checkIfPlayerMadeMove();
+
+    void slotReloadStateGraphically();
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;
@@ -234,6 +245,10 @@ private:
     bool _dragging_move_in_progress;
     bool _dragging_move_ready_to_complete;
     bool _move_was_promotion;
+
+    bool _player_moved_against_engine;
+    QTimer *_check_for_player_move_timer;
+
     Move _promotion_move;
     QString _move_in_progress_origin_square;
     QVector<Move> _legal_moves_for_current_state;

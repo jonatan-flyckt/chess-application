@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     _new_game_popup = new NewGamePopup();
     connect(_new_game_popup, &NewGamePopup::startNewGame, this, &MainWindow::restartGame);
+    connect(this, &MainWindow::signalToReloadStateGraphically, this, &MainWindow::slotReloadStateGraphically);
 
     _about_popup = new AboutPopup();
     _links_downloads_popup = new LinksDownladsPopup();
@@ -47,6 +48,10 @@ MainWindow::MainWindow(QWidget *parent)
     _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 
     resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
+
+    _check_for_player_move_timer = new QTimer(this);
+    connect(_check_for_player_move_timer, &QTimer::timeout, this, &MainWindow::checkIfPlayerMadeMove);
+    _check_for_player_move_timer->start(1);
 }
 
 void MainWindow::showNewGamePopup(){
@@ -57,6 +62,10 @@ void MainWindow::showNewGamePopup(){
 
 
 void MainWindow::restartGame(Colour colour, Difficulty difficulty, QString name){
+    _check_for_player_move_timer = new QTimer(this);
+    connect(_check_for_player_move_timer, &QTimer::timeout, this, &MainWindow::checkIfPlayerMadeMove);
+    _check_for_player_move_timer->start(1);
+
     _info_label->setText("New game started");
     _in_exploration_mode = false;
     _user_is_white = colour == White;
@@ -81,6 +90,11 @@ void MainWindow::restartGame(Colour colour, Difficulty difficulty, QString name)
     _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
     _explore_last_button->setEnabled(false);
     _state_being_viewed = _game->getCurrent_state();
+
+    if (_game->getUser_colour() != _game->getCurrent_state()->_colour_to_move)
+        _player_moved_against_engine = true;
+    else
+        _player_moved_against_engine = false;
 }
 
 void MainWindow::resignGame(){
@@ -367,6 +381,7 @@ void MainWindow::removePieceGraphically(PieceWidget *piece){
     int index = _piece_widgets.indexOf(piece);
     _piece_widgets.remove(index);
     piece->hide();
+    //delete piece;
     piece->deleteLater();
 }
 
@@ -644,8 +659,8 @@ void MainWindow::startClickingMove(QString originSquare){
 }
 
 void MainWindow::completeClickingMove(QString destinationSquare){
-    removeLegalSquaresHighlight();
-    removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
+    //removeLegalSquaresHighlight();
+    //removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
     if (!_legal_destination_squares_for_origin_square.contains(destinationSquare)){
         qDebug() << "move was not legal";
         _clicking_move_in_progress = false;
@@ -667,8 +682,8 @@ void MainWindow::completeClickingMove(QString destinationSquare){
             denotation = pieceToMove->denotation();
         }
     }
-    addPieceGraphically(pieceGraphic, destinationSquare, denotation);
-    removePieceGraphically(pieceToMove);
+    //addPieceGraphically(pieceGraphic, destinationSquare, denotation);
+    //removePieceGraphically(pieceToMove);
     _clicking_move_in_progress = false;
     _move_in_progress_origin_square = "";
     if (_move_was_promotion)
@@ -676,7 +691,7 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     qDebug() << "completed clicking move to: " + destinationSquare;
 
 
-    getEngineMove();
+    //getEngineMove();
 }
 
 void MainWindow::getEngineMove(){
@@ -695,6 +710,8 @@ void MainWindow::performEngineMove(Move move){
 }
 
 bool MainWindow::completeMove(QString originSquare, QString destinationSquare){
+    qDebug() << "in complete move func";
+
     _info_label->setText("");
     Move moveMade;
     removeHighlightPreviousMove();
@@ -757,10 +774,19 @@ bool MainWindow::completeMove(QString originSquare, QString destinationSquare){
     }
 
 
+
+
+
+    if (_game->getUser_colour() != _game->getCurrent_state()->_colour_to_move)
+        _player_moved_against_engine = true;
+    else
+        _player_moved_against_engine = false;
+
     return true;
 }
 
 void MainWindow::endGame(){
+    _check_for_player_move_timer->stop();
     QString gameOverString = "";
     gameOverString += "Game is over\n";
     if (_game->_white_won)
@@ -808,6 +834,20 @@ void MainWindow::bugReportPopup(){
 void MainWindow::contactPopup(){
     _contact_popup->setWindowTitle("Contact");
     _contact_popup->show();
+}
+
+void MainWindow::checkIfPlayerMadeMove(){
+    qDebug() << "checking if player made move";
+    if (_player_moved_against_engine){
+        loadStateGraphically(_game->getCurrent_state());
+        //qDebug() << "player made move";
+        _player_moved_against_engine = false;
+        getEngineMove();
+    }
+}
+
+void MainWindow::slotReloadStateGraphically(){
+    loadStateGraphically(_game->getCurrent_state());
 }
 
 void MainWindow::highlightCheck(State *state){
@@ -873,7 +913,7 @@ void MainWindow::removeCapturedPieceGraphically(Move move){
     for (auto piece: _piece_widgets)
         if (piece->piece_position() == square)
             pieceToRemove = piece;
-    removePieceGraphically(pieceToRemove);
+    //removePieceGraphically(pieceToRemove);
 }
 
 void MainWindow::moveRookForCastlingGraphically(Move move){
@@ -900,7 +940,7 @@ void MainWindow::moveRookForCastlingGraphically(Move move){
 }
 
 void MainWindow::startDraggingMove(QString originSquare){
-    if (_game->_is_game_over || _in_exploration_mode)
+    if (_game->_is_game_over || _in_exploration_mode || _game->getCurrent_state()->_colour_to_move != _game->getUser_colour())
         return;
     bool squareContainsPiece = false;
     bool liftingOpponentPiece = false;
@@ -980,8 +1020,8 @@ void MainWindow::setDraggingMoveReadyToComplete(){
 
 void MainWindow::completeDraggingMove(){
     _dragging_move_ready_to_complete = false;
-    removeLegalSquaresHighlight();
-    removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
+    //removeLegalSquaresHighlight();
+    //removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
     if (!_legal_destination_squares_for_origin_square.contains(_currently_hovered_square)){
         qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
@@ -1016,14 +1056,19 @@ void MainWindow::completeDraggingMove(){
         }
     }
     QString denotation = pieceToMove->denotation();
-    removePieceGraphically(pieceToMove);
-    addPieceGraphically(_pixmap_of_dragged_piece, _currently_hovered_square, denotation);
+    //removePieceGraphically(pieceToMove);
+    //addPieceGraphically(_pixmap_of_dragged_piece, _currently_hovered_square, denotation);
     _piece_widget_currently_dragged = nullptr;
     if (_move_was_promotion)
         performPawnPromotionGraphically(_promotion_move);
-    qDebug() << "completed dragging move to: " + _currently_hovered_square;
 
-    getEngineMove();
+    //loadStateGraphically(_game->getCurrent_state());
+    qDebug() << "completed dragging move to: " + _currently_hovered_square;
+    //emit signalToReloadStateGraphically();
+
+
+
+    //getEngineMove();
 }
 
 bool MainWindow::sendClickingMoveStatus(){
