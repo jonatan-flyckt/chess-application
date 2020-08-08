@@ -90,10 +90,6 @@ public:
     bool completeMove(QString originSquare, QString destinationSquare);
 
 
-    void moveRookForCastlingGraphically(Move move);
-    void performPawnPromotionGraphically(Move move);
-    void removeCapturedPieceGraphically(Move move);
-    void removeEnPassantCapturedPieceGraphically(Move move);
     void highlightPreviousMove(State *state);
     void removeHighlightPreviousMove();
     void highlightCurrentMovingFromSquare(QString highlightSquare);

@@ -164,6 +164,7 @@ void MainWindow::addNotationWidgetForMove(State *resultingState){
         _algebraic_notation_horizontal_layouts.last()->addStretch(3);
     }
     _algebraic_notation_scroll_area->verticalScrollBar()->setValue(_algebraic_notation_scroll_area->verticalScrollBar()->maximum());
+    //_algebraic_notation_scroll_area->ensureWidgetVisible(widget);
 }
 
 void MainWindow::notationWidgetClicked(State *state){
@@ -175,6 +176,7 @@ void MainWindow::loadStateGraphically(State *state){
         widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 0px");
         if (widget->state()->_number_of_moves == state->_number_of_moves){
             widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 1px solid blue");
+            _algebraic_notation_scroll_area->ensureWidgetVisible(widget);
         }
     }
     _in_exploration_mode = state->_number_of_moves != _game->getCurrent_state()->_number_of_moves;
@@ -848,70 +850,6 @@ void MainWindow::doNotHightlightCheck(){
                 square->changePixmap(_graphics_info._black_square);
         }
     }
-}
-
-void MainWindow::performPawnPromotionGraphically(Move move){
-    if (!_game->_is_game_over)
-        _info_label->setText("Pawn was promoted");
-    QString square = QString::fromStdString(move._destination_square);
-    PieceWidget *pieceToRemove;
-    for (auto piece: _piece_widgets)
-        if (piece->piece_position() == square)
-            pieceToRemove = piece;
-    QPixmap pixmapOfPiece;
-    QString denotation = move._colour_performing_move == White ? "white" : "black";
-    if (_game->getPiece_selected_from_promotion() == Queen)
-        pixmapOfPiece = move._colour_performing_move == White ? _graphics_info._white_queen : _graphics_info._black_queen;
-    else if (_game->getPiece_selected_from_promotion() == Rook)
-        pixmapOfPiece = move._colour_performing_move == White ? _graphics_info._white_rook : _graphics_info._black_rook;
-    else if (_game->getPiece_selected_from_promotion() == Bishop)
-        pixmapOfPiece = move._colour_performing_move == White ? _graphics_info._white_bishop : _graphics_info._black_bishop;
-    else if (_game->getPiece_selected_from_promotion() == Knight)
-        pixmapOfPiece = move._colour_performing_move == White ? _graphics_info._white_knight : _graphics_info._black_knight;
-    removePieceGraphically(pieceToRemove);
-    addPieceGraphically(pixmapOfPiece, square, denotation);
-}
-
-void MainWindow::removeEnPassantCapturedPieceGraphically(Move move){
-    int rowFrom = IndicesFromSquareID(move._origin_square).first;
-    int colTo = IndicesFromSquareID(move._destination_square).second;
-    QString square = QString::fromStdString(squareIDFromIndices(rowFrom, colTo));
-    PieceWidget *pieceToRemove;
-    for (auto piece: _piece_widgets)
-        if (piece->piece_position() == square)
-            pieceToRemove = piece;
-    removePieceGraphically(pieceToRemove);
-}
-
-void MainWindow::removeCapturedPieceGraphically(Move move){
-    QString square = QString::fromStdString(move._destination_square);
-    PieceWidget *pieceToRemove;
-    for (auto piece: _piece_widgets)
-        if (piece->piece_position() == square)
-            pieceToRemove = piece;
-}
-
-void MainWindow::moveRookForCastlingGraphically(Move move){
-    QString rookOrigin;
-    QString rookDestination;
-    if (move._colour_performing_move == White){
-        rookOrigin = move._move_type == LongCastle ? "a1" : "h1";
-        rookDestination = move._move_type == LongCastle ? "d1" : "f1";
-    }
-    else{
-        rookOrigin = move._move_type == LongCastle ? "a8" : "h8";
-        rookDestination = move._move_type == LongCastle ? "d8" : "f8";
-    }
-    PieceWidget *pieceToMove;
-    for (auto piece: _piece_widgets){
-        if (piece->piece_position() == rookOrigin){
-            pieceToMove = piece;
-        }
-    }
-    QPixmap pixmapOfPiece = pieceToMove->piece_pixmap();
-    QString denotation = pieceToMove->denotation();
-    removePieceGraphically(pieceToMove);
-    addPieceGraphically(pixmapOfPiece, rookDestination, denotation);
 }
 
 void MainWindow::startDraggingMove(QString originSquare){
