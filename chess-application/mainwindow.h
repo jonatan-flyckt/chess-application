@@ -5,9 +5,14 @@
 #define BOARD_GRID_ROW 1
 #define SMALLEST_BOARD_SIZE 500
 
+#define HOW_OFTEN_TO_CHECK_FOR_PLAYER_MOVE 1000
+#define HOW_OFTEN_TO_CHECK_FOR_BOARD_GRAPHIC_UPDATE 20
+
 #define LEFT_LAYOUT_COL 0
 #define RIGHT_LAYOUT_COL 2
 #define TOP_LAYOUT_ROW 0
+
+
 
 #include <QMainWindow>
 #include <QGridLayout>
@@ -182,7 +187,7 @@ public slots:
 
     void checkIfPlayerMadeMove();
 
-    void slotReloadStateGraphically();
+    void updateBoardGraphicsAfterMove();
 
 private:
     Ui::MainWindow *_ui;
@@ -248,6 +253,9 @@ private:
 
     bool _player_moved_against_engine;
     QTimer *_check_for_player_move_timer;
+
+    bool _time_to_update_board;
+    QTimer *_check_for_update_board_timer;
 
     Move _promotion_move;
     QString _move_in_progress_origin_square;
