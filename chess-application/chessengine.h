@@ -2,6 +2,7 @@
 #define CHESSENGINE_H
 
 #include "chessstructs.h"
+#include "chessgame.h"
 #include <random>
 #include <algorithm>
 
@@ -12,9 +13,11 @@ class ChessEngine
 public:
     ChessEngine();
     ~ChessEngine();
-    Move selectMoveFromState(State *state, Colour engineColour);
+    Move selectMoveFromState(ChessGame *game, State *state, Colour engineColour);
     int evaluateState(State *state, Colour engineColour);
     Move miniMax(State *state, Colour engineColour);
+    int simpleMaterialEvaluation(State *state);
+    Move makeRandomMove(State *state);
 };
 
 #endif // CHESSENGINE_H

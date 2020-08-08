@@ -61,6 +61,8 @@ public:
 
     string getPortable_game_notation() const;
 
+    ChessGame* clone();
+
 private:
 
     map<string, int> *_state_seen_count;

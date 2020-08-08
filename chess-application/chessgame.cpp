@@ -554,3 +554,7 @@ Difficulty ChessGame::getDifficulty() const{
 string ChessGame::getPortable_game_notation() const{
     return _portable_game_notation;
 }
+
+ChessGame *ChessGame::clone(){
+    return new ChessGame(*this);
+}

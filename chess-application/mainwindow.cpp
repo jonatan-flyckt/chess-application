@@ -689,7 +689,7 @@ void MainWindow::getEngineMove(){
     if (((_game->getCurrent_state()->_colour_to_move == Black && _user_is_white) ||
             (_game->getCurrent_state()->_colour_to_move == White && !_user_is_white)) && !_game->_is_game_over){
         //TODO: perform calculations on new thread
-        Move move = _engine->selectMoveFromState(_game->getCurrent_state(), _user_is_white ? Black : White);
+        Move move = _engine->selectMoveFromState(_game, _game->getCurrent_state(), _user_is_white ? Black : White);
         performEngineMove(move);
         _time_to_update_board = true;
     }
@@ -758,6 +758,7 @@ bool MainWindow::completeMove(QString originSquare, QString destinationSquare){
     else
         _player_moved_against_engine = false;
 
+    qDebug() << "material evaluation: " << _engine->simpleMaterialEvaluation(_game->getCurrent_state());
 
     return true;
 }
