@@ -54,7 +54,23 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     if (!moveWasLegal)
         return false;
 
-    _current_state->_move_from_state = moveToMake;
+
+
+
+
+
+
+
+    State *resultingState = _rules.getResultingStateFromMove(_current_state, moveToMake);
+    _is_draw = resultingState->_is_draw;
+    _white_won = resultingState->_white_won;
+    _black_won = resultingState->_black_won;
+    _game_over_reason = resultingState->_game_over_reason;
+    _state_vector->push_back(resultingState);
+
+
+
+    /*_current_state->_move_from_state = moveToMake;
 
     int rowFrom = IndicesFromSquareID(originSquare).first;
     int colFrom = IndicesFromSquareID(originSquare).second;
@@ -131,8 +147,9 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
         _current_state->_is_game_over = true;
         _is_draw = true;
         _game_over_reason = "Threefold repetition";
-    }
+    }*/
 
+    _current_state = resultingState;
     _is_game_over = _current_state->_is_game_over;
     _current_state->_move_to_state._algebraic_notation = algebraicNotationForMove(_current_state);
     updatePGN();
@@ -142,11 +159,11 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     return true;
 }
 
-void ChessGame::performEnPassantMove(Move move, State *state){
+/*void ChessGame::performEnPassantMove(Move move, State *state){
     int rowFrom = IndicesFromSquareID(move._origin_square).first;
     int colTo = IndicesFromSquareID(move._destination_square).second;
     state->_board.at(rowFrom).at(colTo) = nullptr;
-}
+}*/
 
 State *ChessGame::getCurrent_state() const{
     return _current_state;
@@ -156,7 +173,7 @@ void ChessGame::setCurrent_state(State *current_state){
     _current_state = current_state;
 }
 
-void ChessGame::performCastlingMove(Move move, State *state){
+/*void ChessGame::performCastlingMove(Move move, State *state){
     if (move._move_type == LongCastle){
         if (move._colour_performing_move == White){
             state->_board.at(0).at(0) = nullptr;
@@ -185,13 +202,13 @@ void ChessGame::performCastlingMove(Move move, State *state){
             state->_board.at(7).at(5) = new Piece(Black, Rook);
         }
     }
-}
+}*/
 
 PieceType ChessGame::getPiece_selected_from_promotion() const{
     return _piece_selected_from_promotion;
 }
 
-void ChessGame::updateCastlingInfo(Move move, State *state){
+/*void ChessGame::updateCastlingInfo(Move move, State *state){
     if (move._piece._type == Rook){
         if (move._piece._colour == White){
             if (move._origin_square == "a1")
@@ -222,7 +239,7 @@ void ChessGame::updateCastlingInfo(Move move, State *state){
             state->_castling_info._black_king_has_moved = true;
         }
     }
-}
+}*/
 
 void ChessGame::setPiece_selected_from_promotion(const PieceType &piece_selected_from_promotion)
 {
@@ -241,7 +258,7 @@ State* ChessGame::gameStartingState(){
     startingState->_previous_state = nullptr;
     startingState->_moves_without_capture_or_pawn_advancement = 0;
     initiatePieces(startingState);
-    setFenForState(startingState);
+    _rules.setFenForState(startingState);
     return startingState;
 }
 
@@ -348,7 +365,7 @@ void ChessGame::updatePGN(){
     }
 }
 
-void ChessGame::setFenForState(State *state){
+/*void ChessGame::setFenForState(State *state){
     string fenBuilder = "";
     for (int i = state->_board.size()-1; i >= 0; i--){
         int emptySquareCounter = 0;
@@ -426,7 +443,7 @@ string ChessGame::enPassantTargetSquareForFEN(Move move){
         else
             return squareIDFromIndices(rowTo+1, colTo);
     }
-}
+}*/
 
 string ChessGame::algebraicNotationForMove(State *state){
     string notation = "";

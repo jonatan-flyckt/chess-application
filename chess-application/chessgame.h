@@ -23,20 +23,18 @@ public:
     void updatePGN();
     void initiatePieces(State *startingState);
 
-    void setFenForState(State *state);
-
-    vector<Move> getLegalMovesForSquare(State *state, string square);
+    //void setFenForState(State *state);
 
     bool makeMove(string originSquare, string destinationSquare);
     vector<Move> getLegalMovesForCurrentState();
-    void updateCastlingInfo(Move move, State *state);
+    //void updateCastlingInfo(Move move, State *state);
 
     void setPiece_selected_from_promotion(const PieceType &piece_selected_from_promotion);
 
-    void performCastlingMove(Move move, State *state);
+    //void performCastlingMove(Move move, State *state);
     PieceType getPiece_selected_from_promotion() const;
 
-    void performEnPassantMove(Move move, State *state);
+    //void performEnPassantMove(Move move, State *state);
     State *getCurrent_state() const;
     void setCurrent_state(State *current_state);
 
@@ -49,7 +47,7 @@ public:
     bool _black_resigned;
     string _square_under_check;
 
-    string enPassantTargetSquareForFEN(Move move);
+    //string enPassantTargetSquareForFEN(Move move);
     string algebraicNotationForMove(State *state);
     Colour getUser_colour() const;
 

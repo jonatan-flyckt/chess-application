@@ -34,7 +34,13 @@ public:
 
     string _square_under_check;
     bool isInsufficientMaterial(State *state);
-    int numberOfTimesThisStateSeen(string fen, map<string, int> *stateSeenCount);
+    int numberOfTimesThisStateSeen(string fen, map<string, int> stateSeenCount);
+    State *getResultingStateFromMove(State *currentState, Move moveToMake);
+    void updateCastlingInfo(Move move, State *state);
+    void performCastlingMove(Move move, State *state);
+    void performEnPassantMove(Move move, State *state);
+    void setFenForState(State *state);
+    string enPassantTargetSquareForFEN(Move move);
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};

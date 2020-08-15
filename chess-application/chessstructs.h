@@ -27,13 +27,15 @@ struct Piece{
 
 struct Move{
     Move(Colour colour, Piece piece, string originSquare,
-         string destinationSquare, int moveNumber, MoveType moveType = Standard){
+         string destinationSquare, int moveNumber,
+         MoveType moveType = Standard, PieceType promotionSelection = Queen){
         _colour_performing_move = colour;
         _piece = piece;
         _origin_square = originSquare;
         _destination_square = destinationSquare;
         _move_number = moveNumber;
         _move_type = moveType;
+        _promotion_selection = promotionSelection;
     };
     Move(){};
     Colour _colour_performing_move;
@@ -43,6 +45,7 @@ struct Move{
     string _destination_square;
     string _algebraic_notation;
     int _move_number;
+    PieceType _promotion_selection;
 };
 
 struct CastlingInfo{
@@ -88,6 +91,15 @@ struct State{
     };
 
     string _fen_notation;
+
+
+
+
+    bool _is_draw = false;
+    bool _white_won = false;
+    bool _black_won = false;
+    string _game_over_reason;
+    map<string, int> _state_seen_count;
 };
 
 #endif // STRUCTS_H
