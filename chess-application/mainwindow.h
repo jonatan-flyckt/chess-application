@@ -253,7 +253,6 @@ private:
     bool _time_to_update_board;
     QTimer *_check_for_update_board_timer;
 
-    Move _promotion_move;
     QString _move_in_progress_origin_square;
     QVector<Move> _legal_moves_for_current_state;
     QVector<QString> _legal_destination_squares_for_origin_square;

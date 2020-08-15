@@ -1,20 +1,19 @@
 #include "chessengine.h"
 
 ChessEngine::ChessEngine(){
-
 }
 
 ChessEngine::~ChessEngine(){
-
 }
 
-Move ChessEngine::selectMoveFromState(ChessGame *game, State *state, Colour engineColour){
+Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
     QMap<int, int> moveIndexEvalValueMap;
     for (int i = 0; i < state->_legal_moves_from_state.size(); i++){
-        ChessGame *gameCopy = game->clone();
+        //ChessGame *gameCopy = game->clone();
         Move move =  state->_legal_moves_from_state.at(i);
-        gameCopy->makeMove(move._origin_square, move._destination_square);
-        State *resultingState = gameCopy->getCurrent_state();
+        //gameCopy->makeMove(move._origin_square, move._destination_square);
+        //State *resultingState = gameCopy->getCurrent_state();
+        State *resultingState = _rules.getResultingStateFromMove(state, move);
         int eval = simpleMaterialEvaluation(resultingState);
         moveIndexEvalValueMap.insert(i, eval);
 
