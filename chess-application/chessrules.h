@@ -26,8 +26,6 @@ public:
     vector<Move> getMovesForKing(State *state, vector<vector<Piece *> > board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type, CastlingInfo castlingInfo, bool checkIfCheck);
     vector<Move> getMovesForPawn(vector<vector<Piece *> > board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type, Move previousMove);
 
-    State* resultingStateFromMove(Move move);
-
     bool squareIsUnderAttack(int row, int col, State *state);
     void performCheckCheckEnPassantMove(Move move, State *state);
     void performCheckCheckCastlingMove(Move move, State *state);
