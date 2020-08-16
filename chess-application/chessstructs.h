@@ -99,7 +99,7 @@ struct State{
     bool _white_won = false;
     bool _black_won = false;
     string _game_over_reason;
-    map<string, int> _state_seen_count;
+    map<string, int> *_state_seen_count;
 };
 
 #endif // STRUCTS_H

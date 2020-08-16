@@ -2,7 +2,6 @@
 #define CHESSENGINE_H
 
 #include "chessstructs.h"
-//#include "chessgame.h"
 #include "chessrules.h"
 #include <random>
 #include <algorithm>
@@ -36,6 +35,7 @@ public:
     int simpleMaterialEvaluation(State *state);
     Move makeRandomMove(State *state);
 
+    void addAllPromotionSelections(State *state);
 private:
     ChessRules _rules;
 };

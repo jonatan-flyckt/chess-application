@@ -15,7 +15,7 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _state_vector = new vector<State*>();
     _state_vector->push_back(_current_state);
     updatePGN();
-    _state_seen_count = new map<string, int>();
+    _current_state->_state_seen_count = new map<string, int>();
     _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state, Queen);
     updatePGN();
 }

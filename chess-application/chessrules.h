@@ -34,7 +34,7 @@ public:
 
     string _square_under_check;
     bool isInsufficientMaterial(State *state);
-    int numberOfTimesThisStateSeen(string fen, map<string, int> stateSeenCount);
+    int numberOfTimesThisStateSeen(string fen, map<string, int> *stateSeenCount);
     State *getResultingStateFromMove(State *currentState, Move moveToMake);
     void updateCastlingInfo(Move move, State *state);
     void performCastlingMove(Move move, State *state);

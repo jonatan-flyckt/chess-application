@@ -87,7 +87,7 @@ public:
 
     void resizeEvent(QResizeEvent* event);
 
-    bool completeMove(QString originSquare, QString destinationSquare);
+    bool completeMove(Move attemptedMove);
 
 
     void highlightPreviousMove(State *state);

@@ -674,7 +674,10 @@ void MainWindow::completeClickingMove(QString destinationSquare){
             highlightCheck(_game->getCurrent_state());
         return;
     }
-    if (!completeMove(_move_in_progress_origin_square, destinationSquare))
+    Move attemptedMove;
+    attemptedMove._origin_square = _move_in_progress_origin_square.toStdString();
+    attemptedMove._destination_square = destinationSquare.toStdString();
+    if (!completeMove(attemptedMove))
         return;
     _legal_destination_squares_for_origin_square.clear();
     _clicking_move_in_progress = false;
@@ -696,23 +699,30 @@ void MainWindow::getEngineMove(){
 }
 
 void MainWindow::performEngineMove(Move move){
-    completeMove(QString::fromStdString(move._origin_square), QString::fromStdString(move._destination_square));
+    completeMove(move);
 }
 
-bool MainWindow::completeMove(QString originSquare, QString destinationSquare){
+bool MainWindow::completeMove(Move attemptedMove){
     qDebug() << "in complete move func";
 
     _info_label->setText("");
     Move moveMade;
+    QString originSquare = QString::fromStdString(attemptedMove._origin_square);
+    QString destinationSquare = QString::fromStdString(attemptedMove._destination_square);
     for (auto move: _legal_moves_for_current_state){
         if (QString::fromStdString(move._origin_square) == originSquare &&
-                QString::fromStdString(move._destination_square) == destinationSquare) {
+                QString::fromStdString(move._destination_square) == destinationSquare){
             moveMade = move;
+            if (attemptedMove._move_type == Promotion || attemptedMove._move_type == PromotionCapture)
+                moveMade._promotion_selection = attemptedMove._promotion_selection;
             break;
         }
     }
     if (moveMade._move_type == Promotion || moveMade._move_type == PromotionCapture){
-        promotedPawnSelection();
+        if ((moveMade._colour_performing_move == White && _user_is_white) || (moveMade._colour_performing_move == Black && !_user_is_white))
+            promotedPawnSelection();
+        else
+            _game->setPiece_selected_from_promotion(moveMade._promotion_selection);
         _move_was_promotion = true;
     }
     else
@@ -943,7 +953,10 @@ void MainWindow::completeDraggingMove(){
         _time_to_update_board = true;
         return;
     }
-    if (!completeMove(_move_in_progress_origin_square, _currently_hovered_square)){
+    Move attemptedMove;
+    attemptedMove._origin_square = _move_in_progress_origin_square.toStdString();
+    attemptedMove._destination_square = _currently_hovered_square.toStdString();
+    if (!completeMove(attemptedMove)){
         qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
         removePieceGraphically(_piece_widget_currently_dragged);

@@ -183,7 +183,7 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
         resultingState->_game_over_reason = "50 move rule";
     }
     if (moveToMake._piece._type == Pawn)
-        resultingState->_state_seen_count.clear();
+        resultingState->_state_seen_count->clear();
     if (numberOfTimesThisStateSeen(currentState->_fen_notation, resultingState->_state_seen_count) >= 3){
         currentState->_is_game_over = true;
         resultingState->_is_draw = true;
@@ -867,7 +867,7 @@ bool ChessRules::isInsufficientMaterial(State *state){
     return false;
 }
 
-int ChessRules::numberOfTimesThisStateSeen(string fen, map<string, int> stateSeenCount){
+int ChessRules::numberOfTimesThisStateSeen(string fen, map<string, int> *stateSeenCount){
     string cutFen;
     string delimiter = " ";
     size_t pos = 0;
@@ -882,10 +882,10 @@ int ChessRules::numberOfTimesThisStateSeen(string fen, map<string, int> stateSee
         if (i > 2)
             break;
     }
-    if (stateSeenCount.count(cutFen) > 0)
-        stateSeenCount.find(cutFen)->second += 1;
+    if (stateSeenCount->count(cutFen) > 0)
+        stateSeenCount->find(cutFen)->second += 1;
     else
-        stateSeenCount.insert(pair<string, int>(cutFen, 1));
-    qDebug() << "state seen " << stateSeenCount.find(cutFen)->second << " times";
-    return stateSeenCount.find(cutFen)->second;
+        stateSeenCount->insert(pair<string, int>(cutFen, 1));
+    qDebug() << "state seen " << stateSeenCount->find(cutFen)->second << " times";
+    return stateSeenCount->find(cutFen)->second;
 }

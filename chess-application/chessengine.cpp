@@ -8,15 +8,13 @@ ChessEngine::~ChessEngine(){
 
 Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
     QMap<int, int> moveIndexEvalValueMap;
+    addAllPromotionSelections(state);
+
     for (int i = 0; i < state->_legal_moves_from_state.size(); i++){
-        //ChessGame *gameCopy = game->clone();
         Move move =  state->_legal_moves_from_state.at(i);
-        //gameCopy->makeMove(move._origin_square, move._destination_square);
-        //State *resultingState = gameCopy->getCurrent_state();
         State *resultingState = _rules.getResultingStateFromMove(state, move);
         int eval = simpleMaterialEvaluation(resultingState);
         moveIndexEvalValueMap.insert(i, eval);
-
     }
     int currentBestIndex = 0;
     int currentBestEval = -1000;
@@ -37,8 +35,27 @@ Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
 
     return state->_legal_moves_from_state.at(currentBestIndex);
 
-    //return makeRandomMove(state);
+}
 
+void ChessEngine::addAllPromotionSelections(State *state){
+    vector<Move> promotionMoves;
+    for (int i = 0; i < state->_legal_moves_from_state.size(); i++){
+        Move move =  state->_legal_moves_from_state.at(i);
+        if (move._move_type == Promotion || move._move_type == PromotionCapture){
+            move._promotion_selection = Queen;
+            Move knightPromotion = move;
+            knightPromotion._promotion_selection = Knight;
+            promotionMoves.push_back(knightPromotion);
+            Move bishopPromotion = move;
+            bishopPromotion._promotion_selection = Bishop;
+            promotionMoves.push_back(bishopPromotion);
+            Move rookPromotion = move;
+            rookPromotion._promotion_selection = Rook;
+            promotionMoves.push_back(rookPromotion);
+        }
+    }
+    for (auto move: promotionMoves)
+        state->_legal_moves_from_state.push_back(move);
 }
 
 Move ChessEngine::makeRandomMove(State *state){
