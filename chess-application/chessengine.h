@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <vector>
 #include <utility>
+#include <QElapsedTimer>
+#include <QDebug>
 
 using namespace std;
 
@@ -25,8 +27,6 @@ struct MiniMaxTree{
     MiniMaxNode *_starting_node;
     int _max_depth;
     Move _best_move;
-    float _alpha;
-    float _beta;
 };
 
 class ChessEngine
@@ -41,13 +41,29 @@ public:
     void addAllPromotionSelections(State *state);
 
     Move miniMax(State *state, Colour engineColour);
-    pair<Move, float> alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, int depth, bool maximisingPlayer);
+    pair<Move, float> alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, int depth, float alpha, float beta, bool maximisingPlayer);
 private:
 
     ChessRules _rules;
 
     map<int, MiniMaxTree*> *_move_number_minimax_tree_map;
 
+    QElapsedTimer _move_generation_timer;
+
+    float _accumulated_move_generation_time;
+
+    QElapsedTimer _heuristic_evaluation_timer;
+
+    float _accumulated_heuristic_evaluation_time;
+
+    QElapsedTimer _alpha_beta_timer;
+
+    float _accumulated_alpha_beta_time;
+
+    int _perft_one;
+    int _perft_two;
+    int _perft_three;
+    int _perft_four;
 };
 
 #endif // CHESSENGINE_H

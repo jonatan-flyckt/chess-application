@@ -1,18 +1,21 @@
 #include "chessrules.h"
 
 ChessRules::ChessRules(){
-
+    _accumulated_test_time = 0;
 }
 
 vector<Move> ChessRules::getLegalMoves(State *state, PieceType promotionPiece, bool checkIfCheck){
+
     vector<Move> legalMoves;
     Colour colourToMove = state->_colour_to_move;
     int numberOfMoves = state->_number_of_moves;
     vector<vector<Piece*>> board = state->_board;
+
     for(int i = 0; i < board.size(); i++){
         for (int j = 0; j < board.at(i).size(); j++){
             if (board.at(i).at(j) != nullptr){
                 if (board.at(i).at(j)->_colour == colourToMove){
+
                     if (board.at(i).at(j)->_type == Rook){
                         vector<Move> rookMoves = getMovesForRook(board, colourToMove, i, j, numberOfMoves, Rook);
                         legalMoves.insert(legalMoves.end(), rookMoves.begin(), rookMoves.end());
@@ -37,14 +40,20 @@ vector<Move> ChessRules::getLegalMoves(State *state, PieceType promotionPiece, b
                         vector<Move> kingMoves = getMovesForKing(state, board, colourToMove, i, j, numberOfMoves, King, state->_castling_info, checkIfCheck);
                         legalMoves.insert(legalMoves.end(), kingMoves.begin(), kingMoves.end());
                     }
+
                 }
             }
         }
     }
+
+
     //checkIfCheck is true when checking for legal moves, false when checking for which squares are under attack
     if (checkIfCheck)
         legalMoves = checkIfMovesCauseCheckForSelf(legalMoves, board, colourToMove, state, promotionPiece);
+
+
     return legalMoves;
+
 }
 
 vector<Move> ChessRules::checkIfMovesCauseCheckForSelf(vector<Move> movesToCheck, vector<vector<Piece*>> board, Colour colourToMove, State *state, PieceType promotionPiece){
@@ -133,8 +142,10 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
             resultingState->_board.at(i).at(j) = currentState->_board.at(i).at(j);
         }
     }
+
     resultingState->_board.at(rowFrom).at(colFrom) = nullptr;
     resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, pieceToMove._type);
+
 
     //Handle castling info and moves
     updateCastlingInfo(moveToMake, resultingState);
@@ -145,7 +156,9 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     if (moveToMake._move_type == EnPassant)
         performEnPassantMove(moveToMake, resultingState);
 
+    _test_timer.start();
     resultingState->_legal_moves_from_state = getLegalMoves(resultingState, moveToMake._promotion_selection);
+    _accumulated_test_time += _test_timer.elapsed();
 
     currentState->_next_state = resultingState;
     currentState = resultingState;
@@ -154,6 +167,7 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     if (currentState->_white_king_is_in_check || currentState->_black_king_is_in_check)
         currentState->_square_under_check = _square_under_check;
     _square_under_check = _square_under_check;
+
 
     setFenForState(currentState);
     if (currentState->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
@@ -182,6 +196,7 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
         resultingState->_is_draw = true;
         resultingState->_game_over_reason = "50 move rule";
     }
+
     if (moveToMake._piece._type == Pawn)
         resultingState->_state_seen_count->clear();
     if (numberOfTimesThisStateSeen(currentState->_fen_notation, resultingState->_state_seen_count) >= 3){
@@ -189,6 +204,7 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
         resultingState->_is_draw = true;
         resultingState->_game_over_reason = "Threefold repetition";
     }
+
 
     resultingState->_is_game_over = currentState->_is_game_over;
 
@@ -886,6 +902,6 @@ int ChessRules::numberOfTimesThisStateSeen(string fen, map<string, int> *stateSe
         stateSeenCount->find(cutFen)->second += 1;
     else
         stateSeenCount->insert(pair<string, int>(cutFen, 1));
-    qDebug() << "state seen " << stateSeenCount->find(cutFen)->second << " times";
+    //qDebug() << "state seen " << stateSeenCount->find(cutFen)->second << " times";
     return stateSeenCount->find(cutFen)->second;
 }

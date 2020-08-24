@@ -5,6 +5,7 @@
 #include <utility>
 #include <QDebug>
 #include "utils.h"
+#include <QElapsedTimer>
 
 class ChessRules
 {
@@ -39,11 +40,18 @@ public:
     void performEnPassantMove(Move move, State *state);
     void setFenForState(State *state);
     string enPassantTargetSquareForFEN(Move move);
+
+
+    QElapsedTimer _test_timer;
+    float _accumulated_test_time;
+
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};
     vector<pair<int, int>> _possible_king_moves{make_pair(0,1), make_pair(1,1), make_pair(1,0), make_pair(1,-1),
                 make_pair(0,-1), make_pair(-1,-1), make_pair(-1,0), make_pair(-1,1)};
+
+
 };
 
 #endif // CHESSRULES_H

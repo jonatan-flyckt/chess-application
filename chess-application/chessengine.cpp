@@ -10,35 +10,8 @@ ChessEngine::~ChessEngine(){
 }
 
 Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
-    //QMap<int, float> moveIndexEvalValueMap;
     addAllPromotionSelections(state);
     return miniMax(state, engineColour);
-
-    /*for (int i = 0; i < state->_legal_moves_from_state.size(); i++){
-        Move move =  state->_legal_moves_from_state.at(i);
-        State *resultingState = _rules.getResultingStateFromMove(state, move);
-        float eval = simpleMaterialEvaluation(resultingState);
-        moveIndexEvalValueMap.insert(i, eval);
-    }
-    int currentBestIndex = 0;
-    int currentBestEval = -1000;
-    QMapIterator<int, float> i(moveIndexEvalValueMap);
-    while (i.hasNext()) {
-        i.next();
-        if (currentBestEval == -1000)
-            currentBestEval = i.value();
-        if (state->_colour_to_move == White){
-            if (i.value() > currentBestEval)
-                currentBestIndex = i.key();
-        }
-        else{
-            if (i.value() < currentBestEval)
-                currentBestIndex = i.key();
-        }
-    }
-
-    return state->_legal_moves_from_state.at(currentBestIndex);*/
-
 }
 
 Move ChessEngine::miniMax(State *state, Colour engineColour){
@@ -53,25 +26,53 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     startingNode->_depth_of_node = 0;
     tree->_starting_node = startingNode;
     tree->_max_depth = MAX_DEPTH;
-    tree->_alpha = INFINITY_NEG;
-    tree->_beta = INFINITY_POS;
 
-    pair<Move, float> bestMoveEvalPair = alphaBeta(tree, startingNode, startingNode->_depth_of_node, engineColour == White);
+    _accumulated_move_generation_time = 0;
+    _accumulated_heuristic_evaluation_time = 0;
+    _accumulated_alpha_beta_time = 0;
+    _rules._accumulated_test_time = 0;
+
+
+    _perft_one = 0;
+    _perft_two = 0;
+    _perft_three = 0;
+    _perft_four = 0;
+
+    pair<Move, float> bestMoveEvalPair = alphaBeta(tree, startingNode, startingNode->_depth_of_node, INFINITY_NEG, INFINITY_POS, engineColour == White);
+
+    qDebug() << "Move generation time:" << _accumulated_move_generation_time;
+    qDebug() << "Heuristic evaluation time:" << _accumulated_heuristic_evaluation_time;
+    qDebug() << "Alpha-Beta time:" << _accumulated_alpha_beta_time;
+    qDebug() << "Test timer:" << _rules._accumulated_test_time;
+    qDebug() << "PERFT: " << _perft_one << " " << _perft_two << " " << _perft_three << " " << _perft_four;
 
     startingNode->_move_eval_pair.second = bestMoveEvalPair.second;
     tree->_best_move = bestMoveEvalPair.first;
     return tree->_best_move;
 }
 
-pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, int depth, bool maximisingPlayer){
+pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, int depth, float alpha, float beta, bool maximisingPlayer){
+
     if (depth == tree->_max_depth || node->_state->_is_game_over){
+        _heuristic_evaluation_timer.start();
         float value = heuristicValueForState(node->_state);
         pair<Move, float> moveEvalPair;
         moveEvalPair.first = node->_state->_move_to_state;
         moveEvalPair.second = value;
         return moveEvalPair;
+        _accumulated_heuristic_evaluation_time += _heuristic_evaluation_timer.elapsed();
     }
+    _move_generation_timer.start();
     node->_state->_legal_moves_from_state = _rules.getLegalMoves(node->_state);
+    if (depth == 0)
+        _perft_one += node->_state->_legal_moves_from_state.size();
+    else if (depth == 1)
+        _perft_two += node->_state->_legal_moves_from_state.size();
+    else if (depth == 2)
+        _perft_three += node->_state->_legal_moves_from_state.size();
+    else if (depth == 3)
+        _perft_four += node->_state->_legal_moves_from_state.size();
+
     //TODO: move ordering
     for (auto legalMove: node->_state->_legal_moves_from_state){
         MiniMaxNode *newNode = new MiniMaxNode();
@@ -79,40 +80,45 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
         newNode->_state = _rules.getResultingStateFromMove(node->_state, legalMove);
         node->_children.push_back(newNode);
     }
+    _accumulated_move_generation_time += _move_generation_timer.elapsed();
+
 
     if (maximisingPlayer){ //Find best move for white (maximise)
+        _alpha_beta_timer.start();
         float bestEval = INFINITY_NEG;
         Move bestMove;
         for (auto child: node->_children){
-            pair<Move, float> moveEval = alphaBeta(tree, child, depth+1, false);
+            pair<Move, float> moveEval = alphaBeta(tree, child, depth+1, alpha, beta, false);
             child->_move_eval_pair = moveEval;
             if (moveEval.second > bestEval){
-                //bestMove = moveEval.first;
                 bestMove = child->_state->_move_to_state;
                 bestEval = moveEval.second;
             }
-            tree->_alpha = max(tree->_alpha, bestEval);
+            alpha = max(alpha, bestEval);
             //Prune tree if possible:
-            //if (tree->_alpha >= tree->_beta)
+            //if (alpha >= beta)
             //    break;
         }
+        _accumulated_alpha_beta_time += _alpha_beta_timer.elapsed();
         return pair<Move, float>(bestMove, bestEval);
     }
     else{ //Find best move for black (minimise)
+        _alpha_beta_timer.start();
         float bestEval = INFINITY_POS;
         Move bestMove;
         for (auto child: node->_children){
-            pair<Move, float> moveEval = alphaBeta(tree, child, depth+1, true);
+            pair<Move, float> moveEval = alphaBeta(tree, child, depth+1, alpha, beta, true);
             child->_move_eval_pair = moveEval;
             if (moveEval.second < bestEval){
                 bestMove = child->_state->_move_to_state;
                 bestEval = moveEval.second;
             }
-            tree->_beta = min(tree->_beta, bestEval);
+            beta = min(beta, bestEval);
             //Prune tree if possible:
-            //if (tree->_beta <= tree->_alpha)
+            //if (beta <= alpha)
             //    break;
         }
+        _accumulated_alpha_beta_time += _alpha_beta_timer.elapsed();
         return pair<Move, float>(bestMove, bestEval);
     }
 }
