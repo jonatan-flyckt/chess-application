@@ -34,6 +34,38 @@ map<int, ULL>  generateKnightAttackSet(){
     return attackMap;
 }
 
+map<int, ULL> generateKingAttackSet(){
+    map<int, ULL> attackMap;
+    vector<int> kingShifts = {1, 7, 8, 9};
+
+    for (int square = 0; square < 64; square++){
+        ULL oneULL = 1;
+        ULL squareBit = oneULL << square;
+        vector<ULL> moveList;
+        for (auto shift: kingShifts){
+            moveList.push_back(squareBit << shift);
+            moveList.push_back(squareBit >> shift);
+        }
+
+        ULL moveBoard = 0;
+        for (auto move: moveList) //Store the moves in a bitboard
+            moveBoard |= move;
+
+        moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+
+        if (square % 8 == 7)
+            moveBoard &= 0xfcfcfcfcfcfcfcfc;
+        else if (square % 8 == 0)
+            moveBoard &= 0x3f3f3f3f3f3f3f3f;
+
+        cout << _square_from_index[square] << ":" << endl;
+        printBoard(moveBoard);
+        attackMap.insert_or_assign(square, moveBoard);
+    }
+    return attackMap;
+}
+
+
 vector<int> bitVectorFromULL(ULL board){
     vector<int> bitVector;
     for (int i = 0; i < 8; i++){
@@ -61,3 +93,4 @@ void printBoard(ULL board){
     }
     cout << endl;
 }
+

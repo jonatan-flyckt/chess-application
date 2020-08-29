@@ -14,6 +14,8 @@ void printBoard(ULL board);
 
 map<int, ULL>  generateKnightAttackSet();
 
+map<int, ULL>  generateKingAttackSet();
+
 map<int, string> _square_from_index = {
     {0, "a1"}, {1, "a2"}, {2, "a3"}, {3, "a4"}, {4, "a5"}, {5, "a6"}, {6, "a7"}, {7, "a8"},
     {8, "b1"}, {9, "b2"}, {10, "b3"}, {11, "b4"}, {12, "b5"}, {13, "b6"}, {14, "b7"}, {15, "b8"},
@@ -27,6 +29,8 @@ map<int, string> _square_from_index = {
 
 
 map<int, ULL> _knight_attack_set = generateKnightAttackSet();
+
+map<int, ULL> _king_attack_set = generateKingAttackSet();
 
 #endif // BITBOARDUTILS_H
 
