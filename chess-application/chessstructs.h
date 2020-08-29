@@ -5,7 +5,9 @@
 #include <vector>
 #include <map>
 #include <utility>
-#include "utils.h"
+//#include "utils.h"
+
+typedef uint64_t ULL;
 
 using namespace std;
 

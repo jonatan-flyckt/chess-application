@@ -42,6 +42,13 @@ pair<int, int> IndicesFromSquareID(string square){
     return make_pair(row, col);
 }
 
-ULL knightTargetSq(int id){
 
-}
+
+
+
+
+
+
+
+
+

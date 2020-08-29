@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     aboutpopup.cpp \
+    bitboardutils.cpp \
     boardaspectratiowidget.cpp \
     bugreportpopup.cpp \
     chessengine.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
 
 HEADERS += \
     aboutpopup.h \
+    bitboardutils.h \
     boardaspectratiowidget.h \
     bugreportpopup.h \
     chessengine.h \
