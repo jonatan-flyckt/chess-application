@@ -1,12 +1,11 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-
-
 #include <string>
 #include <vector>
 #include <map>
 #include <utility>
+#include "utils.h"
 
 using namespace std;
 
@@ -57,6 +56,26 @@ struct CastlingInfo{
     bool _black_king_has_moved = false;
     bool _black_long_rook_has_moved = false;
     bool _black_short_rook_has_moved = false;
+};
+
+struct BitBoard{
+    BitBoard(){
+
+    }
+
+    ULL _white_pawns;
+    ULL _white_rooks;
+    ULL _white_knights;
+    ULL _white_bishops;
+    ULL _white_queens;
+    ULL _white_king;
+
+    ULL _black_pawns;
+    ULL _black_rooks;
+    ULL _black_knights;
+    ULL _black_bishops;
+    ULL _black_queens;
+    ULL _black_king;
 };
 
 struct State{
