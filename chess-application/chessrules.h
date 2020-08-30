@@ -30,6 +30,7 @@ public:
 
     vector<Move> getLegalBitBoardMoves(State *state);
     vector<Move> getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
+    bool bitBoardSquareIsUnderAttack(int index);
 
 
     bool squareIsUnderAttack(int row, int col, State *state);

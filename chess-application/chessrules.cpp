@@ -638,16 +638,17 @@ vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Co
     ULL possibleAttacks = _knight_attack_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
-    //printBoard(possibleAttacks);
-    //printBoard(pseudoLegalMoves);
-
-    //remove moves that cause check
+    //TODO: remove moves that cause check
 
     vector<Move> moveVector;
     for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves))
         moveVector.push_back(Move(colourToMove, Piece(colourToMove, Knight), _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, Standard));
     return moveVector;
+}
+
+bool ChessRules::bitBoardSquareIsUnderAttack(int index){
+
 }
 
 vector<Move> ChessRules::getMovesForQueen(vector<vector<Piece*>> board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type){

@@ -25,6 +25,8 @@ public:
 
     map<Piece, ULL> generateStartingPosition();
 
+    pair<map<int, ULL>, map<int, ULL>> generateBitMasks();
+
     int countBitsInBoard(ULL board);
 
     int popLeastSignificantBitFromBoard(ULL *board);
@@ -70,6 +72,10 @@ public:
     map<int, ULL> _black_pawn_attack_set = generatePawnAttackSet(Black);
 
     map<Piece, ULL> _starting_bitboard = generateStartingPosition();
+
+    map<int, ULL> _bit_masks = generateBitMasks().first;
+
+    map<int, ULL> _bit_masks_complement = generateBitMasks().second;
 
 };
 

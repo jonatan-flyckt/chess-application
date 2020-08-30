@@ -184,82 +184,90 @@ map<int, ULL> BitBoardUtils::generatePawnAttackSet(Colour colour){
 
 map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
     map<Piece, ULL> startingBoard;
-    ULL oneULL = 1;
 
     ULL board = 0;
     for (int i = 8; i < 16; i++){
-        ULL squareBit = oneULL << i;
+        ULL squareBit = 1ULL << i;
         board |= squareBit;
     }
     startingBoard.insert_or_assign(Piece(White, Pawn), board);
 
     board = 0;
     for (auto i: vector{0, 7}){
-        ULL squareBit = oneULL << i;
+        ULL squareBit = 1ULL << i;
         board |= squareBit;
     }
     startingBoard.insert_or_assign(Piece(White, Rook), board);
 
     board = 0;
     for (auto i: vector{1, 6}){
-        ULL squareBit = oneULL << i;
+        ULL squareBit = 1ULL << i;
         board |= squareBit;
     }
     startingBoard.insert_or_assign(Piece(White, Knight), board);
 
     board = 0;
     for (auto i: vector{2, 5}){
-        ULL squareBit = oneULL << i;
+        ULL squareBit = 1ULL << i;
         board |= squareBit;
     }
     startingBoard.insert_or_assign(Piece(White, Bishop), board);
 
     board = 0;
-    board |= oneULL << 3;
+    board |= 1ULL << 3;
     startingBoard.insert_or_assign(Piece(White, Queen), board);
 
     board = 0;
-    board |= oneULL << 4;
+    board |= 1ULL << 4;
     startingBoard.insert_or_assign(Piece(White, King), board);
 
 
     board = 0;
     for (int i = 48; i < 56; i++){
-        ULL squareBit = oneULL << i;
+        ULL squareBit = 1ULL << i;
         board |= squareBit;
     }
     startingBoard.insert_or_assign(Piece(Black, Pawn), board);
 
     board = 0;
     for (auto i: vector{56, 63}){
-        ULL squareBit = oneULL << i;
+        ULL squareBit = 1ULL << i;
         board |= squareBit;
     }
     startingBoard.insert_or_assign(Piece(Black, Rook), board);
 
     board = 0;
     for (auto i: vector{57, 62}){
-        ULL squareBit = oneULL << i;
+        ULL squareBit = 1ULL << i;
         board |= squareBit;
     }
     startingBoard.insert_or_assign(Piece(Black, Knight), board);
 
     board = 0;
     for (auto i: vector{58, 61}){
-        ULL squareBit = oneULL << i;
+        ULL squareBit = 1ULL << i;
         board |= squareBit;
     }
     startingBoard.insert_or_assign(Piece(Black, Bishop), board);
 
     board = 0;
-    board |= oneULL << 59;
+    board |= 1ULL << 59;
     startingBoard.insert_or_assign(Piece(Black, Queen), board);
 
     board = 0;
-    board |= oneULL << 60;
+    board |= 1ULL << 60;
     startingBoard.insert_or_assign(Piece(Black, King), board);
 
     return startingBoard;
+}
+
+pair<map<int, ULL>, map<int, ULL> > BitBoardUtils::generateBitMasks(){
+    map<int, ULL> trueMask, falseMask;
+    for (int i = 0; i < 64; i++){
+        trueMask.insert_or_assign(i, 0ULL | (1ULL << i));
+        falseMask.insert_or_assign(i, ~trueMask[i]);
+    }
+    return pair(trueMask, falseMask);
 }
 
 int BitBoardUtils::countBitsInBoard(ULL board){
