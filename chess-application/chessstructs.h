@@ -24,6 +24,14 @@ struct Piece{
     Piece(){};
     Colour _colour;
     PieceType _type;
+
+    bool operator==(const Piece &o) const{
+        return _colour == o._colour && _type == o._type;
+    }
+
+    bool operator<(const Piece &o) const{
+        return _colour < o._colour || (_colour == o._colour && _type < o._type);
+    }
 };
 
 struct Move{

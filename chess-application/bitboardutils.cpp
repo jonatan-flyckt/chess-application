@@ -174,12 +174,116 @@ map<int, ULL> generatePawnAttackSet(Colour colour){
 
         moveBoard &= 0xffffffffffffffff; //Remove moves outside board
 
-        cout << _square_from_index[square] << ":" << endl;
-        printBoardOnOneRow(moveBoard);
-        printBoard(moveBoard);
+        //cout << _square_from_index[square] << ":" << endl;
+        //printBoardOnOneRow(moveBoard);
+        //printBoard(moveBoard);
         attackMap.insert_or_assign(square, moveBoard);
     }
     return attackMap;
+}
+
+map<Piece, ULL> generateStartingPosition(){
+    map<Piece, ULL> startingBoard;
+    ULL oneULL = 1;
+
+    ULL board = 0;
+    for (int i = 8; i < 16; i++){
+        ULL squareBit = oneULL << i;
+        board |= squareBit;
+    }
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(White, Pawn), board);
+
+    board = 0;
+    for (auto i: vector{0, 7}){
+        ULL squareBit = oneULL << i;
+        board |= squareBit;
+    }
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(White, Rook), board);
+
+    board = 0;
+    for (auto i: vector{1, 6}){
+        ULL squareBit = oneULL << i;
+        board |= squareBit;
+    }
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(White, Knight), board);
+
+    board = 0;
+    for (auto i: vector{2, 5}){
+        ULL squareBit = oneULL << i;
+        board |= squareBit;
+    }
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(White, Bishop), board);
+
+    board = 0;
+    board |= oneULL << 3;
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(White, Queen), board);
+
+    board = 0;
+    board |= oneULL << 4;
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(White, King), board);
+
+
+    board = 0;
+    for (int i = 48; i < 56; i++){
+        ULL squareBit = oneULL << i;
+        board |= squareBit;
+    }
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(Black, Pawn), board);
+
+    board = 0;
+    for (auto i: vector{56, 63}){
+        ULL squareBit = oneULL << i;
+        board |= squareBit;
+    }
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(Black, Rook), board);
+
+    board = 0;
+    for (auto i: vector{57, 62}){
+        ULL squareBit = oneULL << i;
+        board |= squareBit;
+    }
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(Black, Knight), board);
+
+    board = 0;
+    for (auto i: vector{58, 61}){
+        ULL squareBit = oneULL << i;
+        board |= squareBit;
+    }
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(Black, Bishop), board);
+
+    board = 0;
+    board |= oneULL << 59;
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(Black, Queen), board);
+
+    board = 0;
+    board |= oneULL << 60;
+    printBoardOnOneRow(board);
+    printBoard(board);
+    startingBoard.insert_or_assign(Piece(Black, King), board);
+
+    return startingBoard;
 }
 
 vector<int> bitVectorFromULL(ULL board){
@@ -223,4 +327,6 @@ void printBoard(ULL board){
     }
     cout << endl;
 }
+
+
 

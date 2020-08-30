@@ -22,6 +22,8 @@ map<int, ULL>  generateQueenAttackSet();
 
 map<int, ULL>  generatePawnAttackSet(Colour colour);
 
+map<Piece, ULL> generateStartingPosition();
+
 vector<int> bitVectorFromULL(ULL board);
 
 void printBoardOnOneRow(ULL board);
@@ -53,6 +55,8 @@ map<int, ULL> _queen_attack_set = generateQueenAttackSet();
 map<int, ULL> _white_pawn_attack_set = generatePawnAttackSet(White);
 
 map<int, ULL> _black_pawn_attack_set = generatePawnAttackSet(Black);
+
+map<Piece, ULL> _starting_bitboard = generateStartingPosition();
 
 #endif // BITBOARDUTILS_H
 
