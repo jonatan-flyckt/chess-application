@@ -158,6 +158,7 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
 
     _test_timer.start();
     resultingState->_legal_moves_from_state = getLegalMoves(resultingState, moveToMake._promotion_selection);
+    vector<Move> moves = getLegalBitBoardMoves(resultingState);
     _accumulated_test_time += _test_timer.elapsed();
 
     currentState->_next_state = resultingState;
@@ -360,13 +361,6 @@ string ChessRules::enPassantTargetSquareForFEN(Move move){
             return squareIDFromIndices(rowTo+1, colTo);
     }
 }
-
-
-
-
-
-
-
 
 void ChessRules::performCheckCheckEnPassantMove(Move move, State *state){
     int rowFrom = IndicesFromSquareID(move._origin_square).first;
@@ -629,6 +623,31 @@ vector<Move> ChessRules::getMovesForPawn(vector<vector<Piece *> > board, Colour 
         }
     }
     return pawnMoves;
+}
+
+vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
+    vector<int> knightIndices = getIndicesOfBitsInBoard(state->_bit_board._white_knights);
+    vector<Move> knightMoves;
+    for (auto index: knightIndices)
+        for (auto move: getBitBoardMovesForKnight(index, state->_bit_board, White, 0))
+            knightMoves.push_back(move);
+    return knightMoves;
+}
+
+vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+    ULL possibleAttacks = _knight_attack_set[index];
+    ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
+
+    //printBoard(possibleAttacks);
+    //printBoard(pseudoLegalMoves);
+
+    //remove moves that cause check
+
+    vector<Move> moveVector;
+    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves))
+        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Knight), _square_from_index[index],_square_from_index[resultingIndex],
+                                  numberOfMoves+1, Standard));
+    return moveVector;
 }
 
 vector<Move> ChessRules::getMovesForQueen(vector<vector<Piece*>> board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type){

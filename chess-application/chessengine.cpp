@@ -11,7 +11,8 @@ ChessEngine::~ChessEngine(){
 
 Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
     addAllPromotionSelections(state);
-    return miniMax(state, engineColour);
+    //return miniMax(state, engineColour);
+    return makeRandomMove(state);
 }
 
 Move ChessEngine::miniMax(State *state, Colour engineColour){

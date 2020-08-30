@@ -37,7 +37,7 @@ public:
 
     void printBoard(ULL board);
 
-    const map<int, string> _square_from_index = {
+    map<int, string> _square_from_index = {
         {0, "a1"}, {1, "a2"}, {2, "a3"}, {3, "a4"}, {4, "a5"}, {5, "a6"}, {6, "a7"}, {7, "a8"},
         {8, "b1"}, {9, "b2"}, {10, "b3"}, {11, "b4"}, {12, "b5"}, {13, "b6"}, {14, "b7"}, {15, "b8"},
         {16, "c1"}, {17, "c2"}, {18, "c3"}, {19, "c4"}, {20, "c5"}, {21, "c6"}, {22, "c7"}, {23, "c8"},

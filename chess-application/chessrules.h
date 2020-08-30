@@ -5,9 +5,10 @@
 #include <utility>
 #include <QDebug>
 #include "utils.h"
+#include "bitboardutils.h"
 #include <QElapsedTimer>
 
-class ChessRules
+class ChessRules: public BitBoardUtils
 {
 public:
     ChessRules();
@@ -26,6 +27,10 @@ public:
     vector<Move> getMovesForKnight(vector<vector<Piece *> > board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type);
     vector<Move> getMovesForKing(State *state, vector<vector<Piece *> > board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type, CastlingInfo castlingInfo, bool checkIfCheck);
     vector<Move> getMovesForPawn(vector<vector<Piece *> > board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type, Move previousMove);
+
+    vector<Move> getLegalBitBoardMoves(State *state);
+    vector<Move> getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
+
 
     bool squareIsUnderAttack(int row, int col, State *state);
     void performCheckCheckEnPassantMove(Move move, State *state);

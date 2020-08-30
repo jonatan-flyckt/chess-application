@@ -102,11 +102,7 @@ State* ChessGame::gameStartingState(){
     initiatePieces(startingState);
     initiateBitBoard(startingState);
 
-    /*cout << countBitsInBoard(startingState->_bit_board._black_queens) << endl;
-    for (auto index: getIndicesOfBitsInBoard(startingState->_bit_board._black_queens))
-        cout << index << ", ";
-    cout << endl;
-    printBoard(startingState->_bit_board._black_queens);*/
+    vector<Move> moves = _rules.getLegalBitBoardMoves(startingState);
 
     _rules.setFenForState(startingState);
     return startingState;
