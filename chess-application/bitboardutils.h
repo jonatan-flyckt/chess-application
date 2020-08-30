@@ -18,6 +18,10 @@ map<int, ULL>  generateRookAttackSet();
 
 map<int, ULL>  generateBishopAttackSet();
 
+map<int, ULL>  generateQueenAttackSet();
+
+map<int, ULL>  generatePawnAttackSet(Colour colour);
+
 vector<int> bitVectorFromULL(ULL board);
 
 void printBoardOnOneRow(ULL board);
@@ -43,6 +47,12 @@ map<int, ULL> _king_attack_set = generateKingAttackSet();
 map<int, ULL> _rook_attack_set = generateRookAttackSet();
 
 map<int, ULL> _bishop_attack_set = generateBishopAttackSet();
+
+map<int, ULL> _queen_attack_set = generateQueenAttackSet();
+
+map<int, ULL> _white_pawn_attack_set = generatePawnAttackSet(White);
+
+map<int, ULL> _black_pawn_attack_set = generatePawnAttackSet(Black);
 
 #endif // BITBOARDUTILS_H
 

@@ -108,24 +108,65 @@ map<int, ULL> generateBishopAttackSet(){
         ULL squareBit = oneULL << square;
         vector<ULL> moveList;
 
-        for (int i = 7; i % 8  > square % 8; i += 7){
+        for (int i = 7; i % 8  > square % 8; i += 7)
             moveList.push_back(squareBit >> i);
-        }
-
-        for (int i = 7; (square + i) % 8  < 7; i += 7){
+        for (int i = 7; (square + i) % 8  < 7; i += 7)
             moveList.push_back(squareBit << i);
-        }
-
-        for (int i = 9+square; i % 8  > square % 8 && i % 8 >= 0; i += 9){
+        for (int i = 9+square; i % 8 > square % 8 && i % 8 >= 0; i += 9)
             moveList.push_back(squareBit << i-square);
-        }
-
-        for (int i = 9; (i-1) % 8  < square % 8; i += 9){
+        for (int i = 9; (i-1) % 8 < square % 8; i += 9)
             moveList.push_back(squareBit >> i);
+
+        ULL moveBoard = 0;
+        for (auto move: moveList) //Store the moves in a bitboard
+            moveBoard |= move;
+
+        moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+
+        //cout << _square_from_index[square] << ":" << endl;
+        //printBoardOnOneRow(moveBoard);
+        //printBoard(moveBoard);
+        attackMap.insert_or_assign(square, moveBoard);
+    }
+    return attackMap;
+}
+
+map<int, ULL> generateQueenAttackSet(){
+    map<int, ULL> attackMap;
+
+    for (int square = 0; square < 64; square++){
+        vector<ULL> moveList;
+
+        moveList.push_back(_bishop_attack_set[square]);
+        moveList.push_back(_rook_attack_set[square]);
+
+        ULL moveBoard = 0;
+        for (auto move: moveList) //Store the moves in a bitboard
+            moveBoard |= move;
+
+        moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+
+        //cout << _square_from_index[square] << ":" << endl;
+        //printBoardOnOneRow(moveBoard);
+        //printBoard(moveBoard);
+        attackMap.insert_or_assign(square, moveBoard);
+    }
+    return attackMap;
+}
+
+map<int, ULL> generatePawnAttackSet(Colour colour){
+    map<int, ULL> attackMap;
+    for (int square = 0; square < 64; square++){
+        vector<ULL> moveList;
+
+        if (square > 7 && square < 56){
+            ULL oneULL = 1;
+            ULL squareBit = oneULL << square;
+
+            moveList.push_back(colour == White ? squareBit << 8 : squareBit >> 8);
+            if (square < 16 || square > 47)
+                moveList.push_back(colour == White ? squareBit << 16 : squareBit >> 16);
         }
-
-
-
 
         ULL moveBoard = 0;
         for (auto move: moveList) //Store the moves in a bitboard
@@ -182,7 +223,4 @@ void printBoard(ULL board){
     }
     cout << endl;
 }
-
-
-
 
