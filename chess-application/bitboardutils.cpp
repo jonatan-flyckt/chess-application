@@ -25,8 +25,8 @@ map<int, ULL>  generateKnightAttackSet(){
         else if (square % 8 == 0 || square % 8 == 1)
             moveBoard &= 0x3f3f3f3f3f3f3f3f;
 
-        cout << _square_from_index[square] << ":" << endl;
-        printBoard(moveBoard);
+        //cout << _square_from_index[square] << ":" << endl;
+        //printBoard(moveBoard);
         attackMap.insert_or_assign(square, moveBoard);
 
     }
@@ -58,13 +58,52 @@ map<int, ULL> generateKingAttackSet(){
         else if (square % 8 == 0)
             moveBoard &= 0x3f3f3f3f3f3f3f3f;
 
-        cout << _square_from_index[square] << ":" << endl;
-        printBoard(moveBoard);
+        //cout << _square_from_index[square] << ":" << endl;
+        //printBoard(moveBoard);
         attackMap.insert_or_assign(square, moveBoard);
     }
     return attackMap;
 }
 
+map<int, ULL> generateRookAttackSet(){
+    map<int, ULL> attackMap;
+
+
+    for (int square = 0; square < 64; square++){
+        ULL oneULL = 1;
+        ULL squareBit = oneULL << square;
+        vector<ULL> moveList;
+        for (int i = 8; i < 64; i += 8){
+            moveList.push_back(squareBit << i);
+            moveList.push_back(squareBit >> i);
+        }
+
+        for (int j = 1; j < 8; j++){
+            if (square % 8 + j < 8)
+                moveList.push_back(squareBit << j);
+            if (square % 8 - j >= 0)
+                moveList.push_back(squareBit >> j);
+        }
+
+
+        ULL moveBoard = 0;
+        for (auto move: moveList) //Store the moves in a bitboard
+            moveBoard |= move;
+
+        moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+
+        /*if (square % 8 == 7)
+            moveBoard &= 0xfcfcfcfcfcfcfcfc;
+        else if (square % 8 == 0)
+            moveBoard &= 0x3f3f3f3f3f3f3f3f;*/
+
+        cout << _square_from_index[square] << ":" << endl;
+        printBoard(moveBoard);
+        attackMap.insert_or_assign(square, moveBoard);
+    }
+    return attackMap;
+
+}
 
 vector<int> bitVectorFromULL(ULL board){
     vector<int> bitVector;
@@ -93,4 +132,6 @@ void printBoard(ULL board){
     }
     cout << endl;
 }
+
+
 

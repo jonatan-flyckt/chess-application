@@ -8,13 +8,17 @@
 #include <iostream>
 
 
-vector<int> bitVectorFromULL(ULL board);
 
-void printBoard(ULL board);
 
 map<int, ULL>  generateKnightAttackSet();
 
 map<int, ULL>  generateKingAttackSet();
+
+map<int, ULL>  generateRookAttackSet();
+
+vector<int> bitVectorFromULL(ULL board);
+
+void printBoard(ULL board);
 
 map<int, string> _square_from_index = {
     {0, "a1"}, {1, "a2"}, {2, "a3"}, {3, "a4"}, {4, "a5"}, {5, "a6"}, {6, "a7"}, {7, "a8"},
@@ -31,6 +35,8 @@ map<int, string> _square_from_index = {
 map<int, ULL> _knight_attack_set = generateKnightAttackSet();
 
 map<int, ULL> _king_attack_set = generateKingAttackSet();
+
+map<int, ULL> _rook_attack_set = generateRookAttackSet();
 
 #endif // BITBOARDUTILS_H
 
