@@ -16,7 +16,11 @@ map<int, ULL>  generateKingAttackSet();
 
 map<int, ULL>  generateRookAttackSet();
 
+map<int, ULL>  generateBishopAttackSet();
+
 vector<int> bitVectorFromULL(ULL board);
+
+void printBoardOnOneRow(ULL board);
 
 void printBoard(ULL board);
 
@@ -37,6 +41,8 @@ map<int, ULL> _knight_attack_set = generateKnightAttackSet();
 map<int, ULL> _king_attack_set = generateKingAttackSet();
 
 map<int, ULL> _rook_attack_set = generateRookAttackSet();
+
+map<int, ULL> _bishop_attack_set = generateBishopAttackSet();
 
 #endif // BITBOARDUTILS_H
 

@@ -68,7 +68,6 @@ map<int, ULL> generateKingAttackSet(){
 map<int, ULL> generateRookAttackSet(){
     map<int, ULL> attackMap;
 
-
     for (int square = 0; square < 64; square++){
         ULL oneULL = 1;
         ULL squareBit = oneULL << square;
@@ -92,17 +91,54 @@ map<int, ULL> generateRookAttackSet(){
 
         moveBoard &= 0xffffffffffffffff; //Remove moves outside board
 
-        /*if (square % 8 == 7)
-            moveBoard &= 0xfcfcfcfcfcfcfcfc;
-        else if (square % 8 == 0)
-            moveBoard &= 0x3f3f3f3f3f3f3f3f;*/
-
-        cout << _square_from_index[square] << ":" << endl;
-        printBoard(moveBoard);
+        //cout << _square_from_index[square] << ":" << endl;
+        //printBoard(moveBoard);
         attackMap.insert_or_assign(square, moveBoard);
     }
     return attackMap;
 
+}
+
+
+map<int, ULL> generateBishopAttackSet(){
+    map<int, ULL> attackMap;
+
+    for (int square = 0; square < 64; square++){
+        ULL oneULL = 1;
+        ULL squareBit = oneULL << square;
+        vector<ULL> moveList;
+
+        for (int i = 7; i % 8  > square % 8; i += 7){
+            moveList.push_back(squareBit >> i);
+        }
+
+        for (int i = 7; (square + i) % 8  < 7; i += 7){
+            moveList.push_back(squareBit << i);
+        }
+
+        for (int i = 9+square; i % 8  > square % 8 && i % 8 >= 0; i += 9){
+            moveList.push_back(squareBit << i-square);
+        }
+
+        for (int i = 9; (i-1) % 8  < square % 8; i += 9){
+            moveList.push_back(squareBit >> i);
+        }
+
+
+
+
+        ULL moveBoard = 0;
+        for (auto move: moveList) //Store the moves in a bitboard
+            moveBoard |= move;
+
+        moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+
+        cout << _square_from_index[square] << ":" << endl;
+        printBoardOnOneRow(moveBoard);
+        printBoard(moveBoard);
+        attackMap.insert_or_assign(square, moveBoard);
+    }
+    return attackMap;
 }
 
 vector<int> bitVectorFromULL(ULL board){
@@ -115,6 +151,20 @@ vector<int> bitVectorFromULL(ULL board){
         }
     }
     return bitVector;
+}
+
+void printBoardOnOneRow(ULL board){
+    vector<int> bitVector = bitVectorFromULL(board);
+    string boardString;
+    for (int i = 63; i >= 0; i--){
+        if (i % 8 == 7 && i != 63)
+            boardString += "  ";
+        if (bitVector[i] == 0)
+            boardString += "0";
+        else
+            boardString += "1";
+    }
+    cout << endl << boardString << endl;
 }
 
 void printBoard(ULL board){
@@ -132,6 +182,7 @@ void printBoard(ULL board){
     }
     cout << endl;
 }
+
 
 
 
