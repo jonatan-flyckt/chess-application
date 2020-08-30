@@ -22,14 +22,4 @@ pair<int, int> IndicesFromSquareID(string square);
 
 
 
-
-
-
-
-
-
-
-
-
-
 #endif // UTILS_H

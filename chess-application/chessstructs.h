@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <utility>
+
 //#include "utils.h"
 
 typedef uint64_t ULL;
@@ -70,7 +71,6 @@ struct CastlingInfo{
 
 struct BitBoard{
     BitBoard(){
-
     }
 
     ULL _white_pawns;
@@ -86,6 +86,10 @@ struct BitBoard{
     ULL _black_bishops;
     ULL _black_queens;
     ULL _black_king;
+
+    ULL _all_white_pieces;
+    ULL _all_black_pieces;
+    ULL _all_pieces;
 };
 
 struct State{
@@ -118,6 +122,10 @@ struct State{
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
     };
+
+
+    BitBoard _bit_board;
+
 
     string _fen_notation;
 

@@ -9,10 +9,11 @@
 #include <chessrules.h>
 #include <QDebug>
 #include "utils.h"
+#include "bitboardutils.h"
 
 using namespace std;
 
-class ChessGame
+class ChessGame : public BitBoardUtils
 {
 public:
     ChessGame(bool _user_is_white, string date, Difficulty difficulty, string name);
@@ -55,6 +56,7 @@ public:
 
     ChessGame* clone();
 
+    void initiateBitBoard(State *startingState);
 private:
 
     ChessRules _rules;

@@ -1,6 +1,6 @@
 #include "bitboardutils.h"
 
-map<int, ULL>  generateKnightAttackSet(){
+map<int, ULL> BitBoardUtils::generateKnightAttackSet(){
     map<int, ULL> attackMap;
     vector<int> knightShifts = {6, 10, 15, 17};
 
@@ -34,7 +34,7 @@ map<int, ULL>  generateKnightAttackSet(){
     return attackMap;
 }
 
-map<int, ULL> generateKingAttackSet(){
+map<int, ULL> BitBoardUtils::generateKingAttackSet(){
     map<int, ULL> attackMap;
     vector<int> kingShifts = {1, 7, 8, 9};
 
@@ -65,7 +65,7 @@ map<int, ULL> generateKingAttackSet(){
     return attackMap;
 }
 
-map<int, ULL> generateRookAttackSet(){
+map<int, ULL> BitBoardUtils::generateRookAttackSet(){
     map<int, ULL> attackMap;
 
     for (int square = 0; square < 64; square++){
@@ -100,7 +100,7 @@ map<int, ULL> generateRookAttackSet(){
 }
 
 
-map<int, ULL> generateBishopAttackSet(){
+map<int, ULL> BitBoardUtils::generateBishopAttackSet(){
     map<int, ULL> attackMap;
 
     for (int square = 0; square < 64; square++){
@@ -131,7 +131,7 @@ map<int, ULL> generateBishopAttackSet(){
     return attackMap;
 }
 
-map<int, ULL> generateQueenAttackSet(){
+map<int, ULL> BitBoardUtils::generateQueenAttackSet(){
     map<int, ULL> attackMap;
 
     for (int square = 0; square < 64; square++){
@@ -154,7 +154,7 @@ map<int, ULL> generateQueenAttackSet(){
     return attackMap;
 }
 
-map<int, ULL> generatePawnAttackSet(Colour colour){
+map<int, ULL> BitBoardUtils::generatePawnAttackSet(Colour colour){
     map<int, ULL> attackMap;
     for (int square = 0; square < 64; square++){
         vector<ULL> moveList;
@@ -182,7 +182,7 @@ map<int, ULL> generatePawnAttackSet(Colour colour){
     return attackMap;
 }
 
-map<Piece, ULL> generateStartingPosition(){
+map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
     map<Piece, ULL> startingBoard;
     ULL oneULL = 1;
 
@@ -191,8 +191,8 @@ map<Piece, ULL> generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Pawn), board);
 
     board = 0;
@@ -200,8 +200,8 @@ map<Piece, ULL> generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Rook), board);
 
     board = 0;
@@ -209,8 +209,8 @@ map<Piece, ULL> generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Knight), board);
 
     board = 0;
@@ -218,20 +218,20 @@ map<Piece, ULL> generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Bishop), board);
 
     board = 0;
     board |= oneULL << 3;
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Queen), board);
 
     board = 0;
     board |= oneULL << 4;
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, King), board);
 
 
@@ -240,8 +240,8 @@ map<Piece, ULL> generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Pawn), board);
 
     board = 0;
@@ -249,8 +249,8 @@ map<Piece, ULL> generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Rook), board);
 
     board = 0;
@@ -258,8 +258,8 @@ map<Piece, ULL> generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Knight), board);
 
     board = 0;
@@ -267,26 +267,26 @@ map<Piece, ULL> generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Bishop), board);
 
     board = 0;
     board |= oneULL << 59;
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Queen), board);
 
     board = 0;
     board |= oneULL << 60;
-    printBoardOnOneRow(board);
-    printBoard(board);
+    //printBoardOnOneRow(board);
+    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, King), board);
 
     return startingBoard;
 }
 
-vector<int> bitVectorFromULL(ULL board){
+vector<int> BitBoardUtils::bitVectorFromULL(ULL board){
     vector<int> bitVector;
     for (int i = 0; i < 8; i++){
         int byte = (board >> 8 * i) & 0xff;
@@ -298,7 +298,7 @@ vector<int> bitVectorFromULL(ULL board){
     return bitVector;
 }
 
-void printBoardOnOneRow(ULL board){
+void BitBoardUtils::printBoardOnOneRow(ULL board){
     vector<int> bitVector = bitVectorFromULL(board);
     string boardString;
     for (int i = 63; i >= 0; i--){
@@ -312,7 +312,7 @@ void printBoardOnOneRow(ULL board){
     cout << endl << boardString << endl;
 }
 
-void printBoard(ULL board){
+void BitBoardUtils::printBoard(ULL board){
     vector<int> bitVector = bitVectorFromULL(board);
     cout << endl;
     for (int i = 7; i >= 0; i--){
@@ -327,6 +327,4 @@ void printBoard(ULL board){
     }
     cout << endl;
 }
-
-
 

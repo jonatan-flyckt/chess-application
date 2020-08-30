@@ -100,8 +100,37 @@ State* ChessGame::gameStartingState(){
     startingState->_previous_state = nullptr;
     startingState->_moves_without_capture_or_pawn_advancement = 0;
     initiatePieces(startingState);
+    initiateBitBoard(startingState);
     _rules.setFenForState(startingState);
     return startingState;
+}
+
+void ChessGame::initiateBitBoard(State *startingState){
+    startingState->_bit_board._white_pawns = _starting_bitboard[Piece(White, Pawn)];
+    startingState->_bit_board._white_rooks = _starting_bitboard[Piece(White, Rook)];
+    startingState->_bit_board._white_bishops = _starting_bitboard[Piece(White, Bishop)];
+    startingState->_bit_board._white_knights = _starting_bitboard[Piece(White, Knight)];
+    startingState->_bit_board._white_king = _starting_bitboard[Piece(White, King)];
+    startingState->_bit_board._white_queens = _starting_bitboard[Piece(White, Queen)];
+
+    startingState->_bit_board._black_pawns = _starting_bitboard[Piece(Black, Pawn)];
+    startingState->_bit_board._black_rooks = _starting_bitboard[Piece(Black, Rook)];
+    startingState->_bit_board._black_bishops = _starting_bitboard[Piece(Black, Bishop)];
+    startingState->_bit_board._black_knights = _starting_bitboard[Piece(Black, Knight)];
+    startingState->_bit_board._black_king = _starting_bitboard[Piece(Black, King)];
+    startingState->_bit_board._black_queens = _starting_bitboard[Piece(Black, Queen)];
+
+    startingState->_bit_board._all_white_pieces = startingState->_bit_board._white_pawns |
+            startingState->_bit_board._white_rooks | startingState->_bit_board._white_bishops |startingState->_bit_board._white_knights |
+            startingState->_bit_board._white_king |startingState->_bit_board._white_queens;
+    startingState->_bit_board._all_black_pieces = startingState->_bit_board._black_pawns |
+            startingState->_bit_board._black_rooks | startingState->_bit_board._black_bishops |startingState->_bit_board._black_knights |
+            startingState->_bit_board._black_king |startingState->_bit_board._black_queens;
+    startingState->_bit_board._all_pieces = startingState->_bit_board._all_white_pieces | startingState->_bit_board._all_black_pieces;
+
+    printBoard(startingState->_bit_board._all_white_pieces);
+    printBoard(startingState->_bit_board._all_black_pieces);
+    printBoard(startingState->_bit_board._all_pieces);
 }
 
 void ChessGame::initiatePieces(State *startingState){
