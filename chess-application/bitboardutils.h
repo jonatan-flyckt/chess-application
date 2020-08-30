@@ -25,13 +25,19 @@ public:
 
     map<Piece, ULL> generateStartingPosition();
 
+    int countBitsInBoard(ULL board);
+
+    int popLeastSignificantBitFromBoard(ULL *board);
+
+    vector<int> getIndicesOfBitsInBoard(ULL board);
+
     vector<int> bitVectorFromULL(ULL board);
 
     void printBoardOnOneRow(ULL board);
 
     void printBoard(ULL board);
 
-    map<int, string> _square_from_index = {
+    const map<int, string> _square_from_index = {
         {0, "a1"}, {1, "a2"}, {2, "a3"}, {3, "a4"}, {4, "a5"}, {5, "a6"}, {6, "a7"}, {7, "a8"},
         {8, "b1"}, {9, "b2"}, {10, "b3"}, {11, "b4"}, {12, "b5"}, {13, "b6"}, {14, "b7"}, {15, "b8"},
         {16, "c1"}, {17, "c2"}, {18, "c3"}, {19, "c4"}, {20, "c5"}, {21, "c6"}, {22, "c7"}, {23, "c8"},
@@ -40,6 +46,13 @@ public:
         {40, "f1"}, {41, "f2"}, {42, "f3"}, {43, "f4"}, {44, "f5"}, {45, "f6"}, {46, "f7"}, {47, "f8"},
         {48, "g1"}, {49, "g2"}, {50, "g3"}, {51, "g4"}, {52, "g5"}, {53, "g6"}, {54, "g7"}, {55, "g8"},
         {56, "h1"}, {57, "h2"}, {58, "h3"}, {59, "h4"}, {60, "h5"}, {61, "h6"}, {62, "h7"}, {63, "h8"},
+    };
+
+    const int _magic_bit_table[64] ={
+        63, 30, 3, 32, 25, 41, 22, 33, 15, 50, 42, 13, 11, 53, 19,
+        34, 61, 29, 2, 51, 21, 43, 45, 10, 18, 47, 1, 54, 9, 57, 0,
+        35, 62, 31, 40, 4, 49, 5, 52, 26, 60, 6, 23, 44, 46, 27, 56,
+        16, 7, 39, 48, 24, 59, 14, 12, 55, 38, 28, 58, 20, 37, 17, 36, 8
     };
 
     map<int, ULL> _knight_attack_set = generateKnightAttackSet();

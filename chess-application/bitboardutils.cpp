@@ -191,8 +191,6 @@ map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Pawn), board);
 
     board = 0;
@@ -200,8 +198,6 @@ map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Rook), board);
 
     board = 0;
@@ -209,8 +205,6 @@ map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Knight), board);
 
     board = 0;
@@ -218,20 +212,14 @@ map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Bishop), board);
 
     board = 0;
     board |= oneULL << 3;
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, Queen), board);
 
     board = 0;
     board |= oneULL << 4;
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(White, King), board);
 
 
@@ -240,8 +228,6 @@ map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Pawn), board);
 
     board = 0;
@@ -249,8 +235,6 @@ map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Rook), board);
 
     board = 0;
@@ -258,8 +242,6 @@ map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Knight), board);
 
     board = 0;
@@ -267,23 +249,37 @@ map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
         ULL squareBit = oneULL << i;
         board |= squareBit;
     }
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Bishop), board);
 
     board = 0;
     board |= oneULL << 59;
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, Queen), board);
 
     board = 0;
     board |= oneULL << 60;
-    //printBoardOnOneRow(board);
-    //printBoard(board);
     startingBoard.insert_or_assign(Piece(Black, King), board);
 
     return startingBoard;
+}
+
+int BitBoardUtils::countBitsInBoard(ULL board){
+    int count;
+    for (count = 0; board; count++, board &= board - 1);
+    return count;
+}
+
+int BitBoardUtils::popLeastSignificantBitFromBoard(ULL *board){
+    ULL tempBoard = *board ^(*board - 1);
+    unsigned int halfFold = (unsigned) ((tempBoard & 0xffffffff) ^ (tempBoard >> 32));
+    *board &= (*board-1);
+    return _magic_bit_table[(halfFold * 0x783a9b23) >> 26];
+}
+
+vector<int> BitBoardUtils::getIndicesOfBitsInBoard(ULL board){
+    vector<int> indices;
+    while (board)
+        indices.push_back(popLeastSignificantBitFromBoard(&board));
+    return indices;
 }
 
 vector<int> BitBoardUtils::bitVectorFromULL(ULL board){

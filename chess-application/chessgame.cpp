@@ -101,6 +101,13 @@ State* ChessGame::gameStartingState(){
     startingState->_moves_without_capture_or_pawn_advancement = 0;
     initiatePieces(startingState);
     initiateBitBoard(startingState);
+
+    /*cout << countBitsInBoard(startingState->_bit_board._black_queens) << endl;
+    for (auto index: getIndicesOfBitsInBoard(startingState->_bit_board._black_queens))
+        cout << index << ", ";
+    cout << endl;
+    printBoard(startingState->_bit_board._black_queens);*/
+
     _rules.setFenForState(startingState);
     return startingState;
 }
@@ -128,9 +135,9 @@ void ChessGame::initiateBitBoard(State *startingState){
             startingState->_bit_board._black_king |startingState->_bit_board._black_queens;
     startingState->_bit_board._all_pieces = startingState->_bit_board._all_white_pieces | startingState->_bit_board._all_black_pieces;
 
-    printBoard(startingState->_bit_board._all_white_pieces);
-    printBoard(startingState->_bit_board._all_black_pieces);
-    printBoard(startingState->_bit_board._all_pieces);
+    //printBoard(startingState->_bit_board._all_white_pieces);
+    //printBoard(startingState->_bit_board._all_black_pieces);
+    //printBoard(startingState->_bit_board._all_pieces);
 }
 
 void ChessGame::initiatePieces(State *startingState){
