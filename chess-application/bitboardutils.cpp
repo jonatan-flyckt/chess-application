@@ -292,11 +292,14 @@ map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
     return startingBoard;
 }
 
-pair<map<int, ULL>, map<int, ULL> > BitBoardUtils::generateBitMasks(){
-    map<int, ULL> trueMask, falseMask;
+pair<ULL*, ULL*> BitBoardUtils::generateBitMasks(){
+    ULL* trueMask = (ULL*)malloc(64 * sizeof (ULL));
+    ULL* falseMask = (ULL*)malloc(64 * sizeof (ULL));
     for (int i = 0; i < 64; i++){
-        trueMask.insert_or_assign(i, 0ULL | (1ULL << i));
-        falseMask.insert_or_assign(i, ~trueMask[i]);
+        trueMask[i] = 0ULL | (1ULL << i);
+        falseMask[i] = ~trueMask[i];
+        printBoard(trueMask[i]);
+        printBoard(falseMask[i]);
     }
     return pair(trueMask, falseMask);
 }

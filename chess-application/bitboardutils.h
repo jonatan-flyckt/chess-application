@@ -27,7 +27,7 @@ public:
 
     map<Piece, ULL> generateStartingPosition();
 
-    pair<map<int, ULL>, map<int, ULL>> generateBitMasks();
+    pair<ULL*, ULL*> generateBitMasks();
 
     int countBitsInBoard(ULL board);
 
@@ -78,9 +78,9 @@ public:
 
     map<Piece, ULL> _starting_bitboard = generateStartingPosition();
 
-    map<int, ULL> _bit_masks = generateBitMasks().first;
+    ULL* _bit_masks = generateBitMasks().first;
 
-    map<int, ULL> _bit_masks_complement = generateBitMasks().second;
+    ULL* _bit_masks_complement = generateBitMasks().second;
 
 };
 
