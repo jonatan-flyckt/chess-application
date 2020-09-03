@@ -1,7 +1,7 @@
 #include "bitboardutils.h"
 
-map<int, ULL> BitBoardUtils::generateKnightAttackSet(){
-    map<int, ULL> attackMap;
+ULL* BitBoardUtils::generateKnightMoveSet(){
+    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
     vector<int> knightShifts = {6, 10, 15, 17};
 
     for (int square = 0; square < 64; square++){
@@ -26,16 +26,16 @@ map<int, ULL> BitBoardUtils::generateKnightAttackSet(){
             moveBoard &= 0x3f3f3f3f3f3f3f3f;
 
         //cout << _square_from_index[square] << ":" << endl;
+        //printBoardOnOneRow(moveBoard);
         //printBoard(moveBoard);
-        attackMap.insert_or_assign(square, moveBoard);
-
+        attackMap[square] = moveBoard;
     }
 
     return attackMap;
 }
 
-map<int, ULL> BitBoardUtils::generateKingAttackSet(){
-    map<int, ULL> attackMap;
+ULL* BitBoardUtils::generateKingMoveSet(){
+    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
     vector<int> kingShifts = {1, 7, 8, 9};
 
     for (int square = 0; square < 64; square++){
@@ -59,14 +59,15 @@ map<int, ULL> BitBoardUtils::generateKingAttackSet(){
             moveBoard &= 0x3f3f3f3f3f3f3f3f;
 
         //cout << _square_from_index[square] << ":" << endl;
+        //printBoardOnOneRow(moveBoard);
         //printBoard(moveBoard);
-        attackMap.insert_or_assign(square, moveBoard);
+        attackMap[square] = moveBoard;
     }
     return attackMap;
 }
 
-map<int, ULL> BitBoardUtils::generateRookAttackSet(){
-    map<int, ULL> attackMap;
+ULL* BitBoardUtils::generateRookMoveSet(){
+    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
 
     for (int square = 0; square < 64; square++){
         ULL oneULL = 1;
@@ -92,16 +93,17 @@ map<int, ULL> BitBoardUtils::generateRookAttackSet(){
         moveBoard &= 0xffffffffffffffff; //Remove moves outside board
 
         //cout << _square_from_index[square] << ":" << endl;
+        //printBoardOnOneRow(moveBoard);
         //printBoard(moveBoard);
-        attackMap.insert_or_assign(square, moveBoard);
+        attackMap[square] = moveBoard;
     }
     return attackMap;
 
 }
 
 
-map<int, ULL> BitBoardUtils::generateBishopAttackSet(){
-    map<int, ULL> attackMap;
+ULL* BitBoardUtils::generateBishopMoveSet(){
+    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
 
     for (int square = 0; square < 64; square++){
         ULL oneULL = 1;
@@ -126,19 +128,19 @@ map<int, ULL> BitBoardUtils::generateBishopAttackSet(){
         //cout << _square_from_index[square] << ":" << endl;
         //printBoardOnOneRow(moveBoard);
         //printBoard(moveBoard);
-        attackMap.insert_or_assign(square, moveBoard);
+        attackMap[square] = moveBoard;
     }
     return attackMap;
 }
 
-map<int, ULL> BitBoardUtils::generateQueenAttackSet(){
-    map<int, ULL> attackMap;
+ULL* BitBoardUtils::generateQueenMoveSet(){
+    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
 
     for (int square = 0; square < 64; square++){
         vector<ULL> moveList;
 
-        moveList.push_back(_bishop_attack_set[square]);
-        moveList.push_back(_rook_attack_set[square]);
+        moveList.push_back(_bishop_move_set[square]);
+        moveList.push_back(_rook_move_set[square]);
 
         ULL moveBoard = 0;
         for (auto move: moveList) //Store the moves in a bitboard
@@ -149,13 +151,13 @@ map<int, ULL> BitBoardUtils::generateQueenAttackSet(){
         //cout << _square_from_index[square] << ":" << endl;
         //printBoardOnOneRow(moveBoard);
         //printBoard(moveBoard);
-        attackMap.insert_or_assign(square, moveBoard);
+        attackMap[square] = moveBoard;
     }
     return attackMap;
 }
 
-map<int, ULL> BitBoardUtils::generatePawnAttackSet(Colour colour){
-    map<int, ULL> attackMap;
+ULL* BitBoardUtils::generatePawnMoveSet(Colour colour){
+    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
     for (int square = 0; square < 64; square++){
         vector<ULL> moveList;
 
@@ -177,7 +179,36 @@ map<int, ULL> BitBoardUtils::generatePawnAttackSet(Colour colour){
         //cout << _square_from_index[square] << ":" << endl;
         //printBoardOnOneRow(moveBoard);
         //printBoard(moveBoard);
-        attackMap.insert_or_assign(square, moveBoard);
+        attackMap[square] = moveBoard;
+    }
+    return attackMap;
+}
+
+ULL* BitBoardUtils::generatePawnCaptureSet(Colour colour){
+    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
+    for (int square = 0; square < 64; square++){
+        vector<ULL> moveList;
+
+        if (square > 7 && square < 56){
+            ULL oneULL = 1;
+            ULL squareBit = oneULL << square;
+
+            if (square % 8 != 0)
+                moveList.push_back(colour == White ? squareBit << 7 : squareBit >> 9);
+            if (square % 8 != 7)
+                moveList.push_back(colour == White ? squareBit << 9 : squareBit >> 7);
+        }
+
+        ULL moveBoard = 0;
+        for (auto move: moveList) //Store the moves in a bitboard
+            moveBoard |= move;
+
+        moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+
+        //cout << _square_from_index[square] << ":" << endl;
+        //printBoardOnOneRow(moveBoard);
+        //printBoard(moveBoard);
+        attackMap[square] = moveBoard;
     }
     return attackMap;
 }

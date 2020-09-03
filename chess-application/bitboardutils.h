@@ -11,17 +11,19 @@ class BitBoardUtils
 {
 public:
 
-    map<int, ULL>  generateKnightAttackSet();
+    ULL*  generateKnightMoveSet();
 
-    map<int, ULL>  generateKingAttackSet();
+    ULL*  generateKingMoveSet();
 
-    map<int, ULL>  generateRookAttackSet();
+    ULL*  generateRookMoveSet();
 
-    map<int, ULL>  generateBishopAttackSet();
+    ULL*  generateBishopMoveSet();
 
-    map<int, ULL>  generateQueenAttackSet();
+    ULL*  generateQueenMoveSet();
 
-    map<int, ULL>  generatePawnAttackSet(Colour colour);
+    ULL*  generatePawnMoveSet(Colour colour);
+
+    ULL*  generatePawnCaptureSet(Colour colour);
 
     map<Piece, ULL> generateStartingPosition();
 
@@ -39,16 +41,15 @@ public:
 
     void printBoard(ULL board);
 
-    map<int, string> _square_from_index = {
-        {0, "a1"}, {1, "a2"}, {2, "a3"}, {3, "a4"}, {4, "a5"}, {5, "a6"}, {6, "a7"}, {7, "a8"},
-        {8, "b1"}, {9, "b2"}, {10, "b3"}, {11, "b4"}, {12, "b5"}, {13, "b6"}, {14, "b7"}, {15, "b8"},
-        {16, "c1"}, {17, "c2"}, {18, "c3"}, {19, "c4"}, {20, "c5"}, {21, "c6"}, {22, "c7"}, {23, "c8"},
-        {24, "d1"}, {25, "d2"}, {26, "d3"}, {27, "d4"}, {28, "d5"}, {29, "d6"}, {30, "d7"}, {31, "d8"},
-        {32, "e1"}, {33, "e2"}, {34, "e3"}, {35, "e4"}, {36, "e5"}, {37, "e6"}, {38, "e7"}, {39, "e8"},
-        {40, "f1"}, {41, "f2"}, {42, "f3"}, {43, "f4"}, {44, "f5"}, {45, "f6"}, {46, "f7"}, {47, "f8"},
-        {48, "g1"}, {49, "g2"}, {50, "g3"}, {51, "g4"}, {52, "g5"}, {53, "g6"}, {54, "g7"}, {55, "g8"},
-        {56, "h1"}, {57, "h2"}, {58, "h3"}, {59, "h4"}, {60, "h5"}, {61, "h6"}, {62, "h7"}, {63, "h8"},
-    };
+    string _square_from_index[64] = {
+        "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8",
+        "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8",
+        "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8",
+        "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8",
+        "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8",
+        "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8",
+        "g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8",
+        "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8"};
 
     const int _magic_bit_table[64] ={
         63, 30, 3, 32, 25, 41, 22, 33, 15, 50, 42, 13, 11, 53, 19,
@@ -57,19 +58,23 @@ public:
         16, 7, 39, 48, 24, 59, 14, 12, 55, 38, 28, 58, 20, 37, 17, 36, 8
     };
 
-    map<int, ULL> _knight_attack_set = generateKnightAttackSet();
+    ULL* _knight_move_set = generateKnightMoveSet();
 
-    map<int, ULL> _king_attack_set = generateKingAttackSet();
+    ULL* _king_move_set = generateKingMoveSet();
 
-    map<int, ULL> _rook_attack_set = generateRookAttackSet();
+    ULL* _rook_move_set = generateRookMoveSet();
 
-    map<int, ULL> _bishop_attack_set = generateBishopAttackSet();
+    ULL* _bishop_move_set = generateBishopMoveSet();
 
-    map<int, ULL> _queen_attack_set = generateQueenAttackSet();
+    ULL* _queen_move_set = generateQueenMoveSet();
 
-    map<int, ULL> _white_pawn_attack_set = generatePawnAttackSet(White);
+    ULL* _white_pawn_move_set = generatePawnMoveSet(White);
 
-    map<int, ULL> _black_pawn_attack_set = generatePawnAttackSet(Black);
+    ULL* _black_pawn_move_set = generatePawnMoveSet(Black);
+
+    ULL* _white_pawn_capture_set = generatePawnCaptureSet(White);
+
+    ULL* _black_pawn_capture_set = generatePawnCaptureSet(Black);
 
     map<Piece, ULL> _starting_bitboard = generateStartingPosition();
 

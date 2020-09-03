@@ -635,7 +635,7 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
 }
 
 vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
-    ULL possibleAttacks = _knight_attack_set[index];
+    ULL possibleAttacks = _knight_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
     //TODO: remove moves that cause check
