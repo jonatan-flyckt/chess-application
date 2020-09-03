@@ -629,10 +629,10 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
     vector<int> pawnIndices = getIndicesOfBitsInBoard(state->_bit_board._white_pawns);
     ULL enPassantSquare = 0;
     if (state->_move_to_state._piece._type == Pawn){ //Check if previous allowed for en passant
-        if (bitAbs(_index_from_square[state->_move_to_state._origin_square] - _index_from_square[state->_move_to_state._destination_square]) == 16){
+        if (abs(_index_from_square[state->_move_to_state._origin_square] - _index_from_square[state->_move_to_state._destination_square]) == 16){
             enPassantSquare = _bit_masks[state->_colour_to_move == White ?
-                        _index_from_square[state->_move_to_state._origin_square] + 8 :
-                    _index_from_square[state->_move_to_state._origin_square] - 8];
+                        _index_from_square[state->_move_to_state._destination_square] + 8 :
+                    _index_from_square[state->_move_to_state._destination_square] - 8];
         }
     }
     vector<Move> pawnMoves;
