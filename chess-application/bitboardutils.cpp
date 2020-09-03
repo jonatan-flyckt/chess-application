@@ -298,8 +298,8 @@ pair<ULL*, ULL*> BitBoardUtils::generateBitMasks(){
     for (int i = 0; i < 64; i++){
         trueMask[i] = 0ULL | (1ULL << i);
         falseMask[i] = ~trueMask[i];
-        printBoard(trueMask[i]);
-        printBoard(falseMask[i]);
+        //printBoard(trueMask[i]);
+        //printBoard(falseMask[i]);
     }
     return pair(trueMask, falseMask);
 }

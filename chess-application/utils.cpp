@@ -42,13 +42,9 @@ pair<int, int> IndicesFromSquareID(string square){
     return make_pair(row, col);
 }
 
-
-
-
-
-
-
-
-
-
-
+uint32_t bitAbs(uint32_t absVal){
+    uint32_t temp = absVal >> 31;
+    absVal ^= temp;
+    absVal += temp & 1;
+    return absVal;
+}

@@ -626,12 +626,31 @@ vector<Move> ChessRules::getMovesForPawn(vector<vector<Piece *> > board, Colour 
 }
 
 vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
+    vector<int> pawnIndices = getIndicesOfBitsInBoard(state->_bit_board._white_pawns);
+    ULL enPassantSquare = 0;
+    if (state->_move_to_state._piece._type == Pawn){ //Check if previous allowed for en passant
+        if (bitAbs(_index_from_square[state->_move_to_state._origin_square] - _index_from_square[state->_move_to_state._destination_square]) == 16){
+            enPassantSquare = _bit_masks[state->_colour_to_move == White ?
+                        _index_from_square[state->_move_to_state._origin_square] + 8 :
+                    _index_from_square[state->_move_to_state._origin_square] - 8];
+        }
+    }
+    vector<Move> pawnMoves;
+    for (auto index: pawnIndices)
+        for (auto move: getBitBoardMovesForPawn(index, state->_bit_board, White, 0, enPassantSquare))
+            pawnMoves.push_back(move);
+
     vector<int> knightIndices = getIndicesOfBitsInBoard(state->_bit_board._white_knights);
     vector<Move> knightMoves;
     for (auto index: knightIndices)
         for (auto move: getBitBoardMovesForKnight(index, state->_bit_board, White, 0))
             knightMoves.push_back(move);
-    return knightMoves;
+
+    vector<Move> allMoves;
+    allMoves.reserve( knightMoves.size() + pawnMoves.size() );
+    allMoves.insert( allMoves.end(), knightMoves.begin(), knightMoves.end() );
+    allMoves.insert( allMoves.end(), pawnMoves.begin(), pawnMoves.end() );
+    return allMoves;
 }
 
 vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
@@ -644,6 +663,53 @@ vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Co
     for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves))
         moveVector.push_back(Move(colourToMove, Piece(colourToMove, Knight), _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, Standard));
+    return moveVector;
+}
+
+vector<Move> ChessRules::getBitBoardMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare){
+    ULL possiblePushes = colourToMove == White ? _white_pawn_move_set[index] : _black_pawn_move_set[index];
+    ULL possibleCaptures = colourToMove == White ? _white_pawn_move_set[index] : _black_pawn_move_set[index];
+    ULL pseudoLegalPushes = possiblePushes &~board._all_pieces;
+    ULL pseudoLegalCaptures = colourToMove == White ? possibleCaptures &board._all_black_pieces : possibleCaptures &board._all_white_pieces;
+
+    if ((index > 7 && index < 16 && colourToMove == White) || (index < 56 && index > 47 && colourToMove == Black)){//Pawn was on starting square
+        if (colourToMove == White)
+            if (!((_bit_masks[index] << 8) &pseudoLegalPushes)) //Remove potential 2 step move if first square was blocked
+                pseudoLegalPushes = 0;
+        if (colourToMove == Black)
+            if (!((_bit_masks[index] >> 8) &pseudoLegalPushes)) //Remove potential 2 step move if first square was blocked
+                pseudoLegalPushes = 0;
+    }
+
+    vector<Move> moveVector;
+    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalPushes |pseudoLegalCaptures)){
+        MoveType typeOfMove;
+        uint32_t absVal = abs(index - resultingIndex);
+        if ((index > 47 && colourToMove == White) || (index < 16 && colourToMove == Black)) //Promotion move
+            typeOfMove = (absVal == 8 || absVal == 16) ? Promotion : PromotionCapture;
+        else
+            typeOfMove = (absVal == 8 || absVal == 16) ? Standard : Capture;
+        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+                                  numberOfMoves+1, typeOfMove));
+    }
+    if (enPassantSquare){ //The previous move made en passant possible
+        if (colourToMove == White){
+            if ((_bit_masks[index]<<7) &enPassantSquare)
+                moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                          _square_from_index[getIndicesOfBitsInBoard(enPassantSquare)[0]], numberOfMoves+1, EnPassant));
+            else if ((_bit_masks[index]<<9) &enPassantSquare)
+                moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                          _square_from_index[getIndicesOfBitsInBoard(enPassantSquare)[0]], numberOfMoves+1, EnPassant));
+        }
+        else{
+            if ((_bit_masks[index]>>7) &enPassantSquare)
+                moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                          _square_from_index[getIndicesOfBitsInBoard(enPassantSquare)[0]], numberOfMoves+1, EnPassant));
+            else if ((_bit_masks[index]>>9) &enPassantSquare)
+                moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                          _square_from_index[getIndicesOfBitsInBoard(enPassantSquare)[0]], numberOfMoves+1, EnPassant));
+        }
+    }
     return moveVector;
 }
 

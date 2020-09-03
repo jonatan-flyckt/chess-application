@@ -20,6 +20,7 @@ string squareIDFromIndices(int row, int col);
 
 pair<int, int> IndicesFromSquareID(string square);
 
+uint32_t bitAbs(uint32_t num);
 
 
 #endif // UTILS_H
