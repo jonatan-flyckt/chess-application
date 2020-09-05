@@ -28,11 +28,6 @@ public:
     vector<Move> getMovesForKing(State *state, vector<vector<Piece *> > board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type, CastlingInfo castlingInfo, bool checkIfCheck);
     vector<Move> getMovesForPawn(vector<vector<Piece *> > board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type, Move previousMove);
 
-    vector<Move> getLegalBitBoardMoves(State *state);
-    vector<Move> getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
-    bool bitBoardSquareIsUnderAttack(int index);
-
-
     bool squareIsUnderAttack(int row, int col, State *state);
     void performCheckCheckEnPassantMove(Move move, State *state);
     void performCheckCheckCastlingMove(Move move, State *state);
@@ -47,11 +42,14 @@ public:
     void setFenForState(State *state);
     string enPassantTargetSquareForFEN(Move move);
 
-
     QElapsedTimer _test_timer;
     float _accumulated_test_time;
 
+    vector<Move> getLegalBitBoardMoves(State *state);
+    bool bitBoardSquareIsUnderAttack(int index);
+    vector<Move> getBitBoardMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
     vector<Move> getBitBoardMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare);
+    vector<Move> getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};

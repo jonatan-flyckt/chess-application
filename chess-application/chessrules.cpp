@@ -653,6 +653,10 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
     return allMoves;
 }
 
+bool ChessRules::bitBoardSquareIsUnderAttack(int index){
+
+}
+
 vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
     ULL possibleAttacks = _knight_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
@@ -660,9 +664,12 @@ vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Co
     //TODO: remove moves that cause check
 
     vector<Move> moveVector;
-    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves))
+
+    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
+        MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
         moveVector.push_back(Move(colourToMove, Piece(colourToMove, Knight), _square_from_index[index],_square_from_index[resultingIndex],
-                                  numberOfMoves+1, Standard));
+                                  numberOfMoves+1, moveType));
+    }
     return moveVector;
 }
 
@@ -713,8 +720,19 @@ vector<Move> ChessRules::getBitBoardMovesForPawn(int index, BitBoard board, Colo
     return moveVector;
 }
 
-bool ChessRules::bitBoardSquareIsUnderAttack(int index){
+vector<Move> ChessRules::getBitBoardMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+    ULL possibleAttacks = _king_move_set[index];
+    ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
+    //TODO: remove moves that cause check
+
+    vector<Move> moveVector;
+    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
+        MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
+        moveVector.push_back(Move(colourToMove, Piece(colourToMove, King), _square_from_index[index],_square_from_index[resultingIndex],
+                                  numberOfMoves+1, moveType));
+    }
+    return moveVector;
 }
 
 vector<Move> ChessRules::getMovesForQueen(vector<vector<Piece*>> board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type){
