@@ -37,12 +37,17 @@ struct Piece{
 
 struct Move{
     Move(Colour colour, Piece piece, string originSquare,
-         string destinationSquare, int moveNumber,
+         string destinationSquare, /*int originIndex,
+         int destinationIndex,*/ int moveNumber,
          MoveType moveType = Standard, PieceType promotionSelection = Queen){
         _colour_performing_move = colour;
         _piece = piece;
         _origin_square = originSquare;
         _destination_square = destinationSquare;
+        /*
+        _origin_index = originIndex;
+        _desination_index = destinationIndex;
+        */
         _move_number = moveNumber;
         _move_type = moveType;
         _promotion_selection = promotionSelection;
@@ -53,6 +58,10 @@ struct Move{
     MoveType _move_type;
     string _origin_square;
     string _destination_square;
+    /*
+    int _origin_index;
+    int _desination_index;
+    */
     string _algebraic_notation;
     int _move_number;
     PieceType _promotion_selection;

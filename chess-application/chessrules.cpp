@@ -129,6 +129,7 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     Piece pieceToMove = moveToMake._piece;
 
     State *resultingState = new State();
+    updateBitBoardWithMove(currentState, resultingState, moveToMake);
     resultingState->_state_seen_count = currentState->_state_seen_count;
     resultingState->_colour_to_move = currentState->_colour_to_move == White ? Black : White;
     resultingState->_move_to_state = moveToMake;
@@ -168,7 +169,6 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     if (currentState->_white_king_is_in_check || currentState->_black_king_is_in_check)
         currentState->_square_under_check = _square_under_check;
     _square_under_check = _square_under_check;
-
 
     setFenForState(currentState);
     if (currentState->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
@@ -432,7 +432,7 @@ vector<Move> ChessRules::getMovesForKing(State *state, vector<vector<Piece *> > 
         if (row+rowChange >= 0 && row+rowChange < 8 && col+colChange >= 0 && col+colChange < 8){
             if (board.at(row+rowChange).at(col+colChange) == nullptr){
                 kingMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
-                                         squareIDFromIndices(row+rowChange, col+colChange), previousMoveNumber+1));
+                                         squareIDFromIndices(row+rowChange, col+colChange),previousMoveNumber+1));
             }
             else if (board.at(row+rowChange).at(col+colChange)->_colour == opponentColour){
                 kingMoves.push_back(Move(colourToMove, Piece(colourToMove, type), originID,
@@ -626,7 +626,6 @@ vector<Move> ChessRules::getMovesForPawn(vector<vector<Piece *> > board, Colour 
 }
 
 vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
-    vector<int> pawnIndices = getIndicesOfBitsInBoard(state->_bit_board._white_pawns);
     ULL enPassantSquare = 0;
     if (state->_move_to_state._piece._type == Pawn){ //Check if previous allowed for en passant
         if (abs(_index_from_square[state->_move_to_state._origin_square] - _index_from_square[state->_move_to_state._destination_square]) == 16){
@@ -635,22 +634,112 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
                     _index_from_square[state->_move_to_state._destination_square] - 8];
         }
     }
+
+    vector<int> pawnIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_pawns : state->_bit_board._black_pawns);
     vector<Move> pawnMoves;
     for (auto index: pawnIndices)
-        for (auto move: getBitBoardMovesForPawn(index, state->_bit_board, White, 0, enPassantSquare))
+        for (auto move: getBitBoardMovesForPawn(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves, enPassantSquare))
             pawnMoves.push_back(move);
 
-    vector<int> knightIndices = getIndicesOfBitsInBoard(state->_bit_board._white_knights);
+    vector<int> knightIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_knights : state->_bit_board._black_knights);
     vector<Move> knightMoves;
     for (auto index: knightIndices)
-        for (auto move: getBitBoardMovesForKnight(index, state->_bit_board, White, 0))
+        for (auto move: getBitBoardMovesForKnight(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             knightMoves.push_back(move);
 
+    int kingIndex = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_king : state->_bit_board._black_king)[0];
+    vector<Move> kingMoves;
+    for (auto move: getBitBoardMovesForKing(kingIndex, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
+        kingMoves.push_back(move);
+
     vector<Move> allMoves;
-    allMoves.reserve( knightMoves.size() + pawnMoves.size() );
+    allMoves.reserve( knightMoves.size() + pawnMoves.size() + kingMoves.size() );
     allMoves.insert( allMoves.end(), knightMoves.begin(), knightMoves.end() );
     allMoves.insert( allMoves.end(), pawnMoves.begin(), pawnMoves.end() );
+    allMoves.insert( allMoves.end(), kingMoves.begin(), kingMoves.end() );
     return allMoves;
+}
+
+void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingState, Move move){
+    //TODO: update when move receives indices as default
+    resultingState->_bit_board = currentState->_bit_board;
+    int originIndex = _index_from_square[move._origin_square];
+    int destinationIndex = _index_from_square[move._destination_square];
+    ULL originComplement = _bit_masks_complement[originIndex];
+    ULL destinationMask = _bit_masks[destinationIndex];
+    ULL destinationComplement = _bit_masks_complement[destinationIndex];
+    if (move._piece._colour == White){
+        //TODO: special moves
+        if (move._move_type == EnPassant)
+            ;
+        else if (move._move_type == LongCastle)
+            ;
+        else if (move._move_type == ShortCastle)
+            ;
+        else if (move._move_type == Promotion || move._move_type == PromotionCapture)
+            ;
+        else if (move._piece._type == Pawn)
+            resultingState->_bit_board._white_pawns = (currentState->_bit_board._white_pawns & originComplement) | destinationMask;
+        else if (move._piece._type == Knight)
+            resultingState->_bit_board._white_knights = (currentState->_bit_board._white_knights & originComplement) | destinationMask;
+        else if (move._piece._type == Bishop)
+            resultingState->_bit_board._white_bishops = (currentState->_bit_board._white_bishops & originComplement) | destinationMask;
+        else if (move._piece._type == Rook)
+            resultingState->_bit_board._white_rooks = (currentState->_bit_board._white_rooks & originComplement) | destinationMask;
+        else if (move._piece._type == Queen)
+            resultingState->_bit_board._white_queens = (currentState->_bit_board._white_queens & originComplement) | destinationMask;
+        else
+            resultingState->_bit_board._white_king = (currentState->_bit_board._white_king & originComplement) | destinationMask;
+        resultingState->_bit_board._black_bishops &= destinationComplement;
+        resultingState->_bit_board._black_knights &= destinationComplement;
+        resultingState->_bit_board._black_rooks &= destinationComplement;
+        resultingState->_bit_board._black_pawns &= destinationComplement;
+        resultingState->_bit_board._black_queens &= destinationComplement;
+    }
+    else{
+        if (move._move_type == EnPassant)
+            ;
+        else if (move._move_type == LongCastle)
+            ;
+        else if (move._move_type == ShortCastle)
+            ;
+        else if (move._move_type == Promotion || move._move_type == PromotionCapture)
+            ;
+        else if (move._piece._type == Pawn)
+            resultingState->_bit_board._black_pawns = (currentState->_bit_board._black_pawns & originComplement) | destinationMask;
+        else if (move._piece._type == Knight)
+            resultingState->_bit_board._black_knights = (currentState->_bit_board._black_knights & originComplement) | destinationMask;
+        else if (move._piece._type == Bishop)
+            resultingState->_bit_board._black_bishops = (currentState->_bit_board._black_bishops & originComplement) | destinationMask;
+        else if (move._piece._type == Rook)
+            resultingState->_bit_board._black_rooks = (currentState->_bit_board._black_rooks & originComplement) | destinationMask;
+        else if (move._piece._type == Queen)
+            resultingState->_bit_board._black_queens = (currentState->_bit_board._black_queens & originComplement) | destinationMask;
+        else
+            resultingState->_bit_board._black_king = (currentState->_bit_board._black_king & originComplement) | destinationMask;
+        resultingState->_bit_board._white_bishops &= destinationComplement;
+        resultingState->_bit_board._white_knights &= destinationComplement;
+        resultingState->_bit_board._white_rooks &= destinationComplement;
+        resultingState->_bit_board._white_pawns &= destinationComplement;
+        resultingState->_bit_board._white_queens &= destinationComplement;
+    }
+
+    if (move._move_type == EnPassant)
+        ;
+    else if (move._move_type == LongCastle)
+        ;
+    else if (move._move_type == ShortCastle)
+        ;
+    else if (move._move_type == Promotion || move._move_type == PromotionCapture)
+
+
+    resultingState->_bit_board._all_white_pieces = resultingState->_bit_board._white_king & resultingState->_bit_board._white_pawns &
+            resultingState->_bit_board._white_rooks & resultingState->_bit_board._white_bishops &
+            resultingState->_bit_board._white_knights & resultingState->_bit_board._white_queens;
+    resultingState->_bit_board._all_black_pieces = resultingState->_bit_board._black_king & resultingState->_bit_board._black_pawns &
+            resultingState->_bit_board._black_rooks & resultingState->_bit_board._black_bishops &
+            resultingState->_bit_board._black_knights & resultingState->_bit_board._black_queens;
+    resultingState->_bit_board._all_pieces = resultingState->_bit_board._all_white_pieces & resultingState->_bit_board._all_black_pieces;
 }
 
 bool ChessRules::bitBoardSquareIsUnderAttack(int index){

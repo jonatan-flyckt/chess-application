@@ -46,6 +46,7 @@ public:
     float _accumulated_test_time;
 
     vector<Move> getLegalBitBoardMoves(State *state);
+    void updateBitBoardWithMove(State *currentState, State *resultingState, Move move);
     bool bitBoardSquareIsUnderAttack(int index);
     vector<Move> getBitBoardMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
     vector<Move> getBitBoardMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare);
