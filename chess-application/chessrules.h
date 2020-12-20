@@ -51,6 +51,7 @@ public:
     vector<Move> getBitBoardMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
     vector<Move> getBitBoardMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare);
     vector<Move> getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
+    vector<Move> getBitBoardMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};

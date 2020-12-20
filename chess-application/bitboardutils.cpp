@@ -102,36 +102,8 @@ ULL* BitBoardUtils::generateRookMoveSet(){
 }
 
 
-ULL* BitBoardUtils::generateBishopMoveSet(){
-    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
 
-    for (int square = 0; square < 64; square++){
-        ULL oneULL = 1;
-        ULL squareBit = oneULL << square;
-        vector<ULL> moveList;
 
-        for (int i = 7; i % 8  > square % 8; i += 7)
-            moveList.push_back(squareBit >> i);
-        for (int i = 7; (square + i) % 8  < 7; i += 7)
-            moveList.push_back(squareBit << i);
-        for (int i = 9+square; i % 8 > square % 8 && i % 8 >= 0; i += 9)
-            moveList.push_back(squareBit << i-square);
-        for (int i = 9; (i-1) % 8 < square % 8; i += 9)
-            moveList.push_back(squareBit >> i);
-
-        ULL moveBoard = 0;
-        for (auto move: moveList) //Store the moves in a bitboard
-            moveBoard |= move;
-
-        moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-
-        //cout << _square_from_index[square] << ":" << endl;
-        //printBoardOnOneRow(moveBoard);
-        //printBoard(moveBoard);
-        attackMap[square] = moveBoard;
-    }
-    return attackMap;
-}
 
 ULL* BitBoardUtils::generateQueenMoveSet(){
     ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
@@ -365,4 +337,139 @@ void BitBoardUtils::printBoard(ULL board){
     }
     cout << endl;
 }
+
+ULL BitBoardUtils::getMagicRookMovesForIndex(int index, ULL allPieces){
+
+}
+
+
+
+
+int BitBoardUtils::countBits(ULL bitboard) {
+    int count = 0;
+    while (bitboard){
+        count++;
+        bitboard &= bitboard - 1;
+    }
+    return count;
+}
+
+ULL BitBoardUtils::setOccupancy(int count, int bitCount, ULL mask){
+    ULL occupancy = 0ULL;
+    for (int i = 0; i < bitCount; i++){
+        int square = popLeastSignificantBitFromBoard(&mask);
+        if (count & (1 << i))
+            occupancy |= (1ULL << square);
+    }
+    return occupancy;
+}
+
+ULL** BitBoardUtils::initiateMagicBishopAttacks(){
+    ULL** attacks = new ULL*[64];
+    for (int square = 0; square < 64; square++){
+        attacks[square] = new ULL[512];
+        ULL mask = _bishop_move_set[square];
+        int bitCount = countBits(mask);
+        int occupancyAmount = 1 << bitCount;
+        //cout << endl << occupancyAmount << endl;
+
+        //cout << bitCount << endl;
+
+        for (int j = 0; j < occupancyAmount; j++){
+            ULL occupancy = setOccupancy(j, bitCount, mask);
+            ULL magicIndex = occupancy * _bishop_magics[square] >> 64 - _bishop_relevant_bits[square];
+            attacks[square][magicIndex] = bishopAttacksOnTheFly(square, occupancy);
+            //cout << magicIndex << " ";
+        }
+    }
+    return attacks;
+}
+
+ULL BitBoardUtils::getMagicBishopMovesForSquare(int square, ULL allPieces){
+
+    printBoard(allPieces);
+
+    ULL magicIndex = allPieces & _bishop_move_set[square];
+
+    magicIndex *= _bishop_magics[square];
+    magicIndex >>= 64 - _bishop_relevant_bits[square];
+
+
+    cout << magicIndex;
+
+    ULL moves =  _magic_bishop_attacks[square][magicIndex];
+
+    printBoard(moves);
+
+    return moves;
+}
+
+ULL BitBoardUtils::bishopAttacksOnTheFly(int square, ULL block){
+    // attack bitboard
+    ULL attacks = 0ULL;
+
+    // init files & ranks
+    int f, r;
+
+    // init target files & ranks
+    int tr = square / 8;
+    int tf = square % 8;
+
+    // generate attacks
+    for (r = tr + 1, f = tf + 1; r <= 7 && f <= 7; r++, f++)
+    {
+        attacks |= (1ULL << (r * 8 + f));
+        if (block & (1ULL << (r * 8 + f))) break;
+    }
+
+    for (r = tr + 1, f = tf - 1; r <= 7 && f >= 0; r++, f--)
+    {
+        attacks |= (1ULL << (r * 8 + f));
+        if (block & (1ULL << (r * 8 + f))) break;
+    }
+
+    for (r = tr - 1, f = tf + 1; r >= 0 && f <= 7; r--, f++)
+    {
+        attacks |= (1ULL << (r * 8 + f));
+        if (block & (1ULL << (r * 8 + f))) break;
+    }
+
+    for (r = tr - 1, f = tf - 1; r >= 0 && f >= 0; r--, f--)
+    {
+        attacks |= (1ULL << (r * 8 + f));
+        if (block & (1ULL << (r * 8 + f))) break;
+    }
+
+    // return attack map for bishop on a given square
+    return attacks;
+}
+
+ULL* BitBoardUtils::generateBishopMoveSet(){
+    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
+
+    for (int square = 0; square < 64; square++){
+        ULL oneULL = 1;
+        ULL squareBit = oneULL << square;
+        vector<ULL> moveList;
+
+        for (int i = 7; i % 8  > square % 8; i += 7)
+            moveList.push_back(squareBit >> i);
+        for (int i = 7; (square + i) % 8  < 7; i += 7)
+            moveList.push_back(squareBit << i);
+        for (int i = 9+square; i % 8 > square % 8 && i % 8 >= 0; i += 9)
+            moveList.push_back(squareBit << i-square);
+        for (int i = 9; (i-1) % 8 < square % 8; i += 9)
+            moveList.push_back(squareBit >> i);
+
+        ULL moveBoard = 0;
+        for (auto move: moveList) //Store the moves in a bitboard
+            moveBoard |= move;
+
+        moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+
+        attackMap[square] = moveBoard;
+    }
+    return attackMap;
+}
+
 

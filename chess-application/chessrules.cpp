@@ -652,11 +652,24 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
     for (auto move: getBitBoardMovesForKing(kingIndex, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
         kingMoves.push_back(move);
 
+
+
+    vector<int> bishopIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_bishops : state->_bit_board._black_bishops);
+    vector<Move> bishopMoves;
+    for (auto index: bishopIndices)
+        for (auto move: getBitBoardMovesForBishop(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
+            bishopMoves.push_back(move);
+
+
+
+
+
     vector<Move> allMoves;
-    allMoves.reserve( knightMoves.size() + pawnMoves.size() + kingMoves.size() );
+    allMoves.reserve( knightMoves.size() + pawnMoves.size() + kingMoves.size() + bishopMoves.size());
     allMoves.insert( allMoves.end(), knightMoves.begin(), knightMoves.end() );
     allMoves.insert( allMoves.end(), pawnMoves.begin(), pawnMoves.end() );
     allMoves.insert( allMoves.end(), kingMoves.begin(), kingMoves.end() );
+    allMoves.insert( allMoves.end(), bishopMoves.begin(), bishopMoves.end() );
     return allMoves;
 }
 
@@ -767,11 +780,35 @@ vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Co
     return moveVector;
 }
 
+vector<Move> ChessRules::getBitBoardMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+    //TODO: magic bitboard stuff
+
+    ULL possibleAttacks = _bishop_move_set[index];
+    ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
+
+
+
+    printBoard(getMagicBishopMovesForSquare(index, board._all_pieces));
+
+
+    //TODO: remove moves that cause check
+
+    vector<Move> moveVector;
+
+    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
+        MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
+        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Knight), _square_from_index[index],_square_from_index[resultingIndex],
+                                  numberOfMoves+1, moveType));
+    }
+    return moveVector;
+}
+
 vector<Move> ChessRules::getBitBoardMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare){
     ULL possiblePushes = colourToMove == White ? _white_pawn_move_set[index] : _black_pawn_move_set[index];
     ULL possibleCaptures = colourToMove == White ? _white_pawn_capture_set[index] : _black_pawn_capture_set[index]; //TODO: check if this is an error, should be capture_set?
     ULL pseudoLegalPushes = possiblePushes &~board._all_pieces;
     ULL pseudoLegalCaptures = colourToMove == White ? possibleCaptures &board._all_black_pieces : possibleCaptures &board._all_white_pieces;
+
 
     if ((index > 7 && index < 16 && colourToMove == White) || (index < 56 && index > 47 && colourToMove == Black)){//Pawn was on starting square
         if (colourToMove == White)
