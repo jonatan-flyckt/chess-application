@@ -695,6 +695,7 @@ void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingSta
         resultingState->_bit_board._black_rooks &= destinationComplement;
         resultingState->_bit_board._black_pawns &= destinationComplement;
         resultingState->_bit_board._black_queens &= destinationComplement;
+
     }
     else{
         if (move._move_type == EnPassant)
@@ -731,18 +732,22 @@ void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingSta
     else if (move._move_type == ShortCastle)
         ;
     else if (move._move_type == Promotion || move._move_type == PromotionCapture)
+        ;
 
+    printBoard(resultingState->_bit_board._white_pawns);
 
-    resultingState->_bit_board._all_white_pieces = resultingState->_bit_board._white_king & resultingState->_bit_board._white_pawns &
-            resultingState->_bit_board._white_rooks & resultingState->_bit_board._white_bishops &
-            resultingState->_bit_board._white_knights & resultingState->_bit_board._white_queens;
-    resultingState->_bit_board._all_black_pieces = resultingState->_bit_board._black_king & resultingState->_bit_board._black_pawns &
-            resultingState->_bit_board._black_rooks & resultingState->_bit_board._black_bishops &
-            resultingState->_bit_board._black_knights & resultingState->_bit_board._black_queens;
-    resultingState->_bit_board._all_pieces = resultingState->_bit_board._all_white_pieces & resultingState->_bit_board._all_black_pieces;
+    resultingState->_bit_board._all_white_pieces = resultingState->_bit_board._white_king | resultingState->_bit_board._white_pawns |
+            resultingState->_bit_board._white_rooks | resultingState->_bit_board._white_bishops |
+            resultingState->_bit_board._white_knights | resultingState->_bit_board._white_queens;
+    resultingState->_bit_board._all_black_pieces = resultingState->_bit_board._black_king | resultingState->_bit_board._black_pawns |
+            resultingState->_bit_board._black_rooks | resultingState->_bit_board._black_bishops |
+            resultingState->_bit_board._black_knights | resultingState->_bit_board._black_queens;
+    resultingState->_bit_board._all_pieces = resultingState->_bit_board._all_white_pieces | resultingState->_bit_board._all_black_pieces;
+    printBoard(resultingState->_bit_board._all_white_pieces);
+    printBoard(resultingState->_bit_board._all_black_pieces);
 }
 
-bool ChessRules::bitBoardSquareIsUnderAttack(int index){
+bool ChessRules::bitBoardSquareIsUnderAttack(int index, Colour colourAttacking){
 
 }
 
@@ -764,7 +769,7 @@ vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Co
 
 vector<Move> ChessRules::getBitBoardMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare){
     ULL possiblePushes = colourToMove == White ? _white_pawn_move_set[index] : _black_pawn_move_set[index];
-    ULL possibleCaptures = colourToMove == White ? _white_pawn_move_set[index] : _black_pawn_move_set[index];
+    ULL possibleCaptures = colourToMove == White ? _white_pawn_capture_set[index] : _black_pawn_capture_set[index]; //TODO: check if this is an error, should be capture_set?
     ULL pseudoLegalPushes = possiblePushes &~board._all_pieces;
     ULL pseudoLegalCaptures = colourToMove == White ? possibleCaptures &board._all_black_pieces : possibleCaptures &board._all_white_pieces;
 
@@ -778,7 +783,7 @@ vector<Move> ChessRules::getBitBoardMovesForPawn(int index, BitBoard board, Colo
     }
 
     vector<Move> moveVector;
-    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalPushes |pseudoLegalCaptures)){
+    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalPushes | pseudoLegalCaptures)){
         MoveType typeOfMove;
         uint32_t absVal = abs(index - resultingIndex);
         if ((index > 47 && colourToMove == White) || (index < 16 && colourToMove == Black)) //Promotion move
