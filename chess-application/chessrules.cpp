@@ -783,12 +783,12 @@ vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Co
 vector<Move> ChessRules::getBitBoardMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
     //TODO: magic bitboard stuff
 
-    ULL possibleAttacks = _bishop_move_set[index];
+    ULL possibleAttacks = _bishop_square_attack_rays[index][NW]; //TODO: fix
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
 
 
-    printBoard(getMagicBishopMovesForSquare(index, board._all_pieces));
+    printBoard(getBishopMovesForSquare(index, board._all_pieces));
 
 
     //TODO: remove moves that cause check
