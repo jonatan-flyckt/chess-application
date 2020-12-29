@@ -664,15 +664,22 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
         for (auto move: getBitBoardMovesForRook(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             rookMoves.push_back(move);
 
+    vector<int> queenIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_queens : state->_bit_board._black_queens);
+    vector<Move> queenMoves;
+    for (auto index: queenIndices)
+        for (auto move: getBitBoardMovesForQueen(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
+            queenMoves.push_back(move);
+
 
 
     vector<Move> allMoves;
-    allMoves.reserve( knightMoves.size() + pawnMoves.size() + kingMoves.size() + bishopMoves.size() + rookMoves.size());
+    allMoves.reserve( knightMoves.size() + pawnMoves.size() + kingMoves.size() + bishopMoves.size() + rookMoves.size() + queenMoves.size());
     allMoves.insert( allMoves.end(), knightMoves.begin(), knightMoves.end() );
     allMoves.insert( allMoves.end(), pawnMoves.begin(), pawnMoves.end() );
     allMoves.insert( allMoves.end(), kingMoves.begin(), kingMoves.end() );
     allMoves.insert( allMoves.end(), bishopMoves.begin(), bishopMoves.end() );
     allMoves.insert( allMoves.end(), rookMoves.begin(), rookMoves.end() );
+    allMoves.insert( allMoves.end(), queenMoves.begin(), queenMoves.end() );
     return allMoves;
 }
 
@@ -783,9 +790,6 @@ vector<Move> ChessRules::getBitBoardMovesForRook(int index, BitBoard board, Colo
     ULL possibleAttacks = NMoves | EMoves | SMoves | WMoves;
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
-    printBoard(possibleAttacks);
-    printBoard(pseudoLegalMoves);
-
     //TODO: remove moves that cause check
 
     vector<Move> moveVector;
@@ -796,6 +800,18 @@ vector<Move> ChessRules::getBitBoardMovesForRook(int index, BitBoard board, Colo
                                   numberOfMoves+1, moveType));
     }
     return moveVector;
+}
+
+vector<Move> ChessRules::getBitBoardMovesForQueen(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+    vector<Move> rookMoves = getBitBoardMovesForRook(index, board, colourToMove, numberOfMoves);
+    vector<Move> bishopMoves = getBitBoardMovesForBishop(index, board, colourToMove, numberOfMoves);
+    vector<Move> queenMoves;
+    queenMoves.reserve( rookMoves.size() + bishopMoves.size() );
+    queenMoves.insert( queenMoves.end(), rookMoves.begin(), rookMoves.end() );
+    queenMoves.insert( queenMoves.end(), bishopMoves.begin(), bishopMoves.end() );
+    for (int i = 0; i < queenMoves.size(); i++)
+        queenMoves[i]._piece._type = Queen;
+    return queenMoves;
 }
 
 vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
