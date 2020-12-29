@@ -184,7 +184,6 @@ ULL *BitBoardUtils::generateFilledDownToMasks(){
         if (square != 0)
             mask = mask ^ 1ULL;
         maskArray[square] = mask;
-        printBoard(mask);
     }
     return maskArray;
 }
@@ -442,42 +441,8 @@ map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
 ULL BitBoardUtils::getBishopMovesForSquare(int square, ULL allPieces){
 
     cout << "determining NE moves for " << _square_from_index[square] << endl;
-
-    ULL NEBlockers = _bishop_square_attack_rays[square][NE] & allPieces;
-    cout << "ray:" << endl;
-    printBoard(_bishop_square_attack_rays[square][NE]);
-    cout << "blockers:" << endl;
-    printBoard(NEBlockers);
-    int lsb = getIndexOfLeastSignificantBit(NEBlockers);
-    cout << "least significant bit index: " << lsb << endl;
-    ULL NEMoves;
-    if (lsb == -1){ //no blockers
-        cout << "no blockers" << endl;
-        NEMoves = _bishop_square_attack_rays[square][NE];
-    }
-    else{
-        ULL leastSignificantBitBoard = 1ULL << lsb;
-        cout << "least significant bit board:" << endl;
-        printBoard(leastSignificantBitBoard);
-        if (NEBlockers == leastSignificantBitBoard){
-            ULL rayWithRemoved = _bishop_square_attack_rays[square][NE];
-            int msb;
-            do{
-                msb = getIndexOfMostSignificantBit(rayWithRemoved);
-                cout << "popping " << _square_from_index[msb] << endl;
-                ULL msbComplement = ~(1ULL << msb);
-                rayWithRemoved = rayWithRemoved & msbComplement;
-            }while (msb > lsb);
-            NEMoves = rayWithRemoved | leastSignificantBitBoard;
-        }
-        else{
-            ULL unReachableSquares = NEBlockers ^ leastSignificantBitBoard;
-            cout << "unreachable squares:" << endl;
-            printBoard(unReachableSquares);
-            NEMoves = unReachableSquares ^ _bishop_square_attack_rays[square][NE];
-        }
-    }
-    cout << "north east moves:" << endl;
+    int lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[square][NE] & allPieces);
+    ULL NEMoves = lsb == -1 ? _bishop_square_attack_rays[square][NE] : _bishop_square_attack_rays[square][NE] & _filled_up_to_masks[lsb];
     printBoard(NEMoves);
 
 
