@@ -47,6 +47,10 @@ public:
 
     ULL getBishopMovesForSquare(int index, ULL allPieces);
 
+    int getIndexOfLeastSignificantBit(ULL bitboard);
+
+    int getIndexOfMostSignificantBit(unsigned int v);
+
     string _square_from_index[64] = {
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
         "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
@@ -106,8 +110,7 @@ public:
 
     map<BishopDirections, ULL>* _bishop_square_attack_rays = generateBishopMoveSet();
 
-    int getIndexOfLeastSignificantBit(ULL bitboard);
-    int getIndexOfMostSignificantBit(unsigned int v);
+
 };
 
 #endif // BITBOARDUTILS_H

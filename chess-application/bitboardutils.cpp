@@ -361,9 +361,7 @@ ULL BitBoardUtils::getRookMovesForIndex(int index, ULL allPieces){
 
 map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
     map<BishopDirections, ULL>* attackMap = new map<BishopDirections, ULL>[64];
-    //map<BishopDirections, ULL>* attackMap = (map<BishopDirections, ULL>*)malloc(64 * sizeof (map<BishopDirections, ULL>));
     for (int square = 0; square < 64; square++){
-        cout << square;
         map<BishopDirections, ULL> squareRays;
         ULL oneULL = 1;
         ULL squareBit = oneULL << square;
@@ -374,8 +372,8 @@ map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
             for (auto move: moveList) //Store the moves in a bitboard
                 moveBoard |= move;
             moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-            squareRays.insert({SE, moveBoard});
         }
+        squareRays.insert({SE, moveBoard});
         oneULL = 1;
         squareBit = oneULL << square;
         moveBoard = 0;
@@ -385,8 +383,8 @@ map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
             for (auto move: moveList) //Store the moves in a bitboard
                 moveBoard |= move;
             moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-            squareRays.insert({NW, moveBoard});
         }
+        squareRays.insert({NW, moveBoard});
         oneULL = 1;
         squareBit = oneULL << square;
         moveBoard = 0;
@@ -396,8 +394,8 @@ map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
             for (auto move: moveList) //Store the moves in a bitboard
                 moveBoard |= move;
             moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-            squareRays.insert({NE, moveBoard});
         }
+        squareRays.insert({NE, moveBoard});
         oneULL = 1;
         squareBit = oneULL << square;
         moveBoard = 0;
@@ -407,14 +405,27 @@ map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
             for (auto move: moveList) //Store the moves in a bitboard
                 moveBoard |= move;
             moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-            squareRays.insert({SW, moveBoard});
         }
+        squareRays.insert({SW, moveBoard});
         attackMap[square] = squareRays;
     }
     return attackMap;
 }
 
 ULL BitBoardUtils::getBishopMovesForSquare(int square, ULL allPieces){
+
+    ULL NEBlockers = _bishop_square_attack_rays[square][NE] & allPieces;
+    printBoard(_bishop_square_attack_rays[square][NE]);
+    printBoard(NEBlockers);
+    int lsb = getIndexOfLeastSignificantBit(NEBlockers);
+    ULL leastSignificantBitBoard = lsb >= 0 ? 1ULL << lsb : 0ULL;
+    ULL unReachableSquares = (1ULL << getIndexOfLeastSignificantBit(NEBlockers)) ^ _bishop_square_attack_rays[square][NE];
+    printBoard(unReachableSquares);
+    ULL NEMoves = unReachableSquares ^ _bishop_square_attack_rays[square][NE];
+    printBoard(NEMoves);
+
+
+
 
     return 0ULL;
 }
