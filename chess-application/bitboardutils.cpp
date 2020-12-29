@@ -440,15 +440,19 @@ map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
 
 ULL BitBoardUtils::getBishopMovesForSquare(int square, ULL allPieces){
 
-    cout << "determining NE moves for " << _square_from_index[square] << endl;
+    //Positive directions
     int lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[square][NE] & allPieces);
     ULL NEMoves = lsb == -1 ? _bishop_square_attack_rays[square][NE] : _bishop_square_attack_rays[square][NE] & _filled_up_to_masks[lsb];
-    printBoard(NEMoves);
+    lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[square][NW] & allPieces);
+    ULL NWMoves = lsb == -1 ? _bishop_square_attack_rays[square][NW] : _bishop_square_attack_rays[square][NW] & _filled_up_to_masks[lsb];
 
+    //Negative directions
+    int msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[square][SE] & allPieces);
+    ULL SEMoves = msb == 0 ? _bishop_square_attack_rays[square][SE] : _bishop_square_attack_rays[square][SE] & _filled_down_to_masks[msb];
+    msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[square][SW] & allPieces);
+    ULL SWMoves = msb == 0 ? _bishop_square_attack_rays[square][SW] : _bishop_square_attack_rays[square][SW] & _filled_down_to_masks[msb];
 
-
-
-    return 0ULL;
+    return NEMoves | NWMoves | SEMoves | SWMoves;
 }
 
 
