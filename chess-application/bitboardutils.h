@@ -19,9 +19,9 @@ public:
 
     ULL*  generateKingMoveSet();
 
-    ULL*  generateRookMoveSet();
-
     map<BishopDirections, ULL>*  generateBishopMoveSet();
+
+    map<RookDirections, ULL>*  generateRookMoveSet();
 
     ULL*  generatePawnMoveSet(Colour colour);
 
@@ -47,13 +47,13 @@ public:
 
     void printBoard(ULL board);
 
-    ULL getRookMovesForIndex(int index, ULL allPieces);
-
-    ULL getBishopMovesForSquare(int index, ULL allPieces);
-
     int getIndexOfLeastSignificantBit(ULL bitboard);
 
     int getIndexOfMostSignificantBit(ULL bitboard);
+
+    ULL mirrorHorizontal (ULL x);
+
+    ULL mirrorVertical(ULL x);
 
     string _square_from_index[64] = {
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
@@ -98,15 +98,9 @@ public:
        13, 18,  8, 12,  7,  6,  5, 63
     };
 
-    ULL mirrorHorizontal (ULL x);
-
-    ULL mirrorVertical(ULL x);
-
     ULL* _knight_move_set = generateKnightMoveSet();
 
     ULL* _king_move_set = generateKingMoveSet();
-
-    ULL* _rook_move_set = generateRookMoveSet();
 
     ULL* _white_pawn_move_set = generatePawnMoveSet(White);
 
@@ -127,6 +121,8 @@ public:
     ULL* _filled_down_to_masks = generateFilledDownToMasks();
 
     map<BishopDirections, ULL>* _bishop_square_attack_rays = generateBishopMoveSet();
+
+    map<RookDirections, ULL>* _rook_square_attack_rays = generateRookMoveSet();
 
 };
 

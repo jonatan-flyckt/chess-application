@@ -764,6 +764,34 @@ bool ChessRules::bitBoardSquareIsUnderAttack(int index, Colour colourAttacking){
 
 }
 
+vector<Move> ChessRules::getBitBoardMovesForRook(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+    //Positive directions
+    int lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[index][NE] & board._all_pieces);
+    ULL NEMoves = lsb == -1 ? _bishop_square_attack_rays[index][NE] : _bishop_square_attack_rays[index][NE] & _filled_up_to_masks[lsb];
+    lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[index][NW] & board._all_pieces);
+    ULL NWMoves = lsb == -1 ? _bishop_square_attack_rays[index][NW] : _bishop_square_attack_rays[index][NW] & _filled_up_to_masks[lsb];
+
+    //Negative directions
+    int msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[index][SE] & board._all_pieces);
+    ULL SEMoves = msb == 0 ? _bishop_square_attack_rays[index][SE] : _bishop_square_attack_rays[index][SE] & _filled_down_to_masks[msb];
+    msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[index][SW] & board._all_pieces);
+    ULL SWMoves = msb == 0 ? _bishop_square_attack_rays[index][SW] : _bishop_square_attack_rays[index][SW] & _filled_down_to_masks[msb];
+
+    ULL possibleAttacks = NEMoves | NWMoves | SEMoves | SWMoves;
+    ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
+
+    //TODO: remove moves that cause check
+
+    vector<Move> moveVector;
+
+    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
+        MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
+        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Rook), _square_from_index[index],_square_from_index[resultingIndex],
+                                  numberOfMoves+1, moveType));
+    }
+    return moveVector;
+}
+
 vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
     ULL possibleAttacks = _knight_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
@@ -781,15 +809,20 @@ vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Co
 }
 
 vector<Move> ChessRules::getBitBoardMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
-    //TODO: magic bitboard stuff
+    //Positive directions
+    int lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[index][NE] & board._all_pieces);
+    ULL NEMoves = lsb == -1 ? _bishop_square_attack_rays[index][NE] : _bishop_square_attack_rays[index][NE] & _filled_up_to_masks[lsb];
+    lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[index][NW] & board._all_pieces);
+    ULL NWMoves = lsb == -1 ? _bishop_square_attack_rays[index][NW] : _bishop_square_attack_rays[index][NW] & _filled_up_to_masks[lsb];
 
-    ULL possibleAttacks = _bishop_square_attack_rays[index][NW]; //TODO: fix
+    //Negative directions
+    int msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[index][SE] & board._all_pieces);
+    ULL SEMoves = msb == 0 ? _bishop_square_attack_rays[index][SE] : _bishop_square_attack_rays[index][SE] & _filled_down_to_masks[msb];
+    msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[index][SW] & board._all_pieces);
+    ULL SWMoves = msb == 0 ? _bishop_square_attack_rays[index][SW] : _bishop_square_attack_rays[index][SW] & _filled_down_to_masks[msb];
+
+    ULL possibleAttacks = NEMoves | NWMoves | SEMoves | SWMoves;
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
-
-
-    getBishopMovesForSquare(index, board._all_pieces);
-    //printBoard(getBishopMovesForSquare(index, board._all_pieces));
-
 
     //TODO: remove moves that cause check
 
@@ -797,7 +830,7 @@ vector<Move> ChessRules::getBitBoardMovesForBishop(int index, BitBoard board, Co
 
     for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
         MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
-        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Knight), _square_from_index[index],_square_from_index[resultingIndex],
+        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Bishop), _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, moveType));
     }
     return moveVector;

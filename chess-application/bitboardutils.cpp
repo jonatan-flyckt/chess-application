@@ -66,40 +66,106 @@ ULL* BitBoardUtils::generateKingMoveSet(){
     return attackMap;
 }
 
-ULL* BitBoardUtils::generateRookMoveSet(){
-    ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
+map<RookDirections, ULL>* BitBoardUtils::generateRookMoveSet(){
+    map<RookDirections, ULL>* attackMap = new map<RookDirections, ULL>[64];
 
     for (int square = 0; square < 64; square++){
+        map<RookDirections, ULL> squareRays;
         ULL oneULL = 1;
         ULL squareBit = oneULL << square;
-        vector<ULL> moveList;
-        for (int i = 8; i < 64; i += 8){
-            moveList.push_back(squareBit << i);
-            moveList.push_back(squareBit >> i);
-        }
 
+        vector<ULL> sMoveList;
+        vector<ULL> nMoveList;
+        vector<ULL> eMoveList;
+        vector<ULL> wMoveList;
+
+        for (int i = 8; i < 64; i += 8){
+            nMoveList.push_back(squareBit << i);
+            sMoveList.push_back(squareBit >> i);
+        }
         for (int j = 1; j < 8; j++){
             if (square % 8 + j < 8)
-                moveList.push_back(squareBit << j);
+                eMoveList.push_back(squareBit << j);
             if (square % 8 - j >= 0)
-                moveList.push_back(squareBit >> j);
+                wMoveList.push_back(squareBit >> j);
         }
 
+        ULL sMoveBoard = 0;
+        ULL nMoveBoard = 0;
+        ULL eMoveBoard = 0;
+        ULL wMoveBoard = 0;
+        for (auto move: sMoveList)
+            sMoveBoard |= move;
+        for (auto move: nMoveList)
+            nMoveBoard |= move;
+        for (auto move: eMoveList)
+            eMoveBoard |= move;
+        for (auto move: wMoveList)
+            wMoveBoard |= move;
 
-        ULL moveBoard = 0;
-        for (auto move: moveList) //Store the moves in a bitboard
-            moveBoard |= move;
+        squareRays.insert({S, sMoveBoard});
+        squareRays.insert({N, nMoveBoard});
+        squareRays.insert({E, eMoveBoard});
+        squareRays.insert({W, wMoveBoard});
 
-        moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-
-        //cout << _square_from_index[square] << ":" << endl;
-        //printBoardOnOneRow(moveBoard);
-        //printBoard(moveBoard);
-        attackMap[square] = moveBoard;
+        attackMap[square] = squareRays;
     }
     return attackMap;
-
 }
+
+map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
+    map<BishopDirections, ULL>* attackMap = new map<BishopDirections, ULL>[64];
+    for (int square = 0; square < 64; square++){
+        map<BishopDirections, ULL> squareRays;
+        ULL oneULL = 1;
+        ULL squareBit = oneULL << square;
+        ULL moveBoard = 0;
+        for (int i = 7; i % 8  > square % 8; i += 7){
+            vector<ULL> moveList;
+            moveList.push_back(squareBit >> i);
+            for (auto move: moveList) //Store the moves in a bitboard
+                moveBoard |= move;
+            moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+        }
+        squareRays.insert({SE, moveBoard});
+        oneULL = 1;
+        squareBit = oneULL << square;
+        moveBoard = 0;
+        for (int i = 7; (square + i) % 8  < 7; i += 7){
+            vector<ULL> moveList;
+            moveList.push_back(squareBit << i);
+            for (auto move: moveList) //Store the moves in a bitboard
+                moveBoard |= move;
+            moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+        }
+        squareRays.insert({NW, moveBoard});
+        oneULL = 1;
+        squareBit = oneULL << square;
+        moveBoard = 0;
+        for (int i = 9+square; i % 8 > square % 8 && i % 8 >= 0; i += 9){
+            vector<ULL> moveList;
+            moveList.push_back(squareBit << i-square);
+            for (auto move: moveList) //Store the moves in a bitboard
+                moveBoard |= move;
+            moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+        }
+        squareRays.insert({NE, moveBoard});
+        oneULL = 1;
+        squareBit = oneULL << square;
+        moveBoard = 0;
+        for (int i = 9; (i-1) % 8 < square % 8; i += 9){
+            vector<ULL> moveList;
+            moveList.push_back(squareBit >> i);
+            for (auto move: moveList) //Store the moves in a bitboard
+                moveBoard |= move;
+            moveBoard &= 0xffffffffffffffff; //Remove moves outside board
+        }
+        squareRays.insert({SW, moveBoard});
+        attackMap[square] = squareRays;
+    }
+    return attackMap;
+}
+
 
 ULL* BitBoardUtils::generatePawnMoveSet(Colour colour){
     ULL* attackMap = (ULL*)malloc(64 * sizeof (ULL));
@@ -379,83 +445,5 @@ ULL BitBoardUtils::mirrorVertical(ULL x) {
             ( (x >> 40) & ULL(0x000000000000ff00) ) |
             ( (x >> 56) );
 }
-
-ULL BitBoardUtils::getRookMovesForIndex(int index, ULL allPieces){
-
-}
-
-
-map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
-    map<BishopDirections, ULL>* attackMap = new map<BishopDirections, ULL>[64];
-    for (int square = 0; square < 64; square++){
-        map<BishopDirections, ULL> squareRays;
-        ULL oneULL = 1;
-        ULL squareBit = oneULL << square;
-        ULL moveBoard = 0;
-        for (int i = 7; i % 8  > square % 8; i += 7){
-            vector<ULL> moveList;
-            moveList.push_back(squareBit >> i);
-            for (auto move: moveList) //Store the moves in a bitboard
-                moveBoard |= move;
-            moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-        }
-        squareRays.insert({SE, moveBoard});
-        oneULL = 1;
-        squareBit = oneULL << square;
-        moveBoard = 0;
-        for (int i = 7; (square + i) % 8  < 7; i += 7){
-            vector<ULL> moveList;
-            moveList.push_back(squareBit << i);
-            for (auto move: moveList) //Store the moves in a bitboard
-                moveBoard |= move;
-            moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-        }
-        squareRays.insert({NW, moveBoard});
-        oneULL = 1;
-        squareBit = oneULL << square;
-        moveBoard = 0;
-        for (int i = 9+square; i % 8 > square % 8 && i % 8 >= 0; i += 9){
-            vector<ULL> moveList;
-            moveList.push_back(squareBit << i-square);
-            for (auto move: moveList) //Store the moves in a bitboard
-                moveBoard |= move;
-            moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-        }
-        squareRays.insert({NE, moveBoard});
-        oneULL = 1;
-        squareBit = oneULL << square;
-        moveBoard = 0;
-        for (int i = 9; (i-1) % 8 < square % 8; i += 9){
-            vector<ULL> moveList;
-            moveList.push_back(squareBit >> i);
-            for (auto move: moveList) //Store the moves in a bitboard
-                moveBoard |= move;
-            moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-        }
-        squareRays.insert({SW, moveBoard});
-        attackMap[square] = squareRays;
-    }
-    return attackMap;
-}
-
-ULL BitBoardUtils::getBishopMovesForSquare(int square, ULL allPieces){
-
-    //Positive directions
-    int lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[square][NE] & allPieces);
-    ULL NEMoves = lsb == -1 ? _bishop_square_attack_rays[square][NE] : _bishop_square_attack_rays[square][NE] & _filled_up_to_masks[lsb];
-    lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[square][NW] & allPieces);
-    ULL NWMoves = lsb == -1 ? _bishop_square_attack_rays[square][NW] : _bishop_square_attack_rays[square][NW] & _filled_up_to_masks[lsb];
-
-    //Negative directions
-    int msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[square][SE] & allPieces);
-    ULL SEMoves = msb == 0 ? _bishop_square_attack_rays[square][SE] : _bishop_square_attack_rays[square][SE] & _filled_down_to_masks[msb];
-    msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[square][SW] & allPieces);
-    ULL SWMoves = msb == 0 ? _bishop_square_attack_rays[square][SW] : _bishop_square_attack_rays[square][SW] & _filled_down_to_masks[msb];
-
-    return NEMoves | NWMoves | SEMoves | SWMoves;
-}
-
-
-
 
 
