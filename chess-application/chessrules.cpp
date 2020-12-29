@@ -787,8 +787,8 @@ vector<Move> ChessRules::getBitBoardMovesForBishop(int index, BitBoard board, Co
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
 
-
-    printBoard(getBishopMovesForSquare(index, board._all_pieces));
+    getBishopMovesForSquare(index, board._all_pieces);
+    //printBoard(getBishopMovesForSquare(index, board._all_pieces));
 
 
     //TODO: remove moves that cause check

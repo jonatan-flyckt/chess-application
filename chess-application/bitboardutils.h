@@ -27,6 +27,10 @@ public:
 
     ULL*  generatePawnCaptureSet(Colour colour);
 
+    ULL* generateFilledUpToMasks();
+
+    ULL* generateFilledDownToMasks();
+
     map<Piece, ULL> generateStartingPosition();
 
     pair<ULL*, ULL*> generateBitMasks();
@@ -49,7 +53,7 @@ public:
 
     int getIndexOfLeastSignificantBit(ULL bitboard);
 
-    int getIndexOfMostSignificantBit(unsigned int v);
+    int getIndexOfMostSignificantBit(ULL bitboard);
 
     string _square_from_index[64] = {
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
@@ -72,16 +76,23 @@ public:
         {"a8", 56}, {"b8", 57}, {"c8", 58}, {"d8", 59}, {"e8", 60}, {"f8", 61}, {"g8", 62}, {"h8", 63}
     };
 
-    const int _magic_bit_table[64] ={
+    const int _least_significant_bit_table[64] ={
         63, 30, 3, 32, 25, 41, 22, 33, 15, 50, 42, 13, 11, 53, 19,
         34, 61, 29, 2, 51, 21, 43, 45, 10, 18, 47, 1, 54, 9, 57, 0,
         35, 62, 31, 40, 4, 49, 5, 52, 26, 60, 6, 23, 44, 46, 27, 56,
         16, 7, 39, 48, 24, 59, 14, 12, 55, 38, 28, 58, 20, 37, 17, 36, 8
     };
 
-    const int _most_significant_bit_pos[32] = {0, 1, 28, 2, 29, 14, 24, 3,
-      30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19,
-      16, 7, 26, 12, 18, 6, 11, 5, 10, 9};
+    const int _most_significant_bit_table[64] = {
+        0, 47,  1, 56, 48, 27,  2, 60,
+       57, 49, 41, 37, 28, 16,  3, 61,
+       54, 58, 35, 52, 50, 42, 21, 44,
+       38, 32, 29, 23, 17, 11,  4, 62,
+       46, 55, 26, 59, 40, 36, 15, 53,
+       34, 51, 20, 43, 31, 22, 10, 45,
+       25, 39, 14, 33, 19, 30,  9, 24,
+       13, 18,  8, 12,  7,  6,  5, 63
+    };
 
     ULL mirrorHorizontal (ULL x);
 
@@ -107,9 +118,11 @@ public:
 
     ULL* _bit_masks_complement = generateBitMasks().second;
 
+    ULL* _filled_up_to_masks = generateFilledUpToMasks();
+
+    ULL* _filled_down_to_masks = generateFilledDownToMasks();
 
     map<BishopDirections, ULL>* _bishop_square_attack_rays = generateBishopMoveSet();
-
 
 };
 

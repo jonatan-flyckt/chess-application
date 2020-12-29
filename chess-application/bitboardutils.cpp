@@ -158,6 +158,37 @@ ULL* BitBoardUtils::generatePawnCaptureSet(Colour colour){
     return attackMap;
 }
 
+ULL *BitBoardUtils::generateFilledUpToMasks(){
+    ULL* maskArray = (ULL*)malloc(64 * sizeof (ULL));
+    for (int square = 0; square < 64; square++){
+        ULL mask = 0ULL;
+        for (int i = 0; i <= square; i++){
+            ULL maskAddition = 1ULL << i;
+            mask = mask | maskAddition;
+        }
+        maskArray[square] = mask;
+    }
+    return maskArray;
+}
+
+ULL *BitBoardUtils::generateFilledDownToMasks(){
+    ULL* maskArray = (ULL*)malloc(64 * sizeof (ULL));
+    for (int square = 0; square < 64; square++){
+        ULL mask = 0ULL;
+        cout << square << endl;
+        //printBoard((1ULL << square));
+        for (int i = 64; i >= square; i--){
+            ULL maskAddition = 1ULL << i;
+            mask = mask | maskAddition;
+        }
+        if (square != 0)
+            mask = mask ^ 1ULL;
+        maskArray[square] = mask;
+        printBoard(mask);
+    }
+    return maskArray;
+}
+
 map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
     map<Piece, ULL> startingBoard;
 
@@ -259,29 +290,25 @@ int BitBoardUtils::popLeastSignificantBitFromBoard(ULL *board){
     ULL tempBoard = *board ^(*board - 1);
     unsigned int halfFold = (unsigned) ((tempBoard & 0xffffffff) ^ (tempBoard >> 32));
     *board &= (*board-1);
-    return _magic_bit_table[(halfFold * 0x783a9b23) >> 26];
+    return _least_significant_bit_table[(halfFold * 0x783a9b23) >> 26];
 }
 
 int BitBoardUtils::getIndexOfLeastSignificantBit(ULL bitboard) {
-    // make sure bitboard is not empty
     if (bitboard != 0)
-        // convert trailing zeros before LS1B to ones and count them
         return countBitsInBoard((bitboard & -bitboard) - 1);
-
-    // otherwise
     else
-        // return illegal index
         return -1;
 }
 
-int BitBoardUtils::getIndexOfMostSignificantBit(unsigned int v) {
-    v |= v >> 1;
-    v |= v >> 2;
-    v |= v >> 4;
-    v |= v >> 8;
-    v |= v >> 16;
-    v = (v >> 1) + 1;
-    return _most_significant_bit_pos[(v * 0x077CB531UL) >> 27];
+int BitBoardUtils::getIndexOfMostSignificantBit(ULL bitboard) {
+    const ULL debruijn64 = ULL(0x03f79d71b4cb0a89);
+    bitboard |= bitboard >> 1;
+    bitboard |= bitboard >> 2;
+    bitboard |= bitboard >> 4;
+    bitboard |= bitboard >> 8;
+    bitboard |= bitboard >> 16;
+    bitboard |= bitboard >> 32;
+    return _most_significant_bit_table[(bitboard * debruijn64) >> 58];
 }
 
 vector<int> BitBoardUtils::getIndicesOfBitsInBoard(ULL board){
@@ -414,14 +441,43 @@ map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
 
 ULL BitBoardUtils::getBishopMovesForSquare(int square, ULL allPieces){
 
+    cout << "determining NE moves for " << _square_from_index[square] << endl;
+
     ULL NEBlockers = _bishop_square_attack_rays[square][NE] & allPieces;
+    cout << "ray:" << endl;
     printBoard(_bishop_square_attack_rays[square][NE]);
+    cout << "blockers:" << endl;
     printBoard(NEBlockers);
     int lsb = getIndexOfLeastSignificantBit(NEBlockers);
-    ULL leastSignificantBitBoard = lsb >= 0 ? 1ULL << lsb : 0ULL;
-    ULL unReachableSquares = (1ULL << getIndexOfLeastSignificantBit(NEBlockers)) ^ _bishop_square_attack_rays[square][NE];
-    printBoard(unReachableSquares);
-    ULL NEMoves = unReachableSquares ^ _bishop_square_attack_rays[square][NE];
+    cout << "least significant bit index: " << lsb << endl;
+    ULL NEMoves;
+    if (lsb == -1){ //no blockers
+        cout << "no blockers" << endl;
+        NEMoves = _bishop_square_attack_rays[square][NE];
+    }
+    else{
+        ULL leastSignificantBitBoard = 1ULL << lsb;
+        cout << "least significant bit board:" << endl;
+        printBoard(leastSignificantBitBoard);
+        if (NEBlockers == leastSignificantBitBoard){
+            ULL rayWithRemoved = _bishop_square_attack_rays[square][NE];
+            int msb;
+            do{
+                msb = getIndexOfMostSignificantBit(rayWithRemoved);
+                cout << "popping " << _square_from_index[msb] << endl;
+                ULL msbComplement = ~(1ULL << msb);
+                rayWithRemoved = rayWithRemoved & msbComplement;
+            }while (msb > lsb);
+            NEMoves = rayWithRemoved | leastSignificantBitBoard;
+        }
+        else{
+            ULL unReachableSquares = NEBlockers ^ leastSignificantBitBoard;
+            cout << "unreachable squares:" << endl;
+            printBoard(unReachableSquares);
+            NEMoves = unReachableSquares ^ _bishop_square_attack_rays[square][NE];
+        }
+    }
+    cout << "north east moves:" << endl;
     printBoard(NEMoves);
 
 
