@@ -638,36 +638,36 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
     vector<int> pawnIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_pawns : state->_bit_board._black_pawns);
     vector<Move> pawnMoves;
     for (auto index: pawnIndices)
-        for (auto move: getBitBoardMovesForPawn(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves, enPassantSquare))
+        for (auto move: getBitBoardPseudoMovesForPawn(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves, enPassantSquare))
             pawnMoves.push_back(move);
 
     vector<int> knightIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_knights : state->_bit_board._black_knights);
     vector<Move> knightMoves;
     for (auto index: knightIndices)
-        for (auto move: getBitBoardMovesForKnight(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
+        for (auto move: getBitBoardPseudoMovesForKnight(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             knightMoves.push_back(move);
 
     int kingIndex = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_king : state->_bit_board._black_king)[0];
     vector<Move> kingMoves;
-    for (auto move: getBitBoardMovesForKing(kingIndex, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
+    for (auto move: getBitBoardPseudoMovesForKing(kingIndex, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
         kingMoves.push_back(move);
 
     vector<int> bishopIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_bishops : state->_bit_board._black_bishops);
     vector<Move> bishopMoves;
     for (auto index: bishopIndices)
-        for (auto move: getBitBoardMovesForBishop(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
+        for (auto move: getBitBoardPseudoMovesForBishop(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             bishopMoves.push_back(move);
 
     vector<int> rookIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_rooks : state->_bit_board._black_rooks);
     vector<Move> rookMoves;
     for (auto index: rookIndices)
-        for (auto move: getBitBoardMovesForRook(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
+        for (auto move: getBitBoardPseudoMovesForRook(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             rookMoves.push_back(move);
 
     vector<int> queenIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_queens : state->_bit_board._black_queens);
     vector<Move> queenMoves;
     for (auto index: queenIndices)
-        for (auto move: getBitBoardMovesForQueen(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
+        for (auto move: getBitBoardPseudoMovesForQueen(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             queenMoves.push_back(move);
 
 
@@ -680,19 +680,61 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
     allMoves.insert( allMoves.end(), bishopMoves.begin(), bishopMoves.end() );
     allMoves.insert( allMoves.end(), rookMoves.begin(), rookMoves.end() );
     allMoves.insert( allMoves.end(), queenMoves.begin(), queenMoves.end() );
+
+    //Remove all moves that caused self check:
+    vector<Move>::iterator iter = allMoves.begin();
+    while(iter != allMoves.end())
+        bitBoardMoveCausedSelfCheck(*iter, state->_bit_board) ? iter = allMoves.erase(iter) : iter++;
+
     return allMoves;
 }
 
 bool ChessRules::bitBoardMoveCausedSelfCheck(Move move, BitBoard board){
+    ULL destinationMask = _bit_masks[_index_from_square[move._destination_square]];
+    ULL originComplementMask = _bit_masks_complement[_index_from_square[move._origin_square]];
+    //TODO: castling, promotion and en passant
 
+    if (move._colour_performing_move == White){
+        if (move._piece._type == Pawn)
+            board._white_pawns = (board._white_pawns | destinationMask) & originComplementMask;
+        if (move._piece._type == Knight)
+            board._white_knights = (board._white_knights | destinationMask) & originComplementMask;
+        if (move._piece._type == Bishop)
+            board._white_bishops = (board._white_bishops | destinationMask) & originComplementMask;
+        if (move._piece._type == Rook)
+            board._white_rooks = (board._white_rooks | destinationMask) & originComplementMask;
+        if (move._piece._type == Queen)
+            board._white_queens = (board._white_queens | destinationMask) & originComplementMask;
+        if (move._piece._type == King)
+            board._white_king = (board._white_king | destinationMask) & originComplementMask;
+    }
+    else{
+        if (move._piece._type == Pawn)
+            board._black_pawns = (board._black_pawns | destinationMask) & originComplementMask;
+        if (move._piece._type == Knight)
+            board._black_knights = (board._black_knights | destinationMask) & originComplementMask;
+        if (move._piece._type == Bishop)
+            board._black_bishops = (board._black_bishops | destinationMask) & originComplementMask;
+        if (move._piece._type == Rook)
+            board._black_rooks = (board._black_rooks | destinationMask) & originComplementMask;
+        if (move._piece._type == Queen)
+            board._black_queens = (board._black_queens | destinationMask) & originComplementMask;
+        if (move._piece._type == King)
+            board._black_king = (board._black_king | destinationMask) & originComplementMask;
+    }
+    board._all_black_pieces = board._black_pawns | board._black_rooks | board._black_knights | board._black_bishops | board._black_queens | board._black_king;
+    board._all_white_pieces = board._white_pawns | board._white_rooks | board._white_knights | board._white_bishops | board._white_queens | board._white_king;
+    board._all_pieces = board._all_white_pieces | board._all_black_pieces;
+
+    return move._colour_performing_move == White ? bitBoardWhiteKingIsInCheck(board): bitBoardBlackKingIsInCheck(board);
 }
 
 bool ChessRules::bitBoardWhiteKingIsInCheck(BitBoard board){
-
+    return bitBoardSquareIsUnderAttack(getIndicesOfBitsInBoard(board._white_king).at(0), board, Black);
 }
 
 bool ChessRules::bitBoardBlackKingIsInCheck(BitBoard board){
-
+    return bitBoardSquareIsUnderAttack(getIndicesOfBitsInBoard(board._black_king).at(0), board, White);
 }
 
 void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingState, Move move){
@@ -790,10 +832,11 @@ bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour c
     vector<int> attackingBishops = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_bishops : board._black_bishops);
     vector<int> attackingRooks = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_rooks : board._black_rooks);
     vector<int> attackingQueens = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_queens : board._black_queens);
+    int attackingKing = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_king : board._black_king).at(0);
 
     for (auto piece: attackingQueens){
         ULL moves = getBitBoardOfPossibleAttacksForBishop(piece, board._all_pieces);
-        moves |= getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
+        moves |= getBitBoardOfPossibleAttacksForRook(piece, board._all_pieces);
         if (moves & superPiece) //The possible moves intersected with the square
             return true;
     }
@@ -803,7 +846,7 @@ bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour c
             return true;
     }
     for (auto piece: attackingRooks){
-        ULL moves = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
+        ULL moves = getBitBoardOfPossibleAttacksForRook(piece, board._all_pieces);
         if (moves & superPiece) //The possible moves intersected with the square
             return true;
     }
@@ -817,14 +860,13 @@ bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour c
         if (moves & superPiece) //The possible moves intersected with the square
             return true;
     }
-    ULL kingMoves = colourAttacking == White ? _king_move_set[board._white_king] : _king_move_set[board._black_king];
-    if (superPiece & kingMoves)
+    if (superPiece & _king_move_set[attackingKing]) //The possible moves intersected with the square
         return true;
 
     return false;
 }
 
-vector<Move> ChessRules::getBitBoardMovesForRook(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getBitBoardPseudoMovesForRook(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
     ULL possibleAttacks = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
@@ -840,9 +882,9 @@ vector<Move> ChessRules::getBitBoardMovesForRook(int index, BitBoard board, Colo
     return moveVector;
 }
 
-vector<Move> ChessRules::getBitBoardMovesForQueen(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
-    vector<Move> rookMoves = getBitBoardMovesForRook(index, board, colourToMove, numberOfMoves);
-    vector<Move> bishopMoves = getBitBoardMovesForBishop(index, board, colourToMove, numberOfMoves);
+vector<Move> ChessRules::getBitBoardPseudoMovesForQueen(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+    vector<Move> rookMoves = getBitBoardPseudoMovesForRook(index, board, colourToMove, numberOfMoves);
+    vector<Move> bishopMoves = getBitBoardPseudoMovesForBishop(index, board, colourToMove, numberOfMoves);
     vector<Move> queenMoves;
     queenMoves.reserve( rookMoves.size() + bishopMoves.size() );
     queenMoves.insert( queenMoves.end(), rookMoves.begin(), rookMoves.end() );
@@ -852,7 +894,7 @@ vector<Move> ChessRules::getBitBoardMovesForQueen(int index, BitBoard board, Col
     return queenMoves;
 }
 
-vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getBitBoardPseudoMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
     ULL possibleAttacks = _knight_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
@@ -868,37 +910,7 @@ vector<Move> ChessRules::getBitBoardMovesForKnight(int index, BitBoard board, Co
     return moveVector;
 }
 
-ULL ChessRules::getBitBoardOfPossibleAttacksForBishop(int index, ULL occupancy){
-    //Positive directions
-    int lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[index][NE] & occupancy);
-    ULL NEMoves = lsb == -1 ? _bishop_square_attack_rays[index][NE] : _bishop_square_attack_rays[index][NE] & _filled_up_to_masks[lsb];
-    lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[index][NW] & occupancy);
-    ULL NWMoves = lsb == -1 ? _bishop_square_attack_rays[index][NW] : _bishop_square_attack_rays[index][NW] & _filled_up_to_masks[lsb];
-
-    //Negative directions
-    int msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[index][SE] & occupancy);
-    ULL SEMoves = msb == 0 ? _bishop_square_attack_rays[index][SE] : _bishop_square_attack_rays[index][SE] & _filled_down_to_masks[msb];
-    msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[index][SW] & occupancy);
-    ULL SWMoves = msb == 0 ? _bishop_square_attack_rays[index][SW] : _bishop_square_attack_rays[index][SW] & _filled_down_to_masks[msb];
-    return NEMoves | NWMoves | SEMoves | SWMoves;
-}
-
-ULL ChessRules::getBitBoardOfPossibleAttacksForRook(int index, ULL occupancy){
-    //Positive directions
-    int lsb = getIndexOfLeastSignificantBit(_rook_square_attack_rays[index][N] & occupancy);
-    ULL NMoves = lsb == -1 ? _rook_square_attack_rays[index][N] : _rook_square_attack_rays[index][N] & _filled_up_to_masks[lsb];
-    lsb = getIndexOfLeastSignificantBit(_rook_square_attack_rays[index][E] & occupancy);
-    ULL EMoves = lsb == -1 ? _rook_square_attack_rays[index][E] : _rook_square_attack_rays[index][E] & _filled_up_to_masks[lsb];
-
-    //Negative directions
-    int msb = getIndexOfMostSignificantBit(_rook_square_attack_rays[index][S] & occupancy);
-    ULL SMoves = msb == 0 ? _rook_square_attack_rays[index][S] : _rook_square_attack_rays[index][S] & _filled_down_to_masks[msb];
-    msb = getIndexOfMostSignificantBit(_rook_square_attack_rays[index][W] & occupancy);
-    ULL WMoves = msb == 0 ? _rook_square_attack_rays[index][W] : _rook_square_attack_rays[index][W] & _filled_down_to_masks[msb];
-    return NMoves | EMoves | SMoves | WMoves;
-}
-
-vector<Move> ChessRules::getBitBoardMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getBitBoardPseudoMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
     ULL possibleAttacks = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
@@ -914,7 +926,7 @@ vector<Move> ChessRules::getBitBoardMovesForBishop(int index, BitBoard board, Co
     return moveVector;
 }
 
-vector<Move> ChessRules::getBitBoardMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare){
+vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare){
     ULL possiblePushes = colourToMove == White ? _white_pawn_move_set[index] : _black_pawn_move_set[index];
     ULL possibleCaptures = colourToMove == White ? _white_pawn_capture_set[index] : _black_pawn_capture_set[index]; //TODO: check if this is an error, should be capture_set?
     ULL pseudoLegalPushes = possiblePushes &~board._all_pieces;
@@ -962,7 +974,7 @@ vector<Move> ChessRules::getBitBoardMovesForPawn(int index, BitBoard board, Colo
     return moveVector;
 }
 
-vector<Move> ChessRules::getBitBoardMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getBitBoardPseudoMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
     ULL possibleAttacks = _king_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
@@ -976,6 +988,36 @@ vector<Move> ChessRules::getBitBoardMovesForKing(int index, BitBoard board, Colo
                                   numberOfMoves+1, moveType));
     }
     return moveVector;
+}
+
+ULL ChessRules::getBitBoardOfPossibleAttacksForBishop(int index, ULL occupancy){
+    //Positive directions
+    int lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[index][NE] & occupancy);
+    ULL NEMoves = lsb == -1 ? _bishop_square_attack_rays[index][NE] : _bishop_square_attack_rays[index][NE] & _filled_up_to_masks[lsb];
+    lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[index][NW] & occupancy);
+    ULL NWMoves = lsb == -1 ? _bishop_square_attack_rays[index][NW] : _bishop_square_attack_rays[index][NW] & _filled_up_to_masks[lsb];
+
+    //Negative directions
+    int msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[index][SE] & occupancy);
+    ULL SEMoves = msb == 0 ? _bishop_square_attack_rays[index][SE] : _bishop_square_attack_rays[index][SE] & _filled_down_to_masks[msb];
+    msb = getIndexOfMostSignificantBit(_bishop_square_attack_rays[index][SW] & occupancy);
+    ULL SWMoves = msb == 0 ? _bishop_square_attack_rays[index][SW] : _bishop_square_attack_rays[index][SW] & _filled_down_to_masks[msb];
+    return NEMoves | NWMoves | SEMoves | SWMoves;
+}
+
+ULL ChessRules::getBitBoardOfPossibleAttacksForRook(int index, ULL occupancy){
+    //Positive directions
+    int lsb = getIndexOfLeastSignificantBit(_rook_square_attack_rays[index][N] & occupancy);
+    ULL NMoves = lsb == -1 ? _rook_square_attack_rays[index][N] : _rook_square_attack_rays[index][N] & _filled_up_to_masks[lsb];
+    lsb = getIndexOfLeastSignificantBit(_rook_square_attack_rays[index][E] & occupancy);
+    ULL EMoves = lsb == -1 ? _rook_square_attack_rays[index][E] : _rook_square_attack_rays[index][E] & _filled_up_to_masks[lsb];
+
+    //Negative directions
+    int msb = getIndexOfMostSignificantBit(_rook_square_attack_rays[index][S] & occupancy);
+    ULL SMoves = msb == 0 ? _rook_square_attack_rays[index][S] : _rook_square_attack_rays[index][S] & _filled_down_to_masks[msb];
+    msb = getIndexOfMostSignificantBit(_rook_square_attack_rays[index][W] & occupancy);
+    ULL WMoves = msb == 0 ? _rook_square_attack_rays[index][W] : _rook_square_attack_rays[index][W] & _filled_down_to_masks[msb];
+    return NMoves | EMoves | SMoves | WMoves;
 }
 
 vector<Move> ChessRules::getMovesForQueen(vector<vector<Piece*>> board, Colour colourToMove, int row, int col, int previousMoveNumber, PieceType type){

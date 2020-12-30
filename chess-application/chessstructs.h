@@ -14,7 +14,7 @@ using namespace std;
 
 enum Colour{White, Black};
 
-enum PieceType{Pawn, Rook, Knight, Bishop, Queen, King};
+enum PieceType{Pawn, Rook, Knight, Bishop, Queen, King, NoPiece};
 
 enum MoveType{Standard, Capture, LongCastle, ShortCastle, EnPassant, Promotion, PromotionCapture};
 
