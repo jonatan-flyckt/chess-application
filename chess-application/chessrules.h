@@ -47,13 +47,18 @@ public:
 
     vector<Move> getLegalBitBoardMoves(State *state);
     void updateBitBoardWithMove(State *currentState, State *resultingState, Move move);
-    bool bitBoardSquareIsUnderAttack(int index, Colour colourAttacking);
+    bool bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour colourAttacking);
     vector<Move> getBitBoardMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
     vector<Move> getBitBoardMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare);
     vector<Move> getBitBoardMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
     vector<Move> getBitBoardMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
     vector<Move> getBitBoardMovesForRook(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
     vector<Move> getBitBoardMovesForQueen(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
+    bool bitBoardMoveCausedSelfCheck(Move move, BitBoard board);
+    bool bitBoardWhiteKingIsInCheck(BitBoard board);
+    bool bitBoardBlackKingIsInCheck(BitBoard board);
+    ULL getBitBoardPossibleAttacksForBishop(int index, BitBoard board);
+    ULL getBitBoardPossibleAttacksForRook(int index, BitBoard board);
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};
