@@ -670,16 +670,17 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
         for (auto move: getBitBoardPseudoMovesForQueen(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             queenMoves.push_back(move);
 
-
+    vector<Move> castlingMoves = getBitBoardCastlingMoves(state->_bit_board, state->_castling_info, state->_colour_to_move, state->_number_of_moves);
 
     vector<Move> allMoves;
-    allMoves.reserve( knightMoves.size() + pawnMoves.size() + kingMoves.size() + bishopMoves.size() + rookMoves.size() + queenMoves.size());
+    allMoves.reserve( knightMoves.size() + pawnMoves.size() + kingMoves.size() + bishopMoves.size() + rookMoves.size() + queenMoves.size() + castlingMoves.size());
     allMoves.insert( allMoves.end(), knightMoves.begin(), knightMoves.end() );
     allMoves.insert( allMoves.end(), pawnMoves.begin(), pawnMoves.end() );
     allMoves.insert( allMoves.end(), kingMoves.begin(), kingMoves.end() );
     allMoves.insert( allMoves.end(), bishopMoves.begin(), bishopMoves.end() );
     allMoves.insert( allMoves.end(), rookMoves.begin(), rookMoves.end() );
     allMoves.insert( allMoves.end(), queenMoves.begin(), queenMoves.end() );
+    allMoves.insert( allMoves.end(), castlingMoves.begin(), castlingMoves.end() );
 
     //Remove all moves that caused self check:
     vector<Move>::iterator iter = allMoves.begin();
@@ -870,8 +871,6 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForRook(int index, BitBoard board
     ULL possibleAttacks = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
-    //TODO: remove moves that cause check
-
     vector<Move> moveVector;
 
     for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
@@ -898,8 +897,6 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForKnight(int index, BitBoard boa
     ULL possibleAttacks = _knight_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
-    //TODO: remove moves that cause check
-
     vector<Move> moveVector;
 
     for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
@@ -913,8 +910,6 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForKnight(int index, BitBoard boa
 vector<Move> ChessRules::getBitBoardPseudoMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
     ULL possibleAttacks = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
-
-    //TODO: remove moves that cause check
 
     vector<Move> moveVector;
 
@@ -978,7 +973,6 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForKing(int index, BitBoard board
     ULL possibleAttacks = _king_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
-    //TODO: remove moves that cause check
     //TODO: castling
 
     vector<Move> moveVector;
@@ -986,6 +980,52 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForKing(int index, BitBoard board
         MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
         moveVector.push_back(Move(colourToMove, Piece(colourToMove, King), _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, moveType));
+    }
+
+    return moveVector;
+}
+
+vector<Move> ChessRules::getBitBoardCastlingMoves(BitBoard board, CastlingInfo castlingInfo, Colour colourToMove, int numberOfMoves){
+    vector<Move> moveVector;
+    if (colourToMove == White){
+        if (!castlingInfo._white_castled && !castlingInfo._white_king_has_moved){
+            if (!castlingInfo._white_short_rook_has_moved){
+                bool threat = bitBoardSquareIsUnderAttack(_index_from_square["e1"], board, Black);
+                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["f1"], board, Black);
+                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["g1"], board, Black);
+                bool blockedPath = board._all_pieces & (_bit_masks[_index_from_square["f1"]] | _bit_masks[_index_from_square["g1"]]);
+                if (!threat && !blockedPath)
+                    moveVector.push_back(Move(colourToMove, Piece(White, King), "e1", "g1", numberOfMoves+1, ShortCastle));
+            }
+            if (!castlingInfo._white_long_rook_has_moved){
+                bool threat = bitBoardSquareIsUnderAttack(_index_from_square["e1"], board, Black);
+                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["d1"], board, Black);
+                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["c1"], board, Black);
+                bool blockedPath = board._all_pieces & (_bit_masks[_index_from_square["d1"]] | _bit_masks[_index_from_square["c1"]] | _bit_masks[_index_from_square["b1"]]);
+                if (!threat && !blockedPath)
+                    moveVector.push_back(Move(colourToMove, Piece(White, King), "e1", "c1", numberOfMoves+1, LongCastle));
+            }
+        }
+    }
+    else{
+        if (!castlingInfo._black_castled && !castlingInfo._black_king_has_moved){
+            if (!castlingInfo._black_short_rook_has_moved){
+                bool threat = bitBoardSquareIsUnderAttack(_index_from_square["e8"], board, White);
+                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["f8"], board, White);
+                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["g8"], board, White);
+                bool blockedPath = board._all_pieces & (_bit_masks[_index_from_square["f8"]] | _bit_masks[_index_from_square["g8"]]);
+                if (!threat && !blockedPath)
+                    moveVector.push_back(Move(colourToMove, Piece(Black, King), "e8", "g8", numberOfMoves+1, ShortCastle));
+            }
+            if (!castlingInfo._black_long_rook_has_moved){
+                bool threat = bitBoardSquareIsUnderAttack(_index_from_square["e8"], board, White);
+                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["d8"], board, White);
+                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["c8"], board, White);
+                bool blockedPath = board._all_pieces & (_bit_masks[_index_from_square["d8"]] | _bit_masks[_index_from_square["c8"]] | _bit_masks[_index_from_square["b8"]]);
+                if (!threat && !blockedPath)
+                    moveVector.push_back(Move(colourToMove, Piece(Black, King), "e8", "c8", numberOfMoves+1, LongCastle));
+            }
+        }
     }
     return moveVector;
 }
