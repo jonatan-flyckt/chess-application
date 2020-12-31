@@ -213,6 +213,8 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
 }
 
 void ChessRules::updateCastlingInfo(Move move, State *state){
+
+    //TODO: update rook moved if rook was taken.
     if (move._piece._type == Rook){
         if (move._piece._colour == White){
             if (move._origin_square == "a1")
@@ -991,16 +993,16 @@ vector<Move> ChessRules::getBitBoardCastlingMoves(BitBoard board, CastlingInfo c
         if (!castlingInfo._white_castled && !castlingInfo._white_king_has_moved){
             if (!castlingInfo._white_short_rook_has_moved){
                 bool threat = bitBoardSquareIsUnderAttack(_index_from_square["e1"], board, Black);
-                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["f1"], board, Black);
-                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["g1"], board, Black);
+                threat = threat || bitBoardSquareIsUnderAttack(_index_from_square["f1"], board, Black);
+                threat = threat || bitBoardSquareIsUnderAttack(_index_from_square["g1"], board, Black);
                 bool blockedPath = board._all_pieces & (_bit_masks[_index_from_square["f1"]] | _bit_masks[_index_from_square["g1"]]);
                 if (!threat && !blockedPath)
                     moveVector.push_back(Move(colourToMove, Piece(White, King), "e1", "g1", numberOfMoves+1, ShortCastle));
             }
             if (!castlingInfo._white_long_rook_has_moved){
                 bool threat = bitBoardSquareIsUnderAttack(_index_from_square["e1"], board, Black);
-                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["d1"], board, Black);
-                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["c1"], board, Black);
+                threat = threat || bitBoardSquareIsUnderAttack(_index_from_square["d1"], board, Black);
+                threat = threat || bitBoardSquareIsUnderAttack(_index_from_square["c1"], board, Black);
                 bool blockedPath = board._all_pieces & (_bit_masks[_index_from_square["d1"]] | _bit_masks[_index_from_square["c1"]] | _bit_masks[_index_from_square["b1"]]);
                 if (!threat && !blockedPath)
                     moveVector.push_back(Move(colourToMove, Piece(White, King), "e1", "c1", numberOfMoves+1, LongCastle));
@@ -1011,22 +1013,23 @@ vector<Move> ChessRules::getBitBoardCastlingMoves(BitBoard board, CastlingInfo c
         if (!castlingInfo._black_castled && !castlingInfo._black_king_has_moved){
             if (!castlingInfo._black_short_rook_has_moved){
                 bool threat = bitBoardSquareIsUnderAttack(_index_from_square["e8"], board, White);
-                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["f8"], board, White);
-                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["g8"], board, White);
+                threat = threat || bitBoardSquareIsUnderAttack(_index_from_square["f8"], board, White);
+                threat = threat || bitBoardSquareIsUnderAttack(_index_from_square["g8"], board, White);
                 bool blockedPath = board._all_pieces & (_bit_masks[_index_from_square["f8"]] | _bit_masks[_index_from_square["g8"]]);
                 if (!threat && !blockedPath)
                     moveVector.push_back(Move(colourToMove, Piece(Black, King), "e8", "g8", numberOfMoves+1, ShortCastle));
             }
             if (!castlingInfo._black_long_rook_has_moved){
                 bool threat = bitBoardSquareIsUnderAttack(_index_from_square["e8"], board, White);
-                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["d8"], board, White);
-                threat = threat && bitBoardSquareIsUnderAttack(_index_from_square["c8"], board, White);
+                threat = threat || bitBoardSquareIsUnderAttack(_index_from_square["d8"], board, White);
+                threat = threat || bitBoardSquareIsUnderAttack(_index_from_square["c8"], board, White);
                 bool blockedPath = board._all_pieces & (_bit_masks[_index_from_square["d8"]] | _bit_masks[_index_from_square["c8"]] | _bit_masks[_index_from_square["b8"]]);
                 if (!threat && !blockedPath)
                     moveVector.push_back(Move(colourToMove, Piece(Black, King), "e8", "c8", numberOfMoves+1, LongCastle));
             }
         }
     }
+    int a = 1;
     return moveVector;
 }
 
