@@ -99,6 +99,8 @@ struct BitBoard{
     ULL _all_white_pieces;
     ULL _all_black_pieces;
     ULL _all_pieces;
+
+    ULL _en_passant_square;
 };
 
 struct State{
