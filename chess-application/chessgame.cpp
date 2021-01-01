@@ -68,7 +68,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     _current_state->_move_to_state._algebraic_notation = algebraicNotationForMove(_current_state);
     updatePGN();
 
-    qDebug() << QString::fromStdString(_portable_game_notation);
+    //qDebug() << QString::fromStdString(_portable_game_notation);
     return true;
 }
 
@@ -280,8 +280,8 @@ string ChessGame::algebraicNotationForMove(State *state){
         if (previousState->_board.at(i).at(j)->_type == move._piece._type && legalMove._destination_square == move._destination_square)
             possibleOriginSquares.push_back(legalMove._origin_square);
     }
-    for (auto p: possibleOriginSquares)
-        qDebug() << QString::fromStdString(p);
+    //for (auto p: possibleOriginSquares)
+    //    qDebug() << QString::fromStdString(p);
     if (possibleOriginSquares.size() > 1 && move._move_type != EnPassant){ //Need to indicate which piece made the move
         char file = move._origin_square[0];
         bool multipleOnSameFile = false;

@@ -660,14 +660,14 @@ void MainWindow::startClickingMove(QString originSquare){
             (_game->getCurrent_state()->_colour_to_move == Black && denotation == "black")){
         highlightCurrentMovingFromSquare(originSquare);
     }
-    qDebug() << "started clicking move from: " + originSquare;
+    //qDebug() << "started clicking move from: " + originSquare;
 }
 
 void MainWindow::completeClickingMove(QString destinationSquare){
     removeLegalSquaresHighlight();
     removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
     if (!_legal_destination_squares_for_origin_square.contains(destinationSquare)){
-        qDebug() << "move was not legal";
+        //qDebug() << "move was not legal";
         _clicking_move_in_progress = false;
         highlightPreviousMove(_game->getCurrent_state());
         if (_game->getCurrent_state()->_white_king_is_in_check || _game->getCurrent_state()->_black_king_is_in_check)
@@ -682,7 +682,7 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     _legal_destination_squares_for_origin_square.clear();
     _clicking_move_in_progress = false;
     _move_in_progress_origin_square = "";
-    qDebug() << "completed clicking move to: " + destinationSquare;
+    //qDebug() << "completed clicking move to: " + destinationSquare;
 
     _time_to_update_board = true;
 
@@ -703,7 +703,7 @@ void MainWindow::performEngineMove(Move move){
 }
 
 bool MainWindow::completeMove(Move attemptedMove){
-    qDebug() << "in complete move func";
+    //qDebug() << "in complete move func";
 
     _info_label->setText("");
     Move moveMade;
@@ -767,7 +767,7 @@ bool MainWindow::completeMove(Move attemptedMove){
     else
         _player_moved_against_engine = false;
 
-    qDebug() << "material evaluation: " << _engine->simpleMaterialEvaluation(_game->getCurrent_state());
+    //qDebug() << "material evaluation: " << _engine->simpleMaterialEvaluation(_game->getCurrent_state());
 
     return true;
 }
@@ -824,7 +824,7 @@ void MainWindow::contactPopup(){
 }
 
 void MainWindow::checkIfPlayerMadeMove(){
-    qDebug() << "checking if player made move";
+    //qDebug() << "checking if player made move";
     if (_player_moved_against_engine){
         _player_moved_against_engine = false;
         getEngineMove();
@@ -934,7 +934,7 @@ void MainWindow::startDraggingMove(QString originSquare){
     }
     _piece_widget_of_moved_from_square = pieceToMove;
 
-    qDebug() << "started dragging move from: " + originSquare;
+    //qDebug() << "started dragging move from: " + originSquare;
 }
 
 void MainWindow::setDraggingMoveReadyToComplete(){
@@ -946,7 +946,7 @@ void MainWindow::completeDraggingMove(){
     removeLegalSquaresHighlight();
     removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
     if (!_legal_destination_squares_for_origin_square.contains(_currently_hovered_square)){
-        qDebug() << "move was not legal";
+        //qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
         removePieceGraphically(_piece_widget_currently_dragged);
         _piece_widget_currently_dragged = nullptr;
@@ -957,7 +957,7 @@ void MainWindow::completeDraggingMove(){
     attemptedMove._origin_square = _move_in_progress_origin_square.toStdString();
     attemptedMove._destination_square = _currently_hovered_square.toStdString();
     if (!completeMove(attemptedMove)){
-        qDebug() << "move was not legal";
+        //qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
         removePieceGraphically(_piece_widget_currently_dragged);
         _piece_widget_currently_dragged = nullptr;
@@ -968,7 +968,7 @@ void MainWindow::completeDraggingMove(){
     _dragging_move_in_progress = false;
     removePieceGraphically(_piece_widget_currently_dragged);
     _piece_widget_currently_dragged = nullptr;
-    qDebug() << "completed dragging move to: " + _currently_hovered_square;
+    //qDebug() << "completed dragging move to: " + _currently_hovered_square;
     _time_to_update_board = true;
 }
 

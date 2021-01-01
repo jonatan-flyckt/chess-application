@@ -241,8 +241,6 @@ ULL *BitBoardUtils::generateFilledDownToMasks(){
     ULL* maskArray = (ULL*)malloc(64 * sizeof (ULL));
     for (int square = 0; square < 64; square++){
         ULL mask = 0ULL;
-        cout << square << endl;
-        //printBoard((1ULL << square));
         for (int i = 64; i >= square; i--){
             ULL maskAddition = 1ULL << i;
             mask = mask | maskAddition;
