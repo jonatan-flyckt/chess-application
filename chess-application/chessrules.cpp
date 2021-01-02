@@ -2,6 +2,7 @@
 
 ChessRules::ChessRules(){
     _accumulated_test_time = 0;
+    _hasher = ZobristHasher();
 }
 
 vector<Move> ChessRules::getLegalMoves(State *state, PieceType promotionPiece, bool checkIfCheck){
@@ -816,7 +817,6 @@ bool ChessRules::bitBoardBlackKingIsInCheck(BitBoard board){
 }
 
 void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingState, Move move){
-    //TODO: update when move receives indices as default
     resultingState->_bit_board = currentState->_bit_board;
     int originIndex = _index_from_square[move._origin_square];
     int destinationIndex = _index_from_square[move._destination_square];
@@ -824,7 +824,6 @@ void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingSta
     ULL destinationMask = _bit_masks[destinationIndex];
     ULL destinationComplement = _bit_masks_complement[destinationIndex];
     if (move._piece._colour == White){
-        //TODO: special moves
         if (move._move_type == EnPassant){
             resultingState->_bit_board._black_pawns &= ~currentState->_bit_board._en_passant_square;
             resultingState->_bit_board._white_pawns = (currentState->_bit_board._white_pawns & originComplement) | destinationMask;

@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "bitboardutils.h"
 #include <QElapsedTimer>
+#include "zobristhasher.h"
 
 class ChessRules: public BitBoardUtils
 {
@@ -60,6 +61,9 @@ public:
     ULL getBitBoardOfPossibleAttacksForBishop(int index, ULL occupancy);
     ULL getBitBoardOfPossibleAttacksForRook(int index, ULL occupancy);
     vector<Move> getBitBoardCastlingMoves(BitBoard board, CastlingInfo castlingInfo, Colour colourToMove, int numberOfMoves);
+
+    ZobristHasher _hasher;
+
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};

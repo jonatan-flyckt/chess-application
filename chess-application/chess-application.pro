@@ -33,7 +33,8 @@ SOURCES += \
     notationwidget.cpp \
     piecewidget.cpp \
     squarewidget.cpp \
-    utils.cpp
+    utils.cpp \
+    zobristhasher.cpp
 
 HEADERS += \
     aboutpopup.h \
@@ -53,7 +54,8 @@ HEADERS += \
     notationwidget.h \
     piecewidget.h \
     squarewidget.h \
-    utils.h
+    utils.h \
+    zobristhasher.h
 
 FORMS += \
     aboutpopup.ui \
