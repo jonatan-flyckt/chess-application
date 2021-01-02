@@ -11,7 +11,6 @@ ZobristHasher::ZobristHasher(){
 
     for (int i = 0; i < 64; i++)
         cout << _piece_numbers[Piece(Black, Pawn)].at(i) << endl;
-    int hej = 1;
 }
 
 ULL ZobristHasher::generateHashForPosition(BitBoard board, CastlingInfo castlingInfo, Colour turnToMove, ULL enPassantSquare){
@@ -19,16 +18,13 @@ ULL ZobristHasher::generateHashForPosition(BitBoard board, CastlingInfo castling
 }
 
 ULL ZobristHasher::generateRandomNumber(){
-
-    std::mt19937_64 gen (std::random_device{}());
-
-    std::uint64_t randomNumber = gen();
-    cout << randomNumber << endl;
-
+    ULL r = 0;
     std::mt19937_64 generator(RANDOM_SEED + _current_random_index);
     _current_random_index++;
     std::uniform_int_distribution<ULL> distribution(RAND_MIN, RAND_MAX);
-    return distribution(generator);
+    for (int i = 0; i < 5; ++i)
+        r = (r << 15) | (distribution(generator) & 0x7FFF);
+    return r & 0xFFFFFFFFFFFFFFFFULL;
 }
 
 map<Piece, vector<ULL> > ZobristHasher::generateRandomNumbersForPieces(){
