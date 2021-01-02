@@ -17,10 +17,10 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     updatePGN();
     _current_state->_state_seen_count = new map<string, int>();
     _current_state->_bit_board_state_seen_count = new map<ULL, int>();
-    _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state, Queen);
+    _current_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(_current_state);
     updatePGN();
 
-    _rules.runPERFTTest(_current_state, 3);
+    //_rules.runPERFTTest(_current_state, 3);
 }
 
 ChessGame::~ChessGame(){
@@ -60,6 +60,13 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     moveToMake._promotion_selection = _piece_selected_from_promotion;
 
     State *resultingState = _rules.getResultingStateFromMove(_current_state, moveToMake);
+    //TODO: test code below more
+    if (_rules.bitBoardNumberOfTimesThisStateSeen(resultingState->_position_hash, resultingState->_bit_board_state_seen_count) >= 3){
+        resultingState->_is_game_over = true;
+        resultingState->_is_draw = true;
+        resultingState->_game_over_reason = "Threefold repetition";
+    }
+    updateBoardForGraphics(_current_state, resultingState, moveToMake);
     _is_draw = resultingState->_is_draw;
     _white_won = resultingState->_white_won;
     _black_won = resultingState->_black_won;
@@ -71,8 +78,154 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     _current_state->_move_to_state._algebraic_notation = algebraicNotationForMove(_current_state);
     updatePGN();
 
-    //qDebug() << QString::fromStdString(_portable_game_notation);
     return true;
+}
+
+void ChessGame::updateBoardForGraphics(State *currentState, State *resultingState, Move moveToMake){
+    int rowFrom = IndicesFromSquareID(moveToMake._origin_square).first;
+    int colFrom = IndicesFromSquareID(moveToMake._origin_square).second;
+    int rowTo = IndicesFromSquareID(moveToMake._destination_square).first;
+    int colTo = IndicesFromSquareID(moveToMake._destination_square).second;
+    Piece pieceToMove = moveToMake._piece;
+    for (int i = 0; i < currentState->_board_for_graphics.size(); i++){
+        for (int j = 0; j < currentState->_board_for_graphics.at(i).size(); j++){
+            resultingState->_board_for_graphics.at(i).at(j) = currentState->_board_for_graphics.at(i).at(j);
+        }
+    }
+    resultingState->_board_for_graphics.at(rowFrom).at(colFrom) = nullptr;
+    resultingState->_board_for_graphics.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, pieceToMove._type);
+    if (moveToMake._move_type == LongCastle || moveToMake._move_type == ShortCastle)
+        performCastlingMoveForGraphicBoard(moveToMake, resultingState);
+    if (moveToMake._move_type == Promotion || moveToMake._move_type == PromotionCapture)
+        resultingState->_board_for_graphics.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, moveToMake._promotion_selection);
+    if (moveToMake._move_type == EnPassant)
+        performEnPassantMoveForGraphicBoard(moveToMake, resultingState);
+    if (currentState->_white_king_is_in_check || currentState->_black_king_is_in_check){
+        if (currentState->_white_king_is_in_check)
+            currentState->_square_under_check = _square_from_index[getIndicesOfBitsInBoard(currentState->_bit_board._white_king).at(0)];
+        else
+            currentState->_square_under_check = _square_from_index[getIndicesOfBitsInBoard(currentState->_bit_board._black_king).at(0)];
+    }
+    else
+        currentState->_square_under_check = "";
+    setFenForState(currentState);
+}
+
+void ChessGame::performCastlingMoveForGraphicBoard(Move move, State *state){
+    if (move._move_type == LongCastle){
+        if (move._colour_performing_move == White){
+            state->_board_for_graphics.at(0).at(0) = nullptr;
+            state->_board_for_graphics.at(0).at(4) = nullptr;
+            state->_board_for_graphics.at(0).at(2) = new Piece(White, King);
+            state->_board_for_graphics.at(0).at(3) = new Piece(White, Rook);
+        }
+        else{
+            state->_board_for_graphics.at(7).at(0) = nullptr;
+            state->_board_for_graphics.at(7).at(4) = nullptr;
+            state->_board_for_graphics.at(7).at(2) = new Piece(Black, King);
+            state->_board_for_graphics.at(7).at(3) = new Piece(Black, Rook);
+        }
+    }
+    if (move._move_type == ShortCastle){
+        if (move._colour_performing_move == White){
+            state->_board_for_graphics.at(0).at(7) = nullptr;
+            state->_board_for_graphics.at(0).at(4) = nullptr;
+            state->_board_for_graphics.at(0).at(6) = new Piece(White, King);
+            state->_board_for_graphics.at(0).at(5) = new Piece(White, Rook);
+        }
+        else{
+            state->_board_for_graphics.at(7).at(7) = nullptr;
+            state->_board_for_graphics.at(7).at(4) = nullptr;
+            state->_board_for_graphics.at(7).at(6) = new Piece(Black, King);
+            state->_board_for_graphics.at(7).at(5) = new Piece(Black, Rook);
+        }
+    }
+}
+
+void ChessGame::performEnPassantMoveForGraphicBoard(Move move, State *state){
+    int rowFrom = IndicesFromSquareID(move._origin_square).first;
+    int colTo = IndicesFromSquareID(move._destination_square).second;
+    state->_board_for_graphics.at(rowFrom).at(colTo) = nullptr;
+}
+
+void ChessGame::setFenForState(State *state){
+    string fenBuilder = "";
+    for (int i = state->_board_for_graphics.size()-1; i >= 0; i--){
+        int emptySquareCounter = 0;
+        bool pieceFoundOnLastSquare = false;
+        for (int j = 0; j < state->_board_for_graphics.size(); j++){
+            if (state->_board_for_graphics.at(i).at(j) == nullptr){
+                emptySquareCounter++;
+            }
+            else{
+                if (j == 7)
+                   pieceFoundOnLastSquare = true;
+                if (emptySquareCounter > 0){
+                    fenBuilder += to_string(emptySquareCounter);
+                }
+                emptySquareCounter = 0;
+                if (state->_board_for_graphics.at(i).at(j)->_type == Pawn)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'P' : 'p');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == Rook)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'R' : 'r');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == Bishop)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'B' : 'b');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == Knight)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'N' : 'n');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == Queen)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'Q' : 'q');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == King)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'K' : 'k');
+            }
+        }
+        if (!pieceFoundOnLastSquare)
+            fenBuilder += to_string(emptySquareCounter);
+        if (i > 0)
+            fenBuilder.push_back('/');
+    }
+    fenBuilder.push_back(' ');
+    fenBuilder.push_back(state->_colour_to_move == White ? 'w' : 'b');
+    fenBuilder.push_back(' ');
+    if ((state->_castling_info._white_castled || state->_castling_info._white_king_has_moved) &&
+            (state->_castling_info._black_castled || state->_castling_info._black_king_has_moved)){
+        fenBuilder.push_back('-');
+    }
+    else{
+        if (!state->_castling_info._white_king_has_moved && !state->_castling_info._white_short_rook_has_moved)
+            fenBuilder.push_back('K');
+        if (!state->_castling_info._white_king_has_moved && !state->_castling_info._white_long_rook_has_moved)
+            fenBuilder.push_back('Q');
+        if (!state->_castling_info._black_king_has_moved && !state->_castling_info._black_short_rook_has_moved)
+            fenBuilder.push_back('k');
+        if (!state->_castling_info._black_king_has_moved && !state->_castling_info._black_long_rook_has_moved)
+            fenBuilder.push_back('q');
+    }
+    fenBuilder.push_back(' ');
+    for (auto strChar: enPassantTargetSquareForFEN(state->_move_to_state))
+        fenBuilder.push_back(strChar);
+    fenBuilder.push_back(' ');
+    fenBuilder += to_string(state->_moves_without_capture_or_pawn_advancement);
+    fenBuilder.push_back(' ');
+    fenBuilder += to_string(int((state->_number_of_moves+2) / 2));
+    state->_fen_notation = fenBuilder;
+}
+
+string ChessGame::enPassantTargetSquareForFEN(Move move){
+    if (move._piece._type != Pawn)
+        return "-";
+    int rowFrom = IndicesFromSquareID(move._origin_square).first;
+    int colFrom = IndicesFromSquareID(move._origin_square).second;
+    int rowTo = IndicesFromSquareID(move._destination_square).first;
+    int colTo = IndicesFromSquareID(move._destination_square).second;
+
+    if (abs(rowFrom - rowTo) < 2)
+        return "-";
+    else{
+        if (move._colour_performing_move == White)
+            return squareIDFromIndices(rowTo-1, colTo);
+        else
+            return squareIDFromIndices(rowTo+1, colTo);
+    }
 }
 
 State *ChessGame::getCurrent_state() const{
@@ -102,12 +255,12 @@ State* ChessGame::gameStartingState(){
     startingState->_number_of_moves = 0;
     startingState->_previous_state = nullptr;
     startingState->_moves_without_capture_or_pawn_advancement = 0;
-    initiatePieces(startingState);
+    initiatePiecesForGraphicBoard(startingState);
     initiateBitBoard(startingState);
 
     vector<Move> moves = _rules.getLegalBitBoardMoves(startingState);
 
-    _rules.setFenForState(startingState);
+    setFenForState(startingState);
     return startingState;
 }
 
@@ -133,13 +286,9 @@ void ChessGame::initiateBitBoard(State *startingState){
             startingState->_bit_board._black_rooks | startingState->_bit_board._black_bishops |startingState->_bit_board._black_knights |
             startingState->_bit_board._black_king |startingState->_bit_board._black_queens;
     startingState->_bit_board._all_pieces = startingState->_bit_board._all_white_pieces | startingState->_bit_board._all_black_pieces;
-
-    //printBoard(startingState->_bit_board._all_white_pieces);
-    //printBoard(startingState->_bit_board._all_black_pieces);
-    //printBoard(startingState->_bit_board._all_pieces);
 }
 
-void ChessGame::initiatePieces(State *startingState){
+void ChessGame::initiatePiecesForGraphicBoard(State *startingState){
     for (int i = 0; i < startingState->_board_for_graphics.at(1).size(); i++)
         startingState->_board_for_graphics.at(1).at(i) = new Piece(White, Pawn);
     startingState->_board_for_graphics.at(0).at(0) = new Piece(White, Rook);
@@ -283,8 +432,7 @@ string ChessGame::algebraicNotationForMove(State *state){
         if (previousState->_board_for_graphics.at(i).at(j)->_type == move._piece._type && legalMove._destination_square == move._destination_square)
             possibleOriginSquares.push_back(legalMove._origin_square);
     }
-    //for (auto p: possibleOriginSquares)
-    //    qDebug() << QString::fromStdString(p);
+
     if (possibleOriginSquares.size() > 1 && move._move_type != EnPassant){ //Need to indicate which piece made the move
         char file = move._origin_square[0];
         bool multipleOnSameFile = false;

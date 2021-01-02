@@ -1,7 +1,7 @@
 #ifndef CHESSENGINE_H
 #define CHESSENGINE_H
 
-#define MAX_DEPTH 1
+#define MAX_DEPTH 3
 #define INFINITY_POS 1000000000
 #define INFINITY_NEG -1000000000
 
@@ -13,6 +13,7 @@
 #include <utility>
 #include <QElapsedTimer>
 #include <QDebug>
+#include "bitboardutils.h"
 
 using namespace std;
 
@@ -42,6 +43,7 @@ public:
 
     Move miniMax(State *state, Colour engineColour);
     pair<Move, float> alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, int depth, float alpha, float beta, bool maximisingPlayer);
+    int countBitsInBoard(ULL board);
 private:
 
     ChessRules _rules;
@@ -60,10 +62,6 @@ private:
 
     float _accumulated_alpha_beta_time;
 
-    int _perft_one;
-    int _perft_two;
-    int _perft_three;
-    int _perft_four;
 };
 
 #endif // CHESSENGINE_H

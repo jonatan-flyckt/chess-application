@@ -11,8 +11,8 @@ ChessEngine::~ChessEngine(){
 
 Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
     addAllPromotionSelections(state);
-    //return miniMax(state, engineColour);
-    return makeRandomMove(state);
+    return miniMax(state, engineColour);
+    //return makeRandomMove(state);
 }
 
 Move ChessEngine::miniMax(State *state, Colour engineColour){
@@ -33,19 +33,12 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     _accumulated_alpha_beta_time = 0;
     _rules._accumulated_test_time = 0;
 
-
-    _perft_one = 0;
-    _perft_two = 0;
-    _perft_three = 0;
-    _perft_four = 0;
-
     pair<Move, float> bestMoveEvalPair = alphaBeta(tree, startingNode, startingNode->_depth_of_node, INFINITY_NEG, INFINITY_POS, engineColour == White);
 
     qDebug() << "Move generation time:" << _accumulated_move_generation_time;
     qDebug() << "Heuristic evaluation time:" << _accumulated_heuristic_evaluation_time;
     qDebug() << "Alpha-Beta time:" << _accumulated_alpha_beta_time;
     qDebug() << "Test timer:" << _rules._accumulated_test_time;
-    qDebug() << "PERFT: " << _perft_one << " " << _perft_two << " " << _perft_three << " " << _perft_four;
 
     startingNode->_move_eval_pair.second = bestMoveEvalPair.second;
     tree->_best_move = bestMoveEvalPair.first;
@@ -64,15 +57,7 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
         _accumulated_heuristic_evaluation_time += _heuristic_evaluation_timer.elapsed();
     }
     _move_generation_timer.start();
-    node->_state->_legal_moves_from_state = _rules.getLegalMoves(node->_state);
-    if (depth == 0)
-        _perft_one += node->_state->_legal_moves_from_state.size();
-    else if (depth == 1)
-        _perft_two += node->_state->_legal_moves_from_state.size();
-    else if (depth == 2)
-        _perft_three += node->_state->_legal_moves_from_state.size();
-    else if (depth == 3)
-        _perft_four += node->_state->_legal_moves_from_state.size();
+    node->_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(node->_state);
 
     //TODO: move ordering
     for (auto legalMove: node->_state->_legal_moves_from_state){
@@ -97,8 +82,8 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
             }
             alpha = max(alpha, bestEval);
             //Prune tree if possible:
-            //if (alpha >= beta)
-            //    break;
+            if (alpha >= beta)
+                break;
         }
         _accumulated_alpha_beta_time += _alpha_beta_timer.elapsed();
         return pair<Move, float>(bestMove, bestEval);
@@ -116,8 +101,8 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
             }
             beta = min(beta, bestEval);
             //Prune tree if possible:
-            //if (beta <= alpha)
-            //    break;
+            if (beta <= alpha)
+                break;
         }
         _accumulated_alpha_beta_time += _alpha_beta_timer.elapsed();
         return pair<Move, float>(bestMove, bestEval);
@@ -138,51 +123,25 @@ float ChessEngine::simpleMaterialEvaluation(State *state){
     int whiteVal = 0;
     int blackVal = 0;
 
-    for (int i = 0; i < state->_board_for_graphics.size(); i++){
-        for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
-            Piece *piece = state->_board_for_graphics.at(i).at(j);
-            if (piece != nullptr){
-                if (piece->_type == Queen){
-                    if (piece->_colour == White)
-                        whiteVal += 9;
-                    else
-                        blackVal += 9;
-                }
-                else if (piece->_type == Queen){
-                    if (piece->_colour == White)
-                        whiteVal += 9;
-                    else
-                        blackVal += 9;
-                }
-                else if (piece->_type == Rook){
-                    if (piece->_colour == White)
-                        whiteVal += 5;
-                    else
-                        blackVal += 5;
-                }
-                else if (piece->_type == Bishop){
-                    if (piece->_colour == White)
-                        whiteVal += 3;
-                    else
-                        blackVal += 3;
-                }
-                else if (piece->_type == Knight){
-                    if (piece->_colour == White)
-                        whiteVal += 3;
-                    else
-                        blackVal += 3;
-                }
-                else if (piece->_type == Pawn){
-                    if (piece->_colour == White)
-                        whiteVal += 1;
-                    else
-                        blackVal += 1;
-                }
-            }
-        }
-    }
+    whiteVal += countBitsInBoard(state->_bit_board._white_pawns) * 1;
+    whiteVal += countBitsInBoard(state->_bit_board._white_knights) * 3;
+    whiteVal += countBitsInBoard(state->_bit_board._white_bishops) * 3;
+    whiteVal += countBitsInBoard(state->_bit_board._white_rooks) * 5;
+    whiteVal += countBitsInBoard(state->_bit_board._white_queens) * 9;
+
+    blackVal += countBitsInBoard(state->_bit_board._black_pawns) * 1;
+    blackVal += countBitsInBoard(state->_bit_board._black_knights) * 3;
+    blackVal += countBitsInBoard(state->_bit_board._black_bishops) * 3;
+    blackVal += countBitsInBoard(state->_bit_board._black_rooks) * 5;
+    blackVal += countBitsInBoard(state->_bit_board._black_queens) * 9;
 
     return whiteVal - blackVal;
+}
+
+int ChessEngine::countBitsInBoard(ULL board){
+    int count;
+    for (count = 0; board; count++, board &= board - 1);
+    return count;
 }
 
 void ChessEngine::addAllPromotionSelections(State *state){
