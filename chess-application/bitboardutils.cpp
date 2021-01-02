@@ -186,10 +186,6 @@ ULL* BitBoardUtils::generatePawnMoveSet(Colour colour){
             moveBoard |= move;
 
         moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-
-        //cout << _square_from_index[square] << ":" << endl;
-        //printBoardOnOneRow(moveBoard);
-        //printBoard(moveBoard);
         attackMap[square] = moveBoard;
     }
     return attackMap;
@@ -215,10 +211,6 @@ ULL* BitBoardUtils::generatePawnCaptureSet(Colour colour){
             moveBoard |= move;
 
         moveBoard &= 0xffffffffffffffff; //Remove moves outside board
-
-        //cout << _square_from_index[square] << ":" << endl;
-        //printBoardOnOneRow(moveBoard);
-        //printBoard(moveBoard);
         attackMap[square] = moveBoard;
     }
     return attackMap;
@@ -337,8 +329,6 @@ pair<ULL*, ULL*> BitBoardUtils::generateBitMasks(){
     for (int i = 0; i < 64; i++){
         trueMask[i] = 0ULL | (1ULL << i);
         falseMask[i] = ~trueMask[i];
-        //printBoard(trueMask[i]);
-        //printBoard(falseMask[i]);
     }
     return pair(trueMask, falseMask);
 }

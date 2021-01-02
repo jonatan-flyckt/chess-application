@@ -2,7 +2,6 @@
 
 ChessRules::ChessRules(){
     _accumulated_test_time = 0;
-    _hasher = ZobristHasher();
 }
 
 vector<Move> ChessRules::getLegalMoves(State *state, PieceType promotionPiece, bool checkIfCheck){
@@ -131,6 +130,7 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     State *resultingState = new State();
     updateBitBoardWithMove(currentState, resultingState, moveToMake);
     resultingState->_state_seen_count = currentState->_state_seen_count;
+    resultingState->_bit_board_state_seen_count = currentState->_bit_board_state_seen_count;
     resultingState->_colour_to_move = currentState->_colour_to_move == White ? Black : White;
     resultingState->_move_to_state = moveToMake;
     resultingState->_previous_state = currentState;
@@ -209,6 +209,15 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
         resultingState->_game_over_reason = "Threefold repetition";
     }
 
+    resultingState->_position_hash = _hasher.generateHashForPosition(resultingState->_bit_board,
+                                                                     resultingState->_castling_info,
+                                                                     resultingState->_colour_to_move,
+                                                                     resultingState->_bit_board._en_passant_square);
+    if (bitBoardNumberOfTimesThisStateSeen(resultingState->_position_hash, resultingState->_bit_board_state_seen_count) >= 3){
+        currentState->_is_game_over = true;
+        resultingState->_is_draw = true;
+        resultingState->_game_over_reason = "Threefold repetition";
+    }
 
     resultingState->_is_game_over = currentState->_is_game_over;
 
@@ -1432,6 +1441,15 @@ int ChessRules::numberOfTimesThisStateSeen(string fen, map<string, int> *stateSe
         stateSeenCount->find(cutFen)->second += 1;
     else
         stateSeenCount->insert(pair<string, int>(cutFen, 1));
-    //qDebug() << "state seen " << stateSeenCount->find(cutFen)->second << " times";
+    cout << "state seen:" << endl << stateSeenCount->find(cutFen)->second << endl;
     return stateSeenCount->find(cutFen)->second;
+}
+
+int ChessRules::bitBoardNumberOfTimesThisStateSeen(ULL hash, map<ULL, int> *stateSeenCount){
+    if (stateSeenCount->count(hash) > 0)
+        stateSeenCount->find(hash)->second += 1;
+    else
+        stateSeenCount->insert(pair<ULL, int>(hash, 1));
+    cout << "bitboard state seen:" << endl << stateSeenCount->find(hash)->second << endl;
+    return stateSeenCount->find(hash)->second;
 }

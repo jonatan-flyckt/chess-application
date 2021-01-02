@@ -6,7 +6,6 @@
 #include <map>
 #include <utility>
 
-//#include "utils.h"
 
 typedef uint64_t ULL;
 
@@ -37,17 +36,12 @@ struct Piece{
 
 struct Move{
     Move(Colour colour, Piece piece, string originSquare,
-         string destinationSquare, /*int originIndex,
-         int destinationIndex,*/ int moveNumber,
+         string destinationSquare, int moveNumber,
          MoveType moveType = Standard, PieceType promotionSelection = Queen){
         _colour_performing_move = colour;
         _piece = piece;
         _origin_square = originSquare;
         _destination_square = destinationSquare;
-        /*
-        _origin_index = originIndex;
-        _desination_index = destinationIndex;
-        */
         _move_number = moveNumber;
         _move_type = moveType;
         _promotion_selection = promotionSelection;
@@ -58,10 +52,6 @@ struct Move{
     MoveType _move_type;
     string _origin_square;
     string _destination_square;
-    /*
-    int _origin_index;
-    int _desination_index;
-    */
     string _algebraic_notation;
     int _move_number;
     PieceType _promotion_selection;
@@ -137,17 +127,16 @@ struct State{
 
     BitBoard _bit_board;
 
-
     string _fen_notation;
-
-
-
 
     bool _is_draw = false;
     bool _white_won = false;
     bool _black_won = false;
     string _game_over_reason;
     map<string, int> *_state_seen_count;
+
+    ULL _position_hash;
+    map<ULL, int> *_bit_board_state_seen_count;
 };
 
 #endif // STRUCTS_H

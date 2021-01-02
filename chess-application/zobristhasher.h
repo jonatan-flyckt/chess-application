@@ -5,9 +5,11 @@
 #define RAND_MAX 0xffffffffffffffff
 #define RAND_MIN 1
 
+#include "bitboardutils.h"
 #include "chessstructs.h"
 #include <iostream>
 #include <random>
+
 
 
 class ZobristHasher{
@@ -44,6 +46,18 @@ public:
     Piece _black_queen = Piece(Black, Queen);
     Piece _black_king = Piece(Black, King);
 
+    const int _least_significant_bit_table[64] ={
+        63, 30,  3, 32, 25, 41, 22, 33,
+        15, 50, 42, 13, 11, 53, 19, 34,
+        61, 29,  2, 51, 21, 43, 45, 10,
+        18, 47,  1, 54,  9, 57,  0, 35,
+        62, 31, 40,  4, 49,  5, 52, 26,
+        60,  6, 23, 44, 46, 27, 56, 16,
+         7, 39, 48, 24, 59, 14, 12, 55,
+        38, 28, 58, 20, 37, 17, 36,  8
+    };
+    int popLeastSignificantBitFromBoard(ULL *board);
+    vector<int> getIndicesOfBitsInBoard(ULL board);
 };
 
 #endif // ZOBRISTHASHER_H
