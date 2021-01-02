@@ -113,7 +113,7 @@ struct State{
     int _number_of_moves;
 
     //outer vector: vector of rows
-    vector<vector<Piece*>> _board{
+    vector<vector<Piece*>> _board_for_graphics{
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},

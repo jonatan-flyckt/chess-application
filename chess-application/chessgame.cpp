@@ -140,26 +140,26 @@ void ChessGame::initiateBitBoard(State *startingState){
 }
 
 void ChessGame::initiatePieces(State *startingState){
-    for (int i = 0; i < startingState->_board.at(1).size(); i++)
-        startingState->_board.at(1).at(i) = new Piece(White, Pawn);
-    startingState->_board.at(0).at(0) = new Piece(White, Rook);
-    startingState->_board.at(0).at(7) = new Piece(White, Rook);
-    startingState->_board.at(0).at(1) = new Piece(White, Knight);
-    startingState->_board.at(0).at(6) = new Piece(White, Knight);
-    startingState->_board.at(0).at(2) = new Piece(White, Bishop);
-    startingState->_board.at(0).at(5) = new Piece(White, Bishop);
-    startingState->_board.at(0).at(3) = new Piece(White, Queen);
-    startingState->_board.at(0).at(4) = new Piece(White, King);
-    for (int i = 0; i < startingState->_board.at(6).size(); i++)
-        startingState->_board.at(6).at(i) = new Piece(Black, Pawn);
-    startingState->_board.at(7).at(0) = new Piece(Black, Rook);
-    startingState->_board.at(7).at(7) = new Piece(Black, Rook);
-    startingState->_board.at(7).at(1) = new Piece(Black, Knight);
-    startingState->_board.at(7).at(6) = new Piece(Black, Knight);
-    startingState->_board.at(7).at(2) = new Piece(Black, Bishop);
-    startingState->_board.at(7).at(5) = new Piece(Black, Bishop);
-    startingState->_board.at(7).at(3) = new Piece(Black, Queen);
-    startingState->_board.at(7).at(4) = new Piece(Black, King);
+    for (int i = 0; i < startingState->_board_for_graphics.at(1).size(); i++)
+        startingState->_board_for_graphics.at(1).at(i) = new Piece(White, Pawn);
+    startingState->_board_for_graphics.at(0).at(0) = new Piece(White, Rook);
+    startingState->_board_for_graphics.at(0).at(7) = new Piece(White, Rook);
+    startingState->_board_for_graphics.at(0).at(1) = new Piece(White, Knight);
+    startingState->_board_for_graphics.at(0).at(6) = new Piece(White, Knight);
+    startingState->_board_for_graphics.at(0).at(2) = new Piece(White, Bishop);
+    startingState->_board_for_graphics.at(0).at(5) = new Piece(White, Bishop);
+    startingState->_board_for_graphics.at(0).at(3) = new Piece(White, Queen);
+    startingState->_board_for_graphics.at(0).at(4) = new Piece(White, King);
+    for (int i = 0; i < startingState->_board_for_graphics.at(6).size(); i++)
+        startingState->_board_for_graphics.at(6).at(i) = new Piece(Black, Pawn);
+    startingState->_board_for_graphics.at(7).at(0) = new Piece(Black, Rook);
+    startingState->_board_for_graphics.at(7).at(7) = new Piece(Black, Rook);
+    startingState->_board_for_graphics.at(7).at(1) = new Piece(Black, Knight);
+    startingState->_board_for_graphics.at(7).at(6) = new Piece(Black, Knight);
+    startingState->_board_for_graphics.at(7).at(2) = new Piece(Black, Bishop);
+    startingState->_board_for_graphics.at(7).at(5) = new Piece(Black, Bishop);
+    startingState->_board_for_graphics.at(7).at(3) = new Piece(Black, Queen);
+    startingState->_board_for_graphics.at(7).at(4) = new Piece(Black, King);
 }
 
 void ChessGame::updatePGN(){
@@ -280,7 +280,7 @@ string ChessGame::algebraicNotationForMove(State *state){
     for (auto legalMove: previousState->_legal_moves_from_state){
         int i = IndicesFromSquareID(legalMove._origin_square).first;
         int j = IndicesFromSquareID(legalMove._origin_square).second;
-        if (previousState->_board.at(i).at(j)->_type == move._piece._type && legalMove._destination_square == move._destination_square)
+        if (previousState->_board_for_graphics.at(i).at(j)->_type == move._piece._type && legalMove._destination_square == move._destination_square)
             possibleOriginSquares.push_back(legalMove._origin_square);
     }
     //for (auto p: possibleOriginSquares)
@@ -327,13 +327,13 @@ string ChessGame::algebraicNotationForMove(State *state){
     if (move._move_type == Promotion || move._move_type == PromotionCapture){
         int i = IndicesFromSquareID(move._destination_square).first;
         int j = IndicesFromSquareID(move._destination_square).second;
-        if (state->_board.at(i).at(j)->_type == Queen)
+        if (state->_board_for_graphics.at(i).at(j)->_type == Queen)
             notation += "Q";
-        else if (state->_board.at(i).at(j)->_type == Rook)
+        else if (state->_board_for_graphics.at(i).at(j)->_type == Rook)
             notation += "R";
-        else if (state->_board.at(i).at(j)->_type == Bishop)
+        else if (state->_board_for_graphics.at(i).at(j)->_type == Bishop)
             notation += "B";
-        else if (state->_board.at(i).at(j)->_type == Knight)
+        else if (state->_board_for_graphics.at(i).at(j)->_type == Knight)
             notation += "N";
     }
 

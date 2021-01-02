@@ -9,7 +9,7 @@ vector<Move> ChessRules::getLegalMoves(State *state, PieceType promotionPiece, b
     vector<Move> legalMoves;
     Colour colourToMove = state->_colour_to_move;
     int numberOfMoves = state->_number_of_moves;
-    vector<vector<Piece*>> board = state->_board;
+    vector<vector<Piece*>> board = state->_board_for_graphics;
 
     for(int i = 0; i < board.size(); i++){
         for (int j = 0; j < board.at(i).size(); j++){
@@ -72,17 +72,17 @@ vector<Move> ChessRules::checkIfMovesCauseCheckForSelf(vector<Move> movesToCheck
         resultingState->_move_to_state = move;
         resultingState->_previous_state = state;
         resultingState->_castling_info = state->_castling_info;
-        for (int i = 0; i < state->_board.size(); i++){
-            for (int j = 0; j < state->_board.at(i).size(); j++){
-                resultingState->_board.at(i).at(j) = state->_board.at(i).at(j);
+        for (int i = 0; i < state->_board_for_graphics.size(); i++){
+            for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
+                resultingState->_board_for_graphics.at(i).at(j) = state->_board_for_graphics.at(i).at(j);
             }
         }
-        resultingState->_board.at(rowFrom).at(colFrom) = nullptr;
-        resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, pieceToMove._type);
+        resultingState->_board_for_graphics.at(rowFrom).at(colFrom) = nullptr;
+        resultingState->_board_for_graphics.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, pieceToMove._type);
         if (move._move_type == LongCastle || move._move_type == ShortCastle)
             performCheckCheckCastlingMove(move, resultingState);
         if (move._move_type == Promotion || move._move_type == PromotionCapture)
-            resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, promotionPiece);
+            resultingState->_board_for_graphics.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, promotionPiece);
         if (move._move_type == Capture || move._move_type == PromotionCapture || move._move_type == EnPassant)
             resultingState->_moves_without_capture_or_pawn_advancement = 0;
         if (move._move_type == EnPassant)
@@ -93,8 +93,8 @@ vector<Move> ChessRules::checkIfMovesCauseCheckForSelf(vector<Move> movesToCheck
             kingSquare = move._destination_square;
         }
         else{
-            for (int i = 0; i < state->_board.size(); i++){
-                for (int j = 0; j < state->_board.at(i).size(); j++){
+            for (int i = 0; i < state->_board_for_graphics.size(); i++){
+                for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
                     if (board.at(i).at(j) != nullptr){
                         if (board.at(i).at(j)->_type == King && board.at(i).at(j)->_colour == move._colour_performing_move)
                             kingSquare = squareIDFromIndices(i, j);
@@ -120,16 +120,18 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
 
     currentState->_move_from_state = moveToMake;
 
+    /*
     int rowFrom = IndicesFromSquareID(moveToMake._origin_square).first;
     int colFrom = IndicesFromSquareID(moveToMake._origin_square).second;
     int rowTo = IndicesFromSquareID(moveToMake._destination_square).first;
     int colTo = IndicesFromSquareID(moveToMake._destination_square).second;
+    */
 
-    Piece pieceToMove = moveToMake._piece;
+    //Piece pieceToMove = moveToMake._piece;
 
     State *resultingState = new State();
     updateBitBoardWithMove(currentState, resultingState, moveToMake);
-    resultingState->_state_seen_count = currentState->_state_seen_count;
+    //resultingState->_state_seen_count = currentState->_state_seen_count;
     resultingState->_bit_board_state_seen_count = currentState->_bit_board_state_seen_count;
     resultingState->_colour_to_move = currentState->_colour_to_move == White ? Black : White;
     resultingState->_move_to_state = moveToMake;
@@ -138,29 +140,33 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     resultingState->_moves_without_capture_or_pawn_advancement = (moveToMake._move_type == Capture || moveToMake._piece._type == Pawn) ? 0 : currentState->_moves_without_capture_or_pawn_advancement+1;
     resultingState->_castling_info = currentState->_castling_info;
 
-    for (int i = 0; i < currentState->_board.size(); i++){
-        for (int j = 0; j < currentState->_board.at(i).size(); j++){
-            resultingState->_board.at(i).at(j) = currentState->_board.at(i).at(j);
+    /*for (int i = 0; i < currentState->_board_for_graphics.size(); i++){
+        for (int j = 0; j < currentState->_board_for_graphics.at(i).size(); j++){
+            resultingState->_board_for_graphics.at(i).at(j) = currentState->_board_for_graphics.at(i).at(j);
         }
-    }
+    }*/
 
-    resultingState->_board.at(rowFrom).at(colFrom) = nullptr;
-    resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, pieceToMove._type);
-
+    /*resultingState->_board_for_graphics.at(rowFrom).at(colFrom) = nullptr;
+    resultingState->_board_for_graphics.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, pieceToMove._type);
+    */
 
     //Handle castling info and moves
     updateCastlingInfo(moveToMake, resultingState);
-    if (moveToMake._move_type == LongCastle || moveToMake._move_type == ShortCastle)
+
+
+    /*if (moveToMake._move_type == LongCastle || moveToMake._move_type == ShortCastle)
         performCastlingMove(moveToMake, resultingState);
     if (moveToMake._move_type == Promotion || moveToMake._move_type == PromotionCapture)
-        resultingState->_board.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, moveToMake._promotion_selection);
+        resultingState->_board_for_graphics.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, moveToMake._promotion_selection);
     if (moveToMake._move_type == EnPassant)
-        performEnPassantMove(moveToMake, resultingState);
+        performEnPassantMove(moveToMake, resultingState);*/
 
-    _test_timer.start();
-    resultingState->_legal_moves_from_state = getLegalMoves(resultingState, moveToMake._promotion_selection);
-    vector<Move> moves = getLegalBitBoardMoves(resultingState);
+    //_test_timer.start();
 
+
+    //resultingState->_legal_moves_from_state = getLegalMoves(resultingState, moveToMake._promotion_selection);
+    //vector<Move> moves = getLegalBitBoardMoves(resultingState);
+    resultingState->_legal_moves_from_state = getLegalBitBoardMoves(resultingState);
 
     //FOR DEBUGGING PURPOSES:
     /*
@@ -195,17 +201,25 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
 
 
 
-    _accumulated_test_time += _test_timer.elapsed();
+    //_accumulated_test_time += _test_timer.elapsed();
 
     currentState->_next_state = resultingState;
     currentState = resultingState;
+
+    /*
     currentState->_white_king_is_in_check = whiteKingIsInCheck(currentState);
     currentState->_black_king_is_in_check = blackKingIsInCheck(currentState);
+    */
+
+    currentState->_white_king_is_in_check = bitBoardWhiteKingIsInCheck(currentState->_bit_board);
+    currentState->_black_king_is_in_check = bitBoardBlackKingIsInCheck(currentState->_bit_board);
+
+
     if (currentState->_white_king_is_in_check || currentState->_black_king_is_in_check)
         currentState->_square_under_check = _square_under_check;
     _square_under_check = _square_under_check;
 
-    setFenForState(currentState);
+    //setFenForState(currentState);
     if (currentState->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
         currentState->_is_game_over = true;
 
@@ -222,24 +236,24 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
             resultingState->_game_over_reason = "Stalemate";
         }
     }
-    if (isInsufficientMaterial(currentState)){
+    /*if (isInsufficientMaterial(currentState)){ //TODO: Replace
         currentState->_is_game_over = true;
         resultingState->_is_draw = true;
         resultingState->_game_over_reason = "Insufficient mating material";
-    }
+    }*/
     if (currentState->_moves_without_capture_or_pawn_advancement >= 100){
         currentState->_is_game_over = true;
         resultingState->_is_draw = true;
         resultingState->_game_over_reason = "50 move rule";
     }
 
-    if (moveToMake._piece._type == Pawn)
+    /*if (moveToMake._piece._type == Pawn)
         resultingState->_state_seen_count->clear();
     if (numberOfTimesThisStateSeen(currentState->_fen_notation, resultingState->_state_seen_count) >= 3){
         currentState->_is_game_over = true;
         resultingState->_is_draw = true;
         resultingState->_game_over_reason = "Threefold repetition";
-    }
+    }*/
 
     resultingState->_position_hash = _hasher.generateHashForPosition(resultingState->_bit_board,
                                                                      resultingState->_castling_info,
@@ -302,30 +316,30 @@ void ChessRules::updateCastlingInfo(Move move, State *state){
 void ChessRules::performCastlingMove(Move move, State *state){
     if (move._move_type == LongCastle){
         if (move._colour_performing_move == White){
-            state->_board.at(0).at(0) = nullptr;
-            state->_board.at(0).at(4) = nullptr;
-            state->_board.at(0).at(2) = new Piece(White, King);
-            state->_board.at(0).at(3) = new Piece(White, Rook);
+            state->_board_for_graphics.at(0).at(0) = nullptr;
+            state->_board_for_graphics.at(0).at(4) = nullptr;
+            state->_board_for_graphics.at(0).at(2) = new Piece(White, King);
+            state->_board_for_graphics.at(0).at(3) = new Piece(White, Rook);
         }
         else{
-            state->_board.at(7).at(0) = nullptr;
-            state->_board.at(7).at(4) = nullptr;
-            state->_board.at(7).at(2) = new Piece(Black, King);
-            state->_board.at(7).at(3) = new Piece(Black, Rook);
+            state->_board_for_graphics.at(7).at(0) = nullptr;
+            state->_board_for_graphics.at(7).at(4) = nullptr;
+            state->_board_for_graphics.at(7).at(2) = new Piece(Black, King);
+            state->_board_for_graphics.at(7).at(3) = new Piece(Black, Rook);
         }
     }
     if (move._move_type == ShortCastle){
         if (move._colour_performing_move == White){
-            state->_board.at(0).at(7) = nullptr;
-            state->_board.at(0).at(4) = nullptr;
-            state->_board.at(0).at(6) = new Piece(White, King);
-            state->_board.at(0).at(5) = new Piece(White, Rook);
+            state->_board_for_graphics.at(0).at(7) = nullptr;
+            state->_board_for_graphics.at(0).at(4) = nullptr;
+            state->_board_for_graphics.at(0).at(6) = new Piece(White, King);
+            state->_board_for_graphics.at(0).at(5) = new Piece(White, Rook);
         }
         else{
-            state->_board.at(7).at(7) = nullptr;
-            state->_board.at(7).at(4) = nullptr;
-            state->_board.at(7).at(6) = new Piece(Black, King);
-            state->_board.at(7).at(5) = new Piece(Black, Rook);
+            state->_board_for_graphics.at(7).at(7) = nullptr;
+            state->_board_for_graphics.at(7).at(4) = nullptr;
+            state->_board_for_graphics.at(7).at(6) = new Piece(Black, King);
+            state->_board_for_graphics.at(7).at(5) = new Piece(Black, Rook);
         }
     }
 }
@@ -333,16 +347,16 @@ void ChessRules::performCastlingMove(Move move, State *state){
 void ChessRules::performEnPassantMove(Move move, State *state){
     int rowFrom = IndicesFromSquareID(move._origin_square).first;
     int colTo = IndicesFromSquareID(move._destination_square).second;
-    state->_board.at(rowFrom).at(colTo) = nullptr;
+    state->_board_for_graphics.at(rowFrom).at(colTo) = nullptr;
 }
 
 void ChessRules::setFenForState(State *state){
     string fenBuilder = "";
-    for (int i = state->_board.size()-1; i >= 0; i--){
+    for (int i = state->_board_for_graphics.size()-1; i >= 0; i--){
         int emptySquareCounter = 0;
         bool pieceFoundOnLastSquare = false;
-        for (int j = 0; j < state->_board.size(); j++){
-            if (state->_board.at(i).at(j) == nullptr){
+        for (int j = 0; j < state->_board_for_graphics.size(); j++){
+            if (state->_board_for_graphics.at(i).at(j) == nullptr){
                 emptySquareCounter++;
             }
             else{
@@ -352,18 +366,18 @@ void ChessRules::setFenForState(State *state){
                     fenBuilder += to_string(emptySquareCounter);
                 }
                 emptySquareCounter = 0;
-                if (state->_board.at(i).at(j)->_type == Pawn)
-                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'P' : 'p');
-                else if (state->_board.at(i).at(j)->_type == Rook)
-                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'R' : 'r');
-                else if (state->_board.at(i).at(j)->_type == Bishop)
-                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'B' : 'b');
-                else if (state->_board.at(i).at(j)->_type == Knight)
-                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'N' : 'n');
-                else if (state->_board.at(i).at(j)->_type == Queen)
-                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'Q' : 'q');
-                else if (state->_board.at(i).at(j)->_type == King)
-                    fenBuilder.push_back(state->_board.at(i).at(j)->_colour == White ? 'K' : 'k');
+                if (state->_board_for_graphics.at(i).at(j)->_type == Pawn)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'P' : 'p');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == Rook)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'R' : 'r');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == Bishop)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'B' : 'b');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == Knight)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'N' : 'n');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == Queen)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'Q' : 'q');
+                else if (state->_board_for_graphics.at(i).at(j)->_type == King)
+                    fenBuilder.push_back(state->_board_for_graphics.at(i).at(j)->_colour == White ? 'K' : 'k');
             }
         }
         if (!pieceFoundOnLastSquare)
@@ -419,36 +433,36 @@ string ChessRules::enPassantTargetSquareForFEN(Move move){
 void ChessRules::performCheckCheckEnPassantMove(Move move, State *state){
     int rowFrom = IndicesFromSquareID(move._origin_square).first;
     int colTo = IndicesFromSquareID(move._destination_square).second;
-    state->_board.at(rowFrom).at(colTo) == nullptr;
+    state->_board_for_graphics.at(rowFrom).at(colTo) == nullptr;
 }
 
 void ChessRules::performCheckCheckCastlingMove(Move move, State *state){
     if (move._move_type == LongCastle){
         if (move._colour_performing_move == White){
-            state->_board.at(0).at(0) = nullptr;
-            state->_board.at(0).at(4) = nullptr;
-            state->_board.at(0).at(2) = new Piece(White, King);
-            state->_board.at(0).at(3) = new Piece(White, Rook);
+            state->_board_for_graphics.at(0).at(0) = nullptr;
+            state->_board_for_graphics.at(0).at(4) = nullptr;
+            state->_board_for_graphics.at(0).at(2) = new Piece(White, King);
+            state->_board_for_graphics.at(0).at(3) = new Piece(White, Rook);
         }
         else{
-            state->_board.at(7).at(0) = nullptr;
-            state->_board.at(7).at(4) = nullptr;
-            state->_board.at(7).at(2) = new Piece(Black, King);
-            state->_board.at(7).at(3) = new Piece(Black, Rook);
+            state->_board_for_graphics.at(7).at(0) = nullptr;
+            state->_board_for_graphics.at(7).at(4) = nullptr;
+            state->_board_for_graphics.at(7).at(2) = new Piece(Black, King);
+            state->_board_for_graphics.at(7).at(3) = new Piece(Black, Rook);
         }
     }
     if (move._move_type == ShortCastle){
         if (move._colour_performing_move == White){
-            state->_board.at(0).at(7) = nullptr;
-            state->_board.at(0).at(4) = nullptr;
-            state->_board.at(0).at(6) = new Piece(White, King);
-            state->_board.at(0).at(5) = new Piece(White, Rook);
+            state->_board_for_graphics.at(0).at(7) = nullptr;
+            state->_board_for_graphics.at(0).at(4) = nullptr;
+            state->_board_for_graphics.at(0).at(6) = new Piece(White, King);
+            state->_board_for_graphics.at(0).at(5) = new Piece(White, Rook);
         }
         else{
-            state->_board.at(7).at(7) = nullptr;
-            state->_board.at(7).at(4) = nullptr;
-            state->_board.at(7).at(6) = new Piece(Black, King);
-            state->_board.at(7).at(5) = new Piece(Black, Rook);
+            state->_board_for_graphics.at(7).at(7) = nullptr;
+            state->_board_for_graphics.at(7).at(4) = nullptr;
+            state->_board_for_graphics.at(7).at(6) = new Piece(Black, King);
+            state->_board_for_graphics.at(7).at(5) = new Piece(Black, Rook);
         }
     }
 }
@@ -1371,11 +1385,11 @@ vector<Move> ChessRules::getMovesForRook(vector<vector<Piece*>> board, Colour co
 
 bool ChessRules::whiteKingIsInCheck(State *state){
     string whiteKingSquare;
-    for (int i = 0; i < state->_board.size(); i++){
-        for (int j = 0; j < state->_board.at(i).size(); j++){
-            if (state->_board.at(i).at(j) != nullptr){
-                if (state->_board.at(i).at(j)->_type == King &&
-                        state->_board.at(i).at(j)->_colour == White){
+    for (int i = 0; i < state->_board_for_graphics.size(); i++){
+        for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
+            if (state->_board_for_graphics.at(i).at(j) != nullptr){
+                if (state->_board_for_graphics.at(i).at(j)->_type == King &&
+                        state->_board_for_graphics.at(i).at(j)->_colour == White){
                     whiteKingSquare = squareIDFromIndices(i, j);
                     break;
                 }
@@ -1398,11 +1412,11 @@ bool ChessRules::whiteKingIsInCheck(State *state){
 
 bool ChessRules::blackKingIsInCheck(State *state){
     string blackKingSquare;
-    for (int i = 0; i < state->_board.size(); i++){
-        for (int j = 0; j < state->_board.at(i).size(); j++){
-            if (state->_board.at(i).at(j) != nullptr){
-                if (state->_board.at(i).at(j)->_type == King &&
-                        state->_board.at(i).at(j)->_colour == Black){
+    for (int i = 0; i < state->_board_for_graphics.size(); i++){
+        for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
+            if (state->_board_for_graphics.at(i).at(j) != nullptr){
+                if (state->_board_for_graphics.at(i).at(j)->_type == King &&
+                        state->_board_for_graphics.at(i).at(j)->_colour == Black){
                     blackKingSquare = squareIDFromIndices(i, j);
                     break;
                 }
@@ -1427,21 +1441,21 @@ bool ChessRules::isInsufficientMaterial(State *state){
     int whiteMinorPieceCount = 0;
     int blackMinorPieceCount = 0;
     vector<pair<Piece, Colour>> minorPieces; //second element denotes colour of square
-    for (int i = 0; i < state->_board.size(); i++){
-        for (int j = 0; j < state->_board.at(i).size(); j++){
-            if (state->_board.at(i).at(j) != nullptr){
+    for (int i = 0; i < state->_board_for_graphics.size(); i++){
+        for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
+            if (state->_board_for_graphics.at(i).at(j) != nullptr){
                 //Not insufficient material if pawn, queen, or rook is still in play
-                if (state->_board.at(i).at(j)->_type == Queen ||
-                        state->_board.at(i).at(j)->_type == Rook ||
-                        state->_board.at(i).at(j)->_type == Pawn)
+                if (state->_board_for_graphics.at(i).at(j)->_type == Queen ||
+                        state->_board_for_graphics.at(i).at(j)->_type == Rook ||
+                        state->_board_for_graphics.at(i).at(j)->_type == Pawn)
                     return false;
-                else if (state->_board.at(i).at(j)->_type == Bishop || state->_board.at(i).at(j)->_type == Knight){
+                else if (state->_board_for_graphics.at(i).at(j)->_type == Bishop || state->_board_for_graphics.at(i).at(j)->_type == Knight){
                     minorPieces.push_back(make_pair<Piece, Colour>(
-                                              Piece(state->_board.at(i).at(j)->_colour, state->_board.at(i).at(j)->_type),
+                                              Piece(state->_board_for_graphics.at(i).at(j)->_colour, state->_board_for_graphics.at(i).at(j)->_type),
                                               i+j % 2 == 0 ? Black : White));
-                    if (state->_board.at(i).at(j)->_colour == White)
+                    if (state->_board_for_graphics.at(i).at(j)->_colour == White)
                         whiteMinorPieceCount += 1;
-                    if (state->_board.at(i).at(j)->_colour == Black)
+                    if (state->_board_for_graphics.at(i).at(j)->_colour == Black)
                         blackMinorPieceCount += 1;
                 }
             }

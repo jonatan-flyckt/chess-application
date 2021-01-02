@@ -197,10 +197,10 @@ void MainWindow::loadStateGraphically(State *state){
 }
 
 void MainWindow::addPiecesToBoardFromState(State *state){
-    for (int i = 0; i < state->_board.size(); i++){
-        for (int j = 0; j < state->_board.at(i).size(); j++){
-            if (state->_board.at(i).at(j) != nullptr){
-                Piece *piece = state->_board.at(i).at(j);
+    for (int i = 0; i < state->_board_for_graphics.size(); i++){
+        for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
+            if (state->_board_for_graphics.at(i).at(j) != nullptr){
+                Piece *piece = state->_board_for_graphics.at(i).at(j);
                 if (piece->_type == Pawn)
                     addPieceGraphically(piece->_colour == White ? _graphics_info._white_pawn : _graphics_info._black_pawn,
                                         QString::fromStdString(squareIDFromIndices(i, j)),

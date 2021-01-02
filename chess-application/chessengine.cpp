@@ -138,9 +138,9 @@ float ChessEngine::simpleMaterialEvaluation(State *state){
     int whiteVal = 0;
     int blackVal = 0;
 
-    for (int i = 0; i < state->_board.size(); i++){
-        for (int j = 0; j < state->_board.at(i).size(); j++){
-            Piece *piece = state->_board.at(i).at(j);
+    for (int i = 0; i < state->_board_for_graphics.size(); i++){
+        for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
+            Piece *piece = state->_board_for_graphics.at(i).at(j);
             if (piece != nullptr){
                 if (piece->_type == Queen){
                     if (piece->_colour == White)
