@@ -19,6 +19,8 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _current_state->_bit_board_state_seen_count = new map<ULL, int>();
     _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state, Queen);
     updatePGN();
+
+    _rules.runPERFTTest(_current_state, 3);
 }
 
 ChessGame::~ChessGame(){

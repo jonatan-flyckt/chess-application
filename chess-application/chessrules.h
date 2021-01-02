@@ -65,6 +65,9 @@ public:
     ZobristHasher _hasher = ZobristHasher();
 
     int bitBoardNumberOfTimesThisStateSeen(ULL hash, map<ULL, int> *stateSeenCount);
+
+    void runPERFTTest(State *startingState, int maxDepth);
+    void expandPERFTTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth, int maxDepth);
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};

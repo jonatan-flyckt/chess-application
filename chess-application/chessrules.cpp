@@ -160,9 +160,41 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     _test_timer.start();
     resultingState->_legal_moves_from_state = getLegalMoves(resultingState, moveToMake._promotion_selection);
     vector<Move> moves = getLegalBitBoardMoves(resultingState);
-    cout << "old legal moves: " << resultingState->_legal_moves_from_state.size() << endl << "new legal moves: " << moves.size() << endl << endl;
-    if (resultingState->_legal_moves_from_state.size() != moves.size())
+
+
+    //FOR DEBUGGING PURPOSES:
+    /*
+    if (resultingState->_legal_moves_from_state.size() != moves.size()){
+        for (auto move: moves){
+            bool moveFound = false;
+            for (auto legalMove: resultingState->_legal_moves_from_state){
+                if (move._origin_square == legalMove._origin_square &&
+                        move._destination_square == legalMove._destination_square){
+                    moveFound = true;
+                }
+            }
+            if (!moveFound){
+                printBoard(resultingState->_bit_board._white_pawns);
+                printBoard(resultingState->_bit_board._white_rooks);
+                printBoard(resultingState->_bit_board._white_knights);
+                printBoard(resultingState->_bit_board._white_bishops);
+                printBoard(resultingState->_bit_board._white_queens);
+                printBoard(resultingState->_bit_board._white_king);
+                cout << endl << endl;
+                printBoard(resultingState->_bit_board._black_pawns);
+                printBoard(resultingState->_bit_board._black_rooks);
+                printBoard(resultingState->_bit_board._black_knights);
+                printBoard(resultingState->_bit_board._black_bishops);
+                printBoard(resultingState->_bit_board._black_queens);
+                printBoard(resultingState->_bit_board._black_king);
+                int breaking = 1;
+            }
+        }
         int breaking = 1;
+    }*/
+
+
+
     _accumulated_test_time += _test_timer.elapsed();
 
     currentState->_next_state = resultingState;
@@ -1058,21 +1090,30 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
                                   numberOfMoves+1, typeOfMove));
     }
     if (enPassantSquare){ //The previous move made en passant possible
+        int enPassantIndex = getIndicesOfBitsInBoard(enPassantSquare).at(0);
         if (colourToMove == White){
-            if ((_bit_masks[index]<<7) &enPassantSquare)
-                moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
-                                          _square_from_index[getIndicesOfBitsInBoard(enPassantSquare)[0]], numberOfMoves+1, EnPassant));
-            else if ((_bit_masks[index]<<9) &enPassantSquare)
-                moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
-                                          _square_from_index[getIndicesOfBitsInBoard(enPassantSquare)[0]], numberOfMoves+1, EnPassant));
+            if ((_bit_masks[index]<<7) &enPassantSquare){
+                if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                    moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                              _square_from_index[index+7], numberOfMoves+1, EnPassant));
+            }
+            else if ((_bit_masks[index]<<9) &enPassantSquare){
+                if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                    moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                          _square_from_index[index+9], numberOfMoves+1, EnPassant));
+            }
         }
         else{
-            if ((_bit_masks[index]>>7) &enPassantSquare)
-                moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
-                                          _square_from_index[getIndicesOfBitsInBoard(enPassantSquare)[0]], numberOfMoves+1, EnPassant));
-            else if ((_bit_masks[index]>>9) &enPassantSquare)
-                moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
-                                          _square_from_index[getIndicesOfBitsInBoard(enPassantSquare)[0]], numberOfMoves+1, EnPassant));
+            if ((_bit_masks[index]>>7) &enPassantSquare){
+                if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                    moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                          _square_from_index[index-7], numberOfMoves+1, EnPassant));
+            }
+            else if ((_bit_masks[index]>>9) &enPassantSquare){
+                if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                    moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                          _square_from_index[index-9], numberOfMoves+1, EnPassant));
+            }
         }
     }
     return moveVector;
@@ -1441,7 +1482,7 @@ int ChessRules::numberOfTimesThisStateSeen(string fen, map<string, int> *stateSe
         stateSeenCount->find(cutFen)->second += 1;
     else
         stateSeenCount->insert(pair<string, int>(cutFen, 1));
-    cout << "state seen:" << endl << stateSeenCount->find(cutFen)->second << endl;
+    //cout << "state seen:" << endl << stateSeenCount->find(cutFen)->second << endl;
     return stateSeenCount->find(cutFen)->second;
 }
 
@@ -1450,6 +1491,47 @@ int ChessRules::bitBoardNumberOfTimesThisStateSeen(ULL hash, map<ULL, int> *stat
         stateSeenCount->find(hash)->second += 1;
     else
         stateSeenCount->insert(pair<ULL, int>(hash, 1));
-    cout << "bitboard state seen:" << endl << stateSeenCount->find(hash)->second << endl;
+    //cout << "bitboard state seen:" << endl << stateSeenCount->find(hash)->second << endl;
     return stateSeenCount->find(hash)->second;
 }
+
+void ChessRules::runPERFTTest(State *startingState, int maxDepth){
+    QElapsedTimer testTimer;
+    testTimer.start();
+    map<int, int> *movePerDepthCounter = new map<int, int>();
+    movePerDepthCounter->insert_or_assign(0, 1);
+    expandPERFTTree(startingState, movePerDepthCounter, 0, maxDepth);
+
+    for (map<int, int>::iterator it = movePerDepthCounter->begin();
+        it != movePerDepthCounter->end(); ++it)
+        cout << "PERFT depth " << it->first << ": " << it->second << endl;
+
+    cout << "Test completed in " << testTimer.elapsed() / 1000.0 << " seconds." << endl;
+}
+
+void ChessRules::expandPERFTTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth, int maxDepth){
+    currentDepth++;
+    if (currentDepth > maxDepth)
+        return;
+    vector<Move> legalMoves = getLegalBitBoardMoves(currentState);
+
+    if (movePerDepthCounter->count(currentDepth) > 0)
+        movePerDepthCounter->find(currentDepth)->second += legalMoves.size();
+    else
+        movePerDepthCounter->insert(pair<int, int>(currentDepth, legalMoves.size()));
+
+    for (auto move: legalMoves){
+        State *resultingState = getResultingStateFromMove(currentState, move);
+        expandPERFTTree(resultingState, movePerDepthCounter, currentDepth, maxDepth);
+    }
+}
+
+
+
+
+
+
+
+
+
+
