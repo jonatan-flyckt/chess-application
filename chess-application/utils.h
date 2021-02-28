@@ -4,6 +4,7 @@
 #include <string>
 #include "chessstructs.h"
 #include <tuple>
+#include <iostream>
 
 
 typedef uint64_t ULL;

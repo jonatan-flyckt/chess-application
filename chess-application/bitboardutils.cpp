@@ -25,9 +25,6 @@ ULL* BitBoardUtils::generateKnightMoveSet(){
         else if (square % 8 == 0 || square % 8 == 1)
             moveBoard &= 0x3f3f3f3f3f3f3f3f;
 
-        //cout << _square_from_index[square] << ":" << endl;
-        //printBoardOnOneRow(moveBoard);
-        //printBoard(moveBoard);
         attackMap[square] = moveBoard;
     }
 
@@ -58,9 +55,6 @@ ULL* BitBoardUtils::generateKingMoveSet(){
         else if (square % 8 == 0)
             moveBoard &= 0x3f3f3f3f3f3f3f3f;
 
-        //cout << _square_from_index[square] << ":" << endl;
-        //printBoardOnOneRow(moveBoard);
-        //printBoard(moveBoard);
         attackMap[square] = moveBoard;
     }
     return attackMap;

@@ -20,7 +20,7 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _current_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(_current_state);
     updatePGN();
 
-    //_rules.runPERFTTest(_current_state, 3);
+    //_rules.runPERFTTest(_current_state, 4);
 }
 
 ChessGame::~ChessGame(){
@@ -200,9 +200,11 @@ void ChessGame::setFenForState(State *state){
         if (!state->_castling_info._black_king_has_moved && !state->_castling_info._black_long_rook_has_moved)
             fenBuilder.push_back('q');
     }
-    fenBuilder.push_back(' ');
-    for (auto strChar: enPassantTargetSquareForFEN(state->_move_to_state))
-        fenBuilder.push_back(strChar);
+    if (state->_move_to_state._origin_square.size() != 0){
+        fenBuilder.push_back(' ');
+        for (auto strChar: enPassantTargetSquareForFEN(state->_move_to_state))
+            fenBuilder.push_back(strChar);
+    }
     fenBuilder.push_back(' ');
     fenBuilder += to_string(state->_moves_without_capture_or_pawn_advancement);
     fenBuilder.push_back(' ');
