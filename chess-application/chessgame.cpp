@@ -20,7 +20,10 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _current_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(_current_state);
     updatePGN();
 
-    //_rules.runPERFTTest(_current_state, 4);
+
+
+
+    _rules.runPERFTTest(_current_state, 4, true);
 }
 
 ChessGame::~ChessGame(){
