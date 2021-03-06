@@ -751,8 +751,9 @@ void ChessRules::runPERFTTest(State *state, int maxDepth, bool printDivide){
 void ChessRules::expandPERFTTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
                                  int maxDepth, bool printDivide, map<string, int> *divideMap, string divideString){
     currentDepth++;
-    if (currentDepth > maxDepth)
+    if (currentDepth > maxDepth){
         return;
+    }
     vector<Move> legalMoves = getLegalBitBoardMoves(currentState);
 
     if (movePerDepthCounter->count(currentDepth) > 0)
@@ -781,6 +782,7 @@ void ChessRules::expandPERFTTree(State *currentState, map<int, int> *movePerDept
             divideString += move._destination_square;
         }
         expandPERFTTree(resultingState, movePerDepthCounter, currentDepth, maxDepth, printDivide, divideMap, divideString);
+        delete resultingState;
     }
 }
 

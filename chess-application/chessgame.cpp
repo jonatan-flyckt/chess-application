@@ -23,7 +23,7 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
 
 
 
-    _rules.runPERFTTest(_current_state, 4, true);
+    _rules.runPERFTTest(_current_state, 5, true);
 }
 
 ChessGame::~ChessGame(){
