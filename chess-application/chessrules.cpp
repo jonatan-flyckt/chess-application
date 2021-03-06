@@ -720,6 +720,139 @@ int ChessRules::bitBoardNumberOfTimesThisStateSeen(ULL hash, map<ULL, int> *stat
     return stateSeenCount->find(hash)->second;
 }
 
+State* ChessRules::stateFromFEN(string fen){
+    State *state = new State();
+    state->_previous_state = nullptr;
+    state->_bit_board_state_seen_count = new map<ULL, int>;
+    state->_state_seen_count = new map<string, int>;
+
+    vector<string> splitFen = splitString(fen, " ");
+
+    string posString = splitFen.at(0);
+    string colourToMoveString = splitFen.at(1);
+    string castlingString = splitFen.at(2);
+    string enPassantString = splitFen.at(3);
+    if (splitFen.size() > 4){ //FEN string contains last two entries
+        state->_moves_without_capture_or_pawn_advancement = (stoi(splitFen.at(4)));
+    }
+    else
+        state->_moves_without_capture_or_pawn_advancement = 0;
+    state->_number_of_moves = 0;
+
+
+    state->_colour_to_move = colourToMoveString == "w" ? White : Black;
+
+    state->_castling_info._white_short_rook_has_moved = (castlingString.find('K') == string::npos);
+    state->_castling_info._white_long_rook_has_moved = (castlingString.find('Q') == string::npos);
+    state->_castling_info._white_king_has_moved = state->_castling_info._white_short_rook_has_moved ||
+            state->_castling_info._white_long_rook_has_moved;
+    state->_castling_info._white_castled = state->_castling_info._white_king_has_moved;
+    state->_castling_info._black_short_rook_has_moved = (castlingString.find('k') == string::npos);
+    state->_castling_info._black_long_rook_has_moved = (castlingString.find('q') == string::npos);
+    state->_castling_info._black_king_has_moved = state->_castling_info._black_short_rook_has_moved ||
+            state->_castling_info._black_long_rook_has_moved;
+    state->_castling_info._black_castled = state->_castling_info._black_king_has_moved;
+
+
+    state->_bit_board._en_passant_square = enPassantString == "-" ? 0ULL : _bit_masks[_index_from_square[enPassantString]];
+    vector<string> splitRows = splitString(posString, "/");
+    reverse(splitRows.begin(), splitRows.end()); //Put row 1 first
+
+    state->_bit_board._white_king = 0ULL;
+    state->_bit_board._white_bishops = 0ULL;
+    state->_bit_board._white_knights = 0ULL;
+    state->_bit_board._white_pawns = 0ULL;
+    state->_bit_board._white_queens = 0ULL;
+    state->_bit_board._white_rooks = 0ULL;
+    state->_bit_board._black_king = 0ULL;
+    state->_bit_board._black_bishops = 0ULL;
+    state->_bit_board._black_knights = 0ULL;
+    state->_bit_board._black_pawns = 0ULL;
+    state->_bit_board._black_queens = 0ULL;
+    state->_bit_board._black_rooks = 0ULL;
+
+    int currentIndex = -1;
+    for (auto rowString: splitRows){
+        for (auto squareChar: rowString){
+            if (isdigit(squareChar)){
+                currentIndex += (squareChar - '0'); //casts squareChar to int
+            }
+            else{
+                currentIndex++;
+                switch (squareChar) {
+                case 'K' :
+                    state->_bit_board._white_king |= _bit_masks[currentIndex];
+                    break;
+                case 'Q' :
+                    state->_bit_board._white_queens |= _bit_masks[currentIndex];
+                    break;
+                case 'B' :
+                    state->_bit_board._white_bishops |= _bit_masks[currentIndex];
+                    break;
+                case 'N' :
+                    state->_bit_board._white_knights |= _bit_masks[currentIndex];
+                    break;
+                case 'R' :
+                    state->_bit_board._white_rooks |= _bit_masks[currentIndex];
+                    break;
+                case 'P' :
+                    state->_bit_board._white_pawns |= _bit_masks[currentIndex];
+                    break;
+
+                case 'k' :
+                    state->_bit_board._black_king |= _bit_masks[currentIndex];
+                    break;
+                case 'q' :
+                    state->_bit_board._black_queens |= _bit_masks[currentIndex];
+                    break;
+                case 'b' :
+                    state->_bit_board._black_bishops |= _bit_masks[currentIndex];
+                    break;
+                case 'n' :
+                    state->_bit_board._black_knights |= _bit_masks[currentIndex];
+                    break;
+                case 'r' :
+                    state->_bit_board._black_rooks |= _bit_masks[currentIndex];
+                    break;
+                case 'p' :
+                    state->_bit_board._black_pawns |= _bit_masks[currentIndex];
+                    break;
+                }
+            }
+        }
+    }
+    state->_bit_board._all_white_pieces = state->_bit_board._white_king | state->_bit_board._white_bishops |
+            state->_bit_board._white_queens | state->_bit_board._white_knights | state->_bit_board._white_rooks |
+            state->_bit_board._white_pawns;
+    state->_bit_board._all_black_pieces = state->_bit_board._black_king | state->_bit_board._black_bishops |
+            state->_bit_board._black_queens | state->_bit_board._black_knights | state->_bit_board._black_rooks |
+            state->_bit_board._black_pawns;
+    state->_bit_board._all_pieces = state->_bit_board._all_white_pieces | state->_bit_board._all_black_pieces;
+
+    state->_white_king_is_in_check = state->_colour_to_move == Black ?
+                bitBoardWhiteKingIsInCheck(state->_bit_board) : false;
+    state->_black_king_is_in_check = state->_colour_to_move == White ?
+                bitBoardBlackKingIsInCheck(state->_bit_board) : false;
+
+
+    state->_position_hash = _hasher.generateHashForPosition(state->_bit_board,
+                                                            state->_castling_info,
+                                                            state->_colour_to_move,
+                                                            state->_bit_board._en_passant_square);
+
+
+    vector<Move> legalMoves = getLegalBitBoardMoves(state);
+    if (legalMoves.size() == 0)
+        state->_is_game_over = true;
+    state->_black_won = state->_white_king_is_in_check && state->_is_game_over;
+    state->_white_won = state->_black_king_is_in_check && state->_is_game_over;
+    state->_is_draw = !((state->_white_won || state->_black_won) && state->_is_game_over);
+
+    state->_legal_moves_from_state = legalMoves;
+
+    return state;
+}
+
 void ChessRules::runPERFTTest(State *state, int maxDepth, bool printDivide){
     QElapsedTimer testTimer;
     testTimer.start();
@@ -728,7 +861,15 @@ void ChessRules::runPERFTTest(State *state, int maxDepth, bool printDivide){
 
     map<string, int> *divideMap = printDivide ? new map<string, int>() : nullptr;
 
-    expandPERFTTree(state, movePerDepthCounter, 0, maxDepth, printDivide, divideMap);
+    map<string, int> *moveTypeCounter = new map<string, int>();
+    moveTypeCounter->insert_or_assign("captures", 0);
+    moveTypeCounter->insert_or_assign("en_passants", 0);
+    moveTypeCounter->insert_or_assign("castles", 0);
+    moveTypeCounter->insert_or_assign("promotions", 0);
+    moveTypeCounter->insert_or_assign("checks", 0);
+    moveTypeCounter->insert_or_assign("check_mates", 0);
+
+    expandPERFTTree(state, movePerDepthCounter, 0, maxDepth, printDivide, moveTypeCounter, divideMap);
 
     if (movePerDepthCounter->size() > 0){
         cout << endl;
@@ -736,9 +877,14 @@ void ChessRules::runPERFTTest(State *state, int maxDepth, bool printDivide){
             cout << "PERFT depth " << it->first << ": " << it->second << endl;
     }
 
+    cout << endl;
+    for (map<string, int>::iterator it = moveTypeCounter->begin(); it != moveTypeCounter->end(); ++it)
+        cout << it->first << ": " << it->second << endl;
+    cout << endl;
+
     if (printDivide){
         if (divideMap->size() > 0){
-            cout << endl << "DIVIDE:" << endl << endl;
+            cout << "DIVIDE:" << endl << endl;
             for (map<string, int>::iterator it = divideMap->begin(); it != divideMap->end(); ++it)
                 cout << it->first << ": " << it->second << endl;
         }
@@ -749,7 +895,8 @@ void ChessRules::runPERFTTest(State *state, int maxDepth, bool printDivide){
 }
 
 void ChessRules::expandPERFTTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
-                                 int maxDepth, bool printDivide, map<string, int> *divideMap, string divideString){
+                                 int maxDepth, bool printDivide, map<string, int> *moveTypeCounter,
+                                 map<string, int> *divideMap, string divideString){
     currentDepth++;
     if (currentDepth > maxDepth){
         return;
@@ -761,7 +908,8 @@ void ChessRules::expandPERFTTree(State *currentState, map<int, int> *movePerDept
     else
         movePerDepthCounter->insert(pair<int, int>(currentDepth, legalMoves.size()));
 
-    if (printDivide && currentDepth > 1){
+    if (printDivide && currentDepth == maxDepth){
+        //TODO: Check whether divide should count all visited nodes or only leaf nodes
         divideMap->find(divideString)->second += legalMoves.size();
     }
 
@@ -781,7 +929,24 @@ void ChessRules::expandPERFTTree(State *currentState, map<int, int> *movePerDept
             divideString += move._origin_square;
             divideString += move._destination_square;
         }
-        expandPERFTTree(resultingState, movePerDepthCounter, currentDepth, maxDepth, printDivide, divideMap, divideString);
+        if (resultingState->_move_to_state._move_type != Standard){
+            MoveType type = resultingState->_move_to_state._move_type;
+            if (type == Capture || type == PromotionCapture)
+                moveTypeCounter->find("captures")->second += 1;
+            if (type == EnPassant)
+                moveTypeCounter->find("en_passants")->second += 1;
+            if (type == Promotion || type == PromotionCapture)
+                moveTypeCounter->find("promotions")->second += 1;
+            if (resultingState->_black_king_is_in_check || resultingState->_white_king_is_in_check){
+                if (resultingState->_is_game_over)
+                    moveTypeCounter->find("check_mates")->second += 1;
+                else
+                    moveTypeCounter->find("checks")->second += 1;
+            }
+        }
+
+        expandPERFTTree(resultingState, movePerDepthCounter, currentDepth, maxDepth, printDivide,
+                        moveTypeCounter, divideMap, divideString);
         delete resultingState;
     }
 }

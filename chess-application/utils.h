@@ -23,5 +23,7 @@ pair<int, int> IndicesFromSquareID(string square);
 
 uint32_t bitAbs(uint32_t num);
 
+vector<string> splitString(string str, string delimiter);
+
 
 #endif // UTILS_H
