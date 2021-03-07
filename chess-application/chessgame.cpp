@@ -23,17 +23,17 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
 
 
 
-    //a2a4
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq - 0 1");
+    //a2a3
+    //State *testState = _rules.stateFromFEN("rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1");
     //_rules.runPerftTest(testState, 3, true);
 
-    //a5a7
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR w KQkq - 0 2");
+    //a7a5
+    //State *testState = _rules.stateFromFEN("rnbqkbnr/1ppppppp/8/p7/8/P7/1PPPPPPP/RNBQKBNR w KQkq - 0 2");
     //_rules.runPerftTest(testState, 2, true);
-
     //h2h4
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/1ppppppp/8/p7/P6P/8/1PPPPPP1/RNBQKBNR b KQkq - 0 2");
+    //State *testState = _rules.stateFromFEN("rnbqkbnr/1ppppppp/8/p7/7P/P7/1PPPPPP1/RNBQKBNR b KQkq - 0 2");
     //_rules.runPerftTest(testState, 1, true);
+    //a5h3 illegal en passant move
 
 
     _rules.runPerftTest(_current_state, 4, true);

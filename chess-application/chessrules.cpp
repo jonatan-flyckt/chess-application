@@ -553,27 +553,31 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
     if (enPassantSquare){ //The previous move made en passant possible
         int enPassantIndex = getIndicesOfBitsInBoard(enPassantSquare).at(0);
         if (colourToMove == White){
-            if ((_bit_masks[index]<<7) &enPassantSquare){
-                if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
-                    moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
-                                              _square_from_index[index+7], numberOfMoves+1, EnPassant));
-            }
-            else if ((_bit_masks[index]<<9) &enPassantSquare){
-                if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
-                    moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
-                                          _square_from_index[index+9], numberOfMoves+1, EnPassant));
+            if (index >= 32 && index <= 39){ //Only check for en passant if the pawn being examined is on the same row as the en passant square
+                if ((_bit_masks[index]<<7) &enPassantSquare){
+                    if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                                  _square_from_index[index+7], numberOfMoves+1, EnPassant));
+                }
+                else if ((_bit_masks[index]<<9) &enPassantSquare){
+                    if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                              _square_from_index[index+9], numberOfMoves+1, EnPassant));
+                }
             }
         }
         else{
-            if ((_bit_masks[index]>>7) &enPassantSquare){
-                if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
-                    moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
-                                          _square_from_index[index-7], numberOfMoves+1, EnPassant));
-            }
-            else if ((_bit_masks[index]>>9) &enPassantSquare){
-                if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
-                    moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
-                                          _square_from_index[index-9], numberOfMoves+1, EnPassant));
+            if (index >= 24 && index <= 31){ //Only check for en passant if the pawn being examined is on the same row as the en passant square
+                if ((_bit_masks[index]>>7) &enPassantSquare){
+                    if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                              _square_from_index[index-7], numberOfMoves+1, EnPassant));
+                }
+                else if ((_bit_masks[index]>>9) &enPassantSquare){
+                    if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                                              _square_from_index[index-9], numberOfMoves+1, EnPassant));
+                }
             }
         }
     }
@@ -920,7 +924,7 @@ void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDept
     }
 
     if (printDivide && currentDepth == maxDepth){
-        divideMap->find(divideString)->second ++;
+        divideMap->find(divideString)->second++;
     }
 
     for (auto move: legalMoves){
@@ -933,19 +937,19 @@ void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDept
         if (resultingState->_move_to_state._move_type != Standard){
             MoveType type = resultingState->_move_to_state._move_type;
             if (type == Capture || type == PromotionCapture)
-                moveTypeCounter->find("captures")->second += 1;
+                moveTypeCounter->find("captures")->second++;
             if (type == EnPassant)
-                moveTypeCounter->find("en_passants")->second += 1;
+                moveTypeCounter->find("en_passants")->second++;
             if (type == Promotion || type == PromotionCapture)
-                moveTypeCounter->find("promotions")->second += 1;
+                moveTypeCounter->find("promotions")->second++;
             if (resultingState->_black_king_is_in_check || resultingState->_white_king_is_in_check){
                 if (resultingState->_is_game_over)
-                    moveTypeCounter->find("check_mates")->second += 1;
+                    moveTypeCounter->find("check_mates")->second++;
                 else
-                    moveTypeCounter->find("checks")->second += 1;
+                    moveTypeCounter->find("checks")->second++;
             }
         }
-        if (currentDepth + 1 <= maxDepth){
+        if (currentDepth < maxDepth){
             expandPerftTree(resultingState, movePerDepthCounter, currentDepth+1, maxDepth, printDivide,
                             moveTypeCounter, divideMap, divideString);
         }
