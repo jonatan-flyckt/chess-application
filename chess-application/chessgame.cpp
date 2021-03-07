@@ -23,20 +23,22 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
 
 
 
-    //a2a3
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1");
+    //State *testState = _rules.stateFromFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
     //_rules.runPerftTest(testState, 3, true);
 
-    //a7a5
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/1ppppppp/8/p7/8/P7/1PPPPPPP/RNBQKBNR w KQkq - 0 2");
+    //a1b1
+    //State *testState = _rules.stateFromFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/P1N2Q1p/1PPBBPPP/R3K2R b KQkq - 0 1");
     //_rules.runPerftTest(testState, 2, true);
-    //h2h4
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/1ppppppp/8/p7/7P/P7/1PPPPPP1/RNBQKBNR b KQkq - 0 2");
-    //_rules.runPerftTest(testState, 1, true);
-    //a5h3 illegal en passant move
+
+    //c7c5
+    State *testState = _rules.stateFromFEN("r3k2r/p2pqpb1/bn2pnp1/2pPN3/1p2P3/P1N2Q1p/1PPBBPPP/R3K2R w KQkq c6 0 2");
+    _rules.runPerftTest(testState, 1, true);
+    //d5c6 saknas
 
 
-    _rules.runPerftTest(_current_state, 4, true);
+
+
+    //_rules.runPerftTest(_current_state, 4, true);
 }
 
 ChessGame::~ChessGame(){

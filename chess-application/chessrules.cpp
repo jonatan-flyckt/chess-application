@@ -145,14 +145,19 @@ void ChessRules::updateCastlingInfo(Move move, State *state){
 }
 
 vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
-    state->_bit_board._en_passant_square = 0;
+    //state->_bit_board._en_passant_square = 0;
     if (state->_move_to_state._piece._type == Pawn){ //Check if previous allowed for en passant
         if (abs(_index_from_square[state->_move_to_state._origin_square] - _index_from_square[state->_move_to_state._destination_square]) == 16){
             state->_bit_board._en_passant_square = _bit_masks[state->_colour_to_move == White ?
                         _index_from_square[state->_move_to_state._destination_square] + 8 :
                     _index_from_square[state->_move_to_state._destination_square] - 8];
         }
+        else
+            state->_bit_board._en_passant_square = 0;
     }
+    else
+        state->_bit_board._en_passant_square = 0;
+
 
     vector<int> pawnIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_pawns : state->_bit_board._black_pawns);
     vector<Move> pawnMoves;
@@ -529,6 +534,8 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
     ULL pseudoLegalPushes = possiblePushes &~board._all_pieces;
     ULL pseudoLegalCaptures = colourToMove == White ? possibleCaptures &board._all_black_pieces : possibleCaptures &board._all_white_pieces;
 
+    if (_square_from_index[index] == "d5")
+        int hej = 1;
 
     if ((index > 7 && index < 16 && colourToMove == White) || (index < 56 && index > 47 && colourToMove == Black)){//Pawn was on starting square
         if (colourToMove == White)
@@ -736,11 +743,7 @@ State* ChessRules::stateFromFEN(string fen){
     string colourToMoveString = splitFen.at(1);
     string castlingString = splitFen.at(2);
     string enPassantString = splitFen.at(3);
-    if (splitFen.size() > 4){ //FEN string contains last two entries
-        state->_moves_without_capture_or_pawn_advancement = (stoi(splitFen.at(4)));
-    }
-    else
-        state->_moves_without_capture_or_pawn_advancement = 0;
+    state->_moves_without_capture_or_pawn_advancement = 0;
     state->_number_of_moves = 0;
 
 
@@ -759,6 +762,19 @@ State* ChessRules::stateFromFEN(string fen){
 
 
     state->_bit_board._en_passant_square = enPassantString == "-" ? 0ULL : _bit_masks[_index_from_square[enPassantString]];
+    if (state->_bit_board._en_passant_square){
+        state->_move_to_state._piece._type = Pawn;
+        state->_move_to_state._move_type = Standard;
+        if (state->_colour_to_move == White){
+            state->_move_to_state._origin_square = _square_from_index[ _index_from_square[enPassantString] + 8 ];
+            state->_move_to_state._destination_square = _square_from_index[ _index_from_square[enPassantString] - 8 ];
+        }
+        else{
+            state->_move_to_state._origin_square = _square_from_index[ _index_from_square[enPassantString] - 8 ];
+            state->_move_to_state._destination_square = _square_from_index[ _index_from_square[enPassantString] + 8 ];
+        }
+
+    }
     vector<string> splitRows = splitString(posString, "/");
     reverse(splitRows.begin(), splitRows.end()); //Put row 1 first
 
@@ -936,6 +952,8 @@ void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDept
         }
         if (resultingState->_move_to_state._move_type != Standard){
             MoveType type = resultingState->_move_to_state._move_type;
+            if (type == ShortCastle || type == LongCastle)
+                moveTypeCounter->find("castles")->second++;
             if (type == Capture || type == PromotionCapture)
                 moveTypeCounter->find("captures")->second++;
             if (type == EnPassant)
