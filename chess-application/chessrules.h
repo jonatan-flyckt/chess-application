@@ -41,8 +41,8 @@ public:
     int bitBoardNumberOfTimesThisStateSeen(ULL hash, map<ULL, int> *stateSeenCount);
 
     State* stateFromFEN(string fen);
-    void runPERFTTest(State *state, int maxDepth, bool printDivide = false);
-    void expandPERFTTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
+    void runPerftTest(State *state, int maxDepth, bool printDivide = false);
+    void expandPerftTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
                          int maxDepth, bool printDivide, map<string, int> *moveTypeCounter, map<string, int> *divideMap, string divideString = "");
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),

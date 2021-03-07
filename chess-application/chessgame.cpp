@@ -23,13 +23,20 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
 
 
 
+    //a2a4
+    //State *testState = _rules.stateFromFEN("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq - 0 1");
+    //_rules.runPerftTest(testState, 3, true);
+
+    //a5a7
+    //State *testState = _rules.stateFromFEN("rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR w KQkq - 0 2");
+    //_rules.runPerftTest(testState, 2, true);
+
+    //h2h4
+    //State *testState = _rules.stateFromFEN("rnbqkbnr/1ppppppp/8/p7/P6P/8/1PPPPPP1/RNBQKBNR b KQkq - 0 2");
+    //_rules.runPerftTest(testState, 1, true);
 
 
-
-    State *testState = _rules.stateFromFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
-    _rules.runPERFTTest(testState, 3, false);
-
-    //_rules.runPERFTTest(_current_state, 3, true);
+    _rules.runPerftTest(_current_state, 4, true);
 }
 
 ChessGame::~ChessGame(){

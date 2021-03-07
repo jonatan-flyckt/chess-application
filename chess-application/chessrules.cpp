@@ -853,7 +853,7 @@ State* ChessRules::stateFromFEN(string fen){
     return state;
 }
 
-void ChessRules::runPERFTTest(State *state, int maxDepth, bool printDivide){
+void ChessRules::runPerftTest(State *state, int maxDepth, bool printDivide){
     QElapsedTimer testTimer;
     testTimer.start();
     map<int, int> *movePerDepthCounter = new map<int, int>();
@@ -869,12 +869,12 @@ void ChessRules::runPERFTTest(State *state, int maxDepth, bool printDivide){
     moveTypeCounter->insert_or_assign("checks", 0);
     moveTypeCounter->insert_or_assign("check_mates", 0);
 
-    expandPERFTTree(state, movePerDepthCounter, 0, maxDepth, printDivide, moveTypeCounter, divideMap);
+    expandPerftTree(state, movePerDepthCounter, 0, maxDepth, printDivide, moveTypeCounter, divideMap);
 
     if (movePerDepthCounter->size() > 0){
         cout << endl;
         for (map<int, int>::iterator it = movePerDepthCounter->begin(); it != movePerDepthCounter->end(); ++it)
-            cout << "PERFT depth " << it->first << ": " << it->second << endl;
+            cout << "Perft depth " << it->first << ": " << it->second << endl;
     }
 
     cout << endl;
@@ -884,7 +884,7 @@ void ChessRules::runPERFTTest(State *state, int maxDepth, bool printDivide){
 
     if (printDivide){
         if (divideMap->size() > 0){
-            cout << "DIVIDE:" << endl << endl;
+            cout << "Divide:" << endl << endl;
             for (map<string, int>::iterator it = divideMap->begin(); it != divideMap->end(); ++it)
                 cout << it->first << ": " << it->second << endl;
         }
@@ -894,26 +894,15 @@ void ChessRules::runPERFTTest(State *state, int maxDepth, bool printDivide){
     cout << "Test completed in " << testTimer.elapsed() / 1000.0 << " seconds." << endl;
 }
 
-void ChessRules::expandPERFTTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
+void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
                                  int maxDepth, bool printDivide, map<string, int> *moveTypeCounter,
                                  map<string, int> *divideMap, string divideString){
-    currentDepth++;
-    if (currentDepth > maxDepth){
-        return;
-    }
-    vector<Move> legalMoves = getLegalBitBoardMoves(currentState);
 
-    if (movePerDepthCounter->count(currentDepth) > 0)
-        movePerDepthCounter->find(currentDepth)->second += legalMoves.size();
-    else
-        movePerDepthCounter->insert(pair<int, int>(currentDepth, legalMoves.size()));
+    vector<Move> legalMoves;
+    if (currentDepth < maxDepth)
+        legalMoves = getLegalBitBoardMoves(currentState);
 
-    if (printDivide && currentDepth == maxDepth){
-        //TODO: Check whether divide should count all visited nodes or only leaf nodes
-        divideMap->find(divideString)->second += legalMoves.size();
-    }
-
-    if (printDivide && currentDepth == 1){
+    if (printDivide && currentDepth == 0){
         for (auto move: legalMoves){
             string str = "";
             str += move._origin_square;
@@ -921,10 +910,22 @@ void ChessRules::expandPERFTTree(State *currentState, map<int, int> *movePerDept
             divideMap->insert_or_assign(str, 0);
         }
     }
+    if (currentDepth == 0)
+        movePerDepthCounter->insert(pair<int, int>(currentDepth, 1));
+    else{
+        if (movePerDepthCounter->count(currentDepth) > 0)
+            movePerDepthCounter->find(currentDepth)->second++;
+        else
+            movePerDepthCounter->insert(pair<int, int>(currentDepth, 1));
+    }
+
+    if (printDivide && currentDepth == maxDepth){
+        divideMap->find(divideString)->second ++;
+    }
 
     for (auto move: legalMoves){
         State *resultingState = getResultingStateFromMove(currentState, move);
-        if (printDivide && currentDepth == 1){
+        if (printDivide && currentDepth == 0){
             divideString = "";
             divideString += move._origin_square;
             divideString += move._destination_square;
@@ -944,9 +945,10 @@ void ChessRules::expandPERFTTree(State *currentState, map<int, int> *movePerDept
                     moveTypeCounter->find("checks")->second += 1;
             }
         }
-
-        expandPERFTTree(resultingState, movePerDepthCounter, currentDepth, maxDepth, printDivide,
-                        moveTypeCounter, divideMap, divideString);
+        if (currentDepth + 1 <= maxDepth){
+            expandPerftTree(resultingState, movePerDepthCounter, currentDepth+1, maxDepth, printDivide,
+                            moveTypeCounter, divideMap, divideString);
+        }
         delete resultingState;
     }
 }
