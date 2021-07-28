@@ -1,0 +1,36 @@
+cmd:
+E:\Skola\Machine Learning\Project\stockfish-11-win\Windows
+stockfish_20011801_x64_modern
+
+go perft <djup>
+Gör en perft-sökning till önskat djup från en satt position (startposition om ej specificerat).
+
+position fen <fen>
+Sätter en position från fen-sträng.
+
+position startpos
+Sätter startposition.
+
+position startpos moves e2e4
+Genomför e2e4 från startpos.
+
+position fen <fen> moves e2e4
+Genomför e2e4 från fen-position.
+
+go <infinite> <djup> <movetime (ms)>
+Genomför evaluering med valfria parametrar.
+
+d
+Visa ett diagram och positionsinfo.
+
+eval
+Visa generell evalueringsinformation.
+
+bench
+Benchmark-test.
+
+stop
+Avsluta nuvarande beräkningar.
+
+Guide:
+https://gist.github.com/aliostad/f4470274f39d29b788c1b09519e67372

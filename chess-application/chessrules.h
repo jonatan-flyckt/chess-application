@@ -44,6 +44,7 @@ public:
     void runPerftTest(State *state, int maxDepth, bool printDivide = false);
     void expandPerftTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
                          int maxDepth, bool printDivide, map<string, int> *moveTypeCounter, map<string, int> *divideMap, string divideString = "");
+    bool pawnsOnAdjacentColumns(int indexFirst, int indexSecond);
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};

@@ -23,37 +23,6 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
 
     resultingState->_legal_moves_from_state = getLegalBitBoardMoves(resultingState);
 
-    //FOR DEBUGGING PURPOSES:
-    /*
-    if (resultingState->_legal_moves_from_state.size() != moves.size()){
-        for (auto move: moves){
-            bool moveFound = false;
-            for (auto legalMove: resultingState->_legal_moves_from_state){
-                if (move._origin_square == legalMove._origin_square &&
-                        move._destination_square == legalMove._destination_square){
-                    moveFound = true;
-                }
-            }
-            if (!moveFound){
-                printBoard(resultingState->_bit_board._white_pawns);
-                printBoard(resultingState->_bit_board._white_rooks);
-                printBoard(resultingState->_bit_board._white_knights);
-                printBoard(resultingState->_bit_board._white_bishops);
-                printBoard(resultingState->_bit_board._white_queens);
-                printBoard(resultingState->_bit_board._white_king);
-                cout << endl << endl;
-                printBoard(resultingState->_bit_board._black_pawns);
-                printBoard(resultingState->_bit_board._black_rooks);
-                printBoard(resultingState->_bit_board._black_knights);
-                printBoard(resultingState->_bit_board._black_bishops);
-                printBoard(resultingState->_bit_board._black_queens);
-                printBoard(resultingState->_bit_board._black_king);
-                int breaking = 1;
-            }
-        }
-        int breaking = 1;
-    }*/
-
     currentState->_next_state = resultingState;
     currentState = resultingState;
 
@@ -534,9 +503,6 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
     ULL pseudoLegalPushes = possiblePushes &~board._all_pieces;
     ULL pseudoLegalCaptures = colourToMove == White ? possibleCaptures &board._all_black_pieces : possibleCaptures &board._all_white_pieces;
 
-    if (_square_from_index[index] == "d5")
-        int hej = 1;
-
     if ((index > 7 && index < 16 && colourToMove == White) || (index < 56 && index > 47 && colourToMove == Black)){//Pawn was on starting square
         if (colourToMove == White)
             if (!((_bit_masks[index] << 8) &pseudoLegalPushes)) //Remove potential 2 step move if first square was blocked
@@ -562,12 +528,12 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
         if (colourToMove == White){
             if (index >= 32 && index <= 39){ //Only check for en passant if the pawn being examined is on the same row as the en passant square
                 if ((_bit_masks[index]<<7) &enPassantSquare){
-                    if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                    if (pawnsOnAdjacentColumns(enPassantIndex, index))
                         moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
                                                   _square_from_index[index+7], numberOfMoves+1, EnPassant));
                 }
                 else if ((_bit_masks[index]<<9) &enPassantSquare){
-                    if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                    if (pawnsOnAdjacentColumns(enPassantIndex, index))
                         moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
                                               _square_from_index[index+9], numberOfMoves+1, EnPassant));
                 }
@@ -576,12 +542,12 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
         else{
             if (index >= 24 && index <= 31){ //Only check for en passant if the pawn being examined is on the same row as the en passant square
                 if ((_bit_masks[index]>>7) &enPassantSquare){
-                    if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                    if (pawnsOnAdjacentColumns(enPassantIndex, index))
                         moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
                                               _square_from_index[index-7], numberOfMoves+1, EnPassant));
                 }
                 else if ((_bit_masks[index]>>9) &enPassantSquare){
-                    if (index>enPassantIndex ? index-enPassantIndex : enPassantIndex-index == 1)
+                    if (pawnsOnAdjacentColumns(enPassantIndex, index))
                         moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
                                               _square_from_index[index-9], numberOfMoves+1, EnPassant));
                 }
@@ -683,6 +649,10 @@ ULL ChessRules::getBitBoardOfPossibleAttacksForRook(int index, ULL occupancy){
     return NMoves | EMoves | SMoves | WMoves;
 }
 
+bool ChessRules::pawnsOnAdjacentColumns(int indexFirst, int indexSecond){
+    return abs((indexSecond % 8) - (indexFirst % 8)) == 1;
+}
+
 bool ChessRules::isInsufficientMaterial(State *state){
     int whiteMinorPieceCount = 0;
     int blackMinorPieceCount = 0;
@@ -761,7 +731,12 @@ State* ChessRules::stateFromFEN(string fen){
     state->_castling_info._black_castled = state->_castling_info._black_king_has_moved;
 
 
+    qDebug() << state->_bit_board._en_passant_square;
     state->_bit_board._en_passant_square = enPassantString == "-" ? 0ULL : _bit_masks[_index_from_square[enPassantString]];
+    qDebug() << state->_bit_board._en_passant_square;
+    qDebug() << &enPassantString;
+
+
     if (state->_bit_board._en_passant_square){
         state->_move_to_state._piece._type = Pawn;
         state->_move_to_state._move_type = Standard;
