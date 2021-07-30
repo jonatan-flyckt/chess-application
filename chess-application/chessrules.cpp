@@ -513,17 +513,24 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
     for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalPushes | pseudoLegalCaptures)){
         MoveType typeOfMove;
         uint32_t absVal = abs(index - resultingIndex);
-        if ((index > 47 && colourToMove == White) || (index < 16 && colourToMove == Black)) //Promotion move
+        if ((index > 47 && colourToMove == White) || (index < 16 && colourToMove == Black)){ //Promotion move
             typeOfMove = (absVal == 8 || absVal == 16) ? Promotion : PromotionCapture;
-        else
+            moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+                                      numberOfMoves+1, typeOfMove, Queen));
+            moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+                                      numberOfMoves+1, typeOfMove, Rook));
+            moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+                                      numberOfMoves+1, typeOfMove, Knight));
+            moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+                                      numberOfMoves+1, typeOfMove, Bishop));
+        }
+        else{
             typeOfMove = (absVal == 8 || absVal == 16) ? Standard : Capture;
-        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
-                                  numberOfMoves+1, typeOfMove));
+            moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+                                      numberOfMoves+1, typeOfMove));
+        }
     }
 
-    if (colourToMove == White){
-        //qDebug() << "breaking";
-    }
     if (enPassantSquare){ //The previous move made en passant possible
         int enPassantIndex = getIndicesOfBitsInBoard(enPassantSquare).at(0);
         if (colourToMove == White){
@@ -943,6 +950,7 @@ void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDept
                     moveTypeCounter->find("checks")->second++;
             }
         }
+
         if (currentDepth < maxDepth){
             expandPerftTree(resultingState, movePerDepthCounter, currentDepth+1, maxDepth, printDivide,
                             moveTypeCounter, divideMap, divideString);

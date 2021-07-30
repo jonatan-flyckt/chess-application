@@ -10,9 +10,8 @@ ChessEngine::~ChessEngine(){
 }
 
 Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
-    addAllPromotionSelections(state);
-    return miniMax(state, engineColour);
-    //return makeRandomMove(state);
+    //return miniMax(state, engineColour);
+    return makeRandomMove(state);
 }
 
 Move ChessEngine::miniMax(State *state, Colour engineColour){
@@ -142,27 +141,6 @@ int ChessEngine::countBitsInBoard(ULL board){
     int count;
     for (count = 0; board; count++, board &= board - 1);
     return count;
-}
-
-void ChessEngine::addAllPromotionSelections(State *state){
-    vector<Move> promotionMoves;
-    for (int i = 0; i < state->_legal_moves_from_state.size(); i++){
-        Move move =  state->_legal_moves_from_state.at(i);
-        if (move._move_type == Promotion || move._move_type == PromotionCapture){
-            move._promotion_selection = Queen;
-            Move knightPromotion = move;
-            knightPromotion._promotion_selection = Knight;
-            promotionMoves.push_back(knightPromotion);
-            Move bishopPromotion = move;
-            bishopPromotion._promotion_selection = Bishop;
-            promotionMoves.push_back(bishopPromotion);
-            Move rookPromotion = move;
-            rookPromotion._promotion_selection = Rook;
-            promotionMoves.push_back(rookPromotion);
-        }
-    }
-    for (auto move: promotionMoves)
-        state->_legal_moves_from_state.push_back(move);
 }
 
 Move ChessEngine::makeRandomMove(State *state){

@@ -39,7 +39,6 @@ public:
     float heuristicValueForState(State *state);
     float simpleMaterialEvaluation(State *state);
     Move makeRandomMove(State *state);
-    void addAllPromotionSelections(State *state);
 
     Move miniMax(State *state, Colour engineColour);
     pair<Move, float> alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, int depth, float alpha, float beta, bool maximisingPlayer);

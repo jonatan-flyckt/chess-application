@@ -20,40 +20,18 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _current_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(_current_state);
     updatePGN();
 
-
-    //start state
-    //_rules.runPerftTest(_current_state, 6, true);
-    //c2c3 har 5417631, ska ha 5417640
-
-    //c2c3
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/pppppppp/8/8/8/2P5/PP1PPPPP/RNBQKBNR b KQkq - 0 1");
-    //_rules.runPerftTest(testState, 5, true);
-    //c7c5 har 270307, ska ha 270309
-
-    //c7c5
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/pp1ppppp/8/2p5/8/2P5/PP1PPPPP/RNBQKBNR w KQkq - 0 1");
-    //_rules.runPerftTest(testState, 4, true);
-    //d1a4 har 15420, ska ha 15422
-
-    //d1a4
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/pp1ppppp/8/2p5/Q7/2P5/PP1PPPPP/RNB1KBNR b KQkq - 0 1");
-    //_rules.runPerftTest(testState, 3, true);
-    //c5c4 har 555, ska ha 557
-
-    //c5c4
-    //State *testState = _rules.stateFromFEN("rnbqkbnr/pp1ppppp/8/8/Q1p5/2P5/PP1PPPPP/RNB1KBNR w KQkq - 0 1");
-    //_rules.runPerftTest(testState, 2, true);
-    //b2b4 har 19, ska ha 20
-
-    //b2b4
-    State *testState = _rules.stateFromFEN("rnbqkbnr/pp1ppppp/8/8/QPp5/2P5/P2PPPPP/RNB1KBNR b KQkq b3 0 1");
-    _rules.runPerftTest(testState, 1, true);
-    //c4b3 (en passant) saknas
+    State *testState = _rules.stateFromFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+    _rules.runPerftTest(testState, 4, true);
+    //
 
 
 
 
-    //_rules.runPerftTest(_current_state, 4, true);
+
+
+
+
+    _rules.runPerftTest(_current_state, 4, true);
 }
 
 ChessGame::~ChessGame(){
