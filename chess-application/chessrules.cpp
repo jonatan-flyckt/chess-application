@@ -114,7 +114,6 @@ void ChessRules::updateCastlingInfo(Move move, State *state){
 }
 
 vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
-    //state->_bit_board._en_passant_square = 0;
     if (state->_move_to_state._piece._type == Pawn){ //Check if previous allowed for en passant
         if (abs(_index_from_square[state->_move_to_state._origin_square] - _index_from_square[state->_move_to_state._destination_square]) == 16){
             state->_bit_board._en_passant_square = _bit_masks[state->_colour_to_move == White ?
@@ -203,8 +202,7 @@ bool ChessRules::bitBoardMoveCausedSelfCheck(Move move, BitBoard board){
             board._white_king = (board._white_king | destinationMask) & originComplementMask;
 
         if (move._move_type == EnPassant){
-            board._black_pawns &= ~board._en_passant_square;
-            board._white_pawns = (board._white_pawns & originComplementMask) | destinationMask;
+            board._black_pawns &= ~(1ULL<<(getIndexOfLeastSignificantBit(board._en_passant_square)-8));
         }
         else if (move._move_type == LongCastle){
             board._white_king = _bit_masks[_index_from_square["c1"]];
@@ -249,8 +247,7 @@ bool ChessRules::bitBoardMoveCausedSelfCheck(Move move, BitBoard board){
             board._black_king = (board._black_king | destinationMask) & originComplementMask;
 
         if (move._move_type == EnPassant){
-            board._white_pawns &= ~board._en_passant_square;
-            board._black_pawns = (board._white_pawns & originComplementMask) | destinationMask;
+            board._white_pawns &= ~(1ULL<<(getIndexOfLeastSignificantBit(board._en_passant_square)+8));
         }
         else if (move._move_type == LongCastle){
             board._black_king = _bit_masks[_index_from_square["c8"]];
@@ -522,6 +519,10 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
             typeOfMove = (absVal == 8 || absVal == 16) ? Standard : Capture;
         moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, typeOfMove));
+    }
+
+    if (colourToMove == White){
+        //qDebug() << "breaking";
     }
     if (enPassantSquare){ //The previous move made en passant possible
         int enPassantIndex = getIndicesOfBitsInBoard(enPassantSquare).at(0);
