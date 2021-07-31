@@ -114,6 +114,7 @@ void ChessRules::updateCastlingInfo(Move move, State *state){
 }
 
 vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
+
     if (state->_move_to_state._piece._type == Pawn){ //Check if previous allowed for en passant
         if (abs(_index_from_square[state->_move_to_state._origin_square] - _index_from_square[state->_move_to_state._destination_square]) == 16){
             state->_bit_board._en_passant_square = _bit_masks[state->_colour_to_move == White ?
@@ -301,7 +302,7 @@ void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingSta
     ULL destinationComplement = _bit_masks_complement[destinationIndex];
     if (move._piece._colour == White){
         if (move._move_type == EnPassant){
-            resultingState->_bit_board._black_pawns &= ~currentState->_bit_board._en_passant_square;
+            resultingState->_bit_board._black_pawns &= ~(1ULL<<(getIndexOfLeastSignificantBit(resultingState->_bit_board._en_passant_square)-8));
             resultingState->_bit_board._white_pawns = (currentState->_bit_board._white_pawns & originComplement) | destinationMask;
         }
         else if (move._move_type == LongCastle){
@@ -346,7 +347,7 @@ void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingSta
     }
     else{
         if (move._move_type == EnPassant){
-            resultingState->_bit_board._white_pawns &= ~currentState->_bit_board._en_passant_square;
+            resultingState->_bit_board._white_pawns &= ~(1ULL<<(getIndexOfLeastSignificantBit(resultingState->_bit_board._en_passant_square)+8));
             resultingState->_bit_board._black_pawns = (currentState->_bit_board._black_pawns & originComplement) | destinationMask;
         }
         else if (move._move_type == LongCastle){
