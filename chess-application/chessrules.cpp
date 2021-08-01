@@ -730,12 +730,12 @@ State* ChessRules::stateFromFEN(string fen){
 
     state->_castling_info._white_short_rook_has_moved = (castlingString.find('K') == string::npos);
     state->_castling_info._white_long_rook_has_moved = (castlingString.find('Q') == string::npos);
-    state->_castling_info._white_king_has_moved = state->_castling_info._white_short_rook_has_moved ||
+    state->_castling_info._white_king_has_moved = state->_castling_info._white_short_rook_has_moved &&
             state->_castling_info._white_long_rook_has_moved;
     state->_castling_info._white_castled = state->_castling_info._white_king_has_moved;
     state->_castling_info._black_short_rook_has_moved = (castlingString.find('k') == string::npos);
     state->_castling_info._black_long_rook_has_moved = (castlingString.find('q') == string::npos);
-    state->_castling_info._black_king_has_moved = state->_castling_info._black_short_rook_has_moved ||
+    state->_castling_info._black_king_has_moved = state->_castling_info._black_short_rook_has_moved &&
             state->_castling_info._black_long_rook_has_moved;
     state->_castling_info._black_castled = state->_castling_info._black_king_has_moved;
 
