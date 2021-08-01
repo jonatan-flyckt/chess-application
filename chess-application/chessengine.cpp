@@ -58,13 +58,13 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
     _move_generation_timer.start();
     node->_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(node->_state);
 
-    if (depth == 0)
-        tree->_max_depth += determineDepthIncrease(node->_state);
+    if (depth == 0){
+        tree->_max_depth += increaseInSearchDepth(node->_state);
+        qDebug() << endl << "Search depth: " << tree->_max_depth << endl;
+    }
 
-    qDebug() << "Search depth: " << tree->_max_depth;
 
-
-    //TODO: maybe keep this
+    //TODO: maybe keep this, maybe not
     std::random_shuffle ( node->_state->_legal_moves_from_state.begin(),
                           node->_state->_legal_moves_from_state.end() );
 
@@ -130,13 +130,60 @@ float ChessEngine::heuristicValueForState(State *state){
                                           simpleMaterialEvaluation(state) + simpleOpeningEvaluation(state);
 }
 
-int ChessEngine::determineDepthIncrease(State *state){
+int ChessEngine::increaseInSearchDepth(State *state){
     int depthIncrease = 0;
-    qDebug() << state->_legal_moves_from_state.size();
-    qDebug() << countBitsInBoard(state->_bit_board._all_pieces);
-    if (state->_legal_moves_from_state.size() < 25){
-        depthIncrease += 1;
+
+
+    int movesFromState = state->_legal_moves_from_state.size();
+    int whitePieces = countBitsInBoard(state->_bit_board._all_white_pieces);
+    int blackPieces = countBitsInBoard(state->_bit_board._all_black_pieces);
+    int numQueens = countBitsInBoard(state->_bit_board._white_queens | state->_bit_board._black_queens);
+    int numSliding = countBitsInBoard(state->_bit_board._white_rooks |
+                                      state->_bit_board._black_rooks |
+                                      state->_bit_board._white_bishops |
+                                      state->_bit_board._black_bishops);
+    int fewestPieces = min(whitePieces, blackPieces);
+    int mostPieces = max(whitePieces, blackPieces);
+
+
+    bool whitePawnOnLastRow = false;
+    bool whitePawnWithinSecondToLastRow = false;
+    bool blackPawnOnLastRow = false;
+    bool blackPawnWithinSecondToLastRow = false;
+
+    for (auto index : getIndicesOfBitsInBoard(state->_bit_board._white_pawns)){
+        if (index > 39)
+            whitePawnWithinSecondToLastRow = true;
+        if (index > 47)
+            whitePawnOnLastRow = true;
     }
+
+    for (auto index : getIndicesOfBitsInBoard(state->_bit_board._black_pawns)){
+        if (index < 24)
+            blackPawnWithinSecondToLastRow = true;
+        if (index < 16)
+            blackPawnOnLastRow = true;
+    }
+
+    bool pawnOnLastRow = whitePawnOnLastRow || blackPawnOnLastRow;
+    bool pawnWithinSecondToLastRow = whitePawnWithinSecondToLastRow || blackPawnWithinSecondToLastRow;
+
+
+    if (fewestPieces < 3 && mostPieces < 3  && numSliding <= 1 && numQueens == 0 && !pawnWithinSecondToLastRow)
+        depthIncrease = 5;
+    else if (mostPieces < 6  && numSliding <= 2 && numQueens == 0 && !pawnWithinSecondToLastRow)
+        depthIncrease = 4;
+    else if (((mostPieces < 8 && movesFromState < 5 && numSliding <= 3 && numQueens <= 1) ||
+             ((numQueens == 0 && numSliding <= 2 && fewestPieces < 8)))
+             && !pawnOnLastRow)
+        depthIncrease = 3;
+    else if (((mostPieces < 8 && movesFromState < 20 && numSliding <= 4 && numQueens <= 2) ||
+             (numQueens == 0 && numSliding <= 4 && fewestPieces < 10))
+             && !pawnOnLastRow)
+        depthIncrease = 2;
+    else if (movesFromState < 20 && numSliding <= 6 && numQueens <= 2)
+        depthIncrease = 1;
+
     return depthIncrease;
 }
 

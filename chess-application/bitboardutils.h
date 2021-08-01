@@ -135,6 +135,7 @@ public:
     ULL _medium_centre_mask = generateMediumCentreMask();
 
     ULL _small_centre_mask = generateSmallCentreMask();
+
 };
 
 #endif // BITBOARDUTILS_H

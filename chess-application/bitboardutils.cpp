@@ -457,3 +457,4 @@ ULL BitBoardUtils::generateSmallCentreMask(){
     }
     return resultingMap;
 }
+
