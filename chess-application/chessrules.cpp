@@ -114,7 +114,6 @@ void ChessRules::updateCastlingInfo(Move move, State *state){
 }
 
 vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
-
     if (state->_move_to_state._piece._type == Pawn){ //Check if previous allowed for en passant
         if (abs(_index_from_square[state->_move_to_state._origin_square] - _index_from_square[state->_move_to_state._destination_square]) == 16){
             state->_bit_board._en_passant_square = _bit_masks[state->_colour_to_move == White ?
@@ -774,6 +773,7 @@ State* ChessRules::stateFromFEN(string fen){
     state->_bit_board._black_pawns = 0ULL;
     state->_bit_board._black_queens = 0ULL;
     state->_bit_board._black_rooks = 0ULL;
+
 
     int currentIndex = -1;
     for (auto rowString: splitRows){

@@ -46,8 +46,8 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     //_rules.runPerftTest(testState, 5, true);
 
     //custom pos 8, passed depth 5, 22 sec
-    State *testState = _rules.stateFromFEN("8/4rP2/8/8/4pk2/8/3P2PP/4K2R w K - 0 1");
-    _rules.runPerftTest(testState, 5, true);
+    //State *testState = _rules.stateFromFEN("8/4rP2/8/8/4pk2/8/3P2PP/4K2R w K - 0 1");
+    //_rules.runPerftTest(testState, 5, true);
 
 
 

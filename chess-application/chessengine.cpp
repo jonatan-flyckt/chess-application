@@ -10,8 +10,8 @@ ChessEngine::~ChessEngine(){
 }
 
 Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
-    //return miniMax(state, engineColour);
-    return makeRandomMove(state);
+    return miniMax(state, engineColour);
+    //return makeRandomMove(state);
 }
 
 Move ChessEngine::miniMax(State *state, Colour engineColour){
@@ -57,6 +57,17 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
     }
     _move_generation_timer.start();
     node->_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(node->_state);
+
+    if (depth == 0)
+        tree->_max_depth += determineDepthIncrease(node->_state);
+
+    qDebug() << "Search depth: " << tree->_max_depth;
+
+
+    //TODO: maybe keep this
+    std::random_shuffle ( node->_state->_legal_moves_from_state.begin(),
+                          node->_state->_legal_moves_from_state.end() );
+
 
     //TODO: move ordering
     for (auto legalMove: node->_state->_legal_moves_from_state){
@@ -115,12 +126,23 @@ float ChessEngine::heuristicValueForState(State *state){
         else
             return state->_white_won ? 100000 : -100000;
     }
-    return simpleMaterialEvaluation(state);
+    return state->_number_of_moves > 30 ? simpleMaterialEvaluation(state) :
+                                          simpleMaterialEvaluation(state) + simpleOpeningEvaluation(state);
+}
+
+int ChessEngine::determineDepthIncrease(State *state){
+    int depthIncrease = 0;
+    qDebug() << state->_legal_moves_from_state.size();
+    qDebug() << countBitsInBoard(state->_bit_board._all_pieces);
+    if (state->_legal_moves_from_state.size() < 25){
+        depthIncrease += 1;
+    }
+    return depthIncrease;
 }
 
 float ChessEngine::simpleMaterialEvaluation(State *state){
-    int whiteVal = 0;
-    int blackVal = 0;
+    float whiteVal = 0;
+    float blackVal = 0;
 
     whiteVal += countBitsInBoard(state->_bit_board._white_pawns) * 1;
     whiteVal += countBitsInBoard(state->_bit_board._white_knights) * 3;
@@ -133,6 +155,52 @@ float ChessEngine::simpleMaterialEvaluation(State *state){
     blackVal += countBitsInBoard(state->_bit_board._black_bishops) * 3;
     blackVal += countBitsInBoard(state->_bit_board._black_rooks) * 5;
     blackVal += countBitsInBoard(state->_bit_board._black_queens) * 9;
+
+    return whiteVal - blackVal;
+}
+
+float ChessEngine::simpleOpeningEvaluation(State *state){
+    float startingSquarePenalty = 0.1;
+    float centreControlBonus = 0.03;
+    float kingAndRooksOnStartingSquareBonus = 0.15;
+    float castlingBonus = 0.8;
+
+    float whiteVal = 0;
+    float blackVal = 0;
+
+    //piece development bonuses:
+    whiteVal -= countBitsInBoard(state->_bit_board._white_knights & _starting_bitboard[Piece(White, Knight)]) * startingSquarePenalty;
+    whiteVal -= countBitsInBoard(state->_bit_board._white_bishops & _starting_bitboard[Piece(White, Bishop)]) * startingSquarePenalty;
+    whiteVal -= countBitsInBoard(state->_bit_board._white_queens & _starting_bitboard[Piece(White, Queen)]) * startingSquarePenalty;
+    whiteVal += countBitsInBoard(state->_bit_board._white_rooks & _starting_bitboard[Piece(White, Rook)]) * kingAndRooksOnStartingSquareBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_king & _starting_bitboard[Piece(White, King)]) * kingAndRooksOnStartingSquareBonus;
+
+    blackVal -= countBitsInBoard(state->_bit_board._black_knights & _starting_bitboard[Piece(Black, Knight)]) * startingSquarePenalty;
+    blackVal -= countBitsInBoard(state->_bit_board._black_bishops & _starting_bitboard[Piece(Black, Bishop)]) * startingSquarePenalty;
+    blackVal -= countBitsInBoard(state->_bit_board._black_queens & _starting_bitboard[Piece(Black, Queen)]) * startingSquarePenalty;
+    blackVal += countBitsInBoard(state->_bit_board._black_rooks & _starting_bitboard[Piece(Black, Rook)]) * kingAndRooksOnStartingSquareBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_king & _starting_bitboard[Piece(Black, King)]) * kingAndRooksOnStartingSquareBonus;
+
+    //centre control bonuses:
+    whiteVal += countBitsInBoard(state->_bit_board._white_knights & _large_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_knights & _medium_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_knights & _small_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_pawns & _large_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_pawns & _medium_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_pawns & _small_centre_mask) * centreControlBonus;
+
+    blackVal += countBitsInBoard(state->_bit_board._black_knights & _large_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_knights & _medium_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_knights & _small_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_pawns & _large_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_pawns & _medium_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_pawns & _small_centre_mask) * centreControlBonus;
+
+    //castling bonuses:
+    if (state->_castling_info._white_castled)
+        whiteVal += castlingBonus;
+    if (state->_castling_info._black_castled)
+        blackVal += castlingBonus;
 
     return whiteVal - blackVal;
 }

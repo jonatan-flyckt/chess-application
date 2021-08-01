@@ -428,4 +428,32 @@ ULL BitBoardUtils::mirrorVertical(ULL x) {
             ( (x >> 56) );
 }
 
+ULL BitBoardUtils::generateLargeCentreMask(){
+    ULL resultingMap = 0;
+    for (int i = 16; i <= 47; i++){
+        if (i % 8 >= 2 && i % 8 <= 5){
+            resultingMap |= 1ULL<<i;
+        }
+    }
+    return resultingMap;
+}
 
+ULL BitBoardUtils::generateMediumCentreMask(){
+    ULL resultingMap = 0;
+    for (int i = 24; i <= 39; i++){
+        if (i % 8 >= 2 && i % 8 <= 5){
+            resultingMap |= 1ULL<<i;
+        }
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateSmallCentreMask(){
+    ULL resultingMap = 0;
+    for (int i = 24; i <= 39; i++){
+        if (i % 8 >= 3 && i % 8 <= 4){
+            resultingMap |= 1ULL<<i;
+        }
+    }
+    return resultingMap;
+}

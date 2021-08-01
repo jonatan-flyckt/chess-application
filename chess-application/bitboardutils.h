@@ -55,6 +55,12 @@ public:
 
     ULL mirrorVertical(ULL x);
 
+    ULL generateLargeCentreMask();
+
+    ULL generateMediumCentreMask();
+
+    ULL generateSmallCentreMask();
+
     string _square_from_index[64] = {
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
         "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
@@ -124,6 +130,11 @@ public:
 
     map<RookDirections, ULL>* _rook_square_attack_rays = generateRookMoveSet();
 
+    ULL _large_centre_mask = generateLargeCentreMask();
+
+    ULL _medium_centre_mask = generateMediumCentreMask();
+
+    ULL _small_centre_mask = generateSmallCentreMask();
 };
 
 #endif // BITBOARDUTILS_H

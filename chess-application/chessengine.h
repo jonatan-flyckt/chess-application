@@ -5,7 +5,7 @@
 #define INFINITY_POS 1000000000
 #define INFINITY_NEG -1000000000
 
-#include "chessstructs.h"
+//#include <chessstructs.h>
 #include "chessrules.h"
 #include <random>
 #include <algorithm>
@@ -13,9 +13,11 @@
 #include <utility>
 #include <QElapsedTimer>
 #include <QDebug>
-#include "bitboardutils.h"
+//#include "utils.h"
+//#include "bitboardutils.h"
 
-using namespace std;
+
+//using namespace std;
 
 struct MiniMaxNode{
     pair<Move, float> _move_eval_pair;
@@ -30,7 +32,7 @@ struct MiniMaxTree{
     Move _best_move;
 };
 
-class ChessEngine
+class ChessEngine: public BitBoardUtils
 {
 public:
     ChessEngine();
@@ -38,6 +40,7 @@ public:
     Move selectMoveFromState(State *state, Colour engineColour);
     float heuristicValueForState(State *state);
     float simpleMaterialEvaluation(State *state);
+    float simpleOpeningEvaluation(State *state);
     Move makeRandomMove(State *state);
 
     Move miniMax(State *state, Colour engineColour);
