@@ -41,7 +41,6 @@ public:
     Move miniMax(State *state, Colour engineColour);
     pair<Move, float> alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, int depth, float alpha, float beta, bool maximisingPlayer);
     int countBitsInBoard(ULL board);
-    int increaseInSearchDepth(State *state);
 private:
 
     ChessRules _rules;
