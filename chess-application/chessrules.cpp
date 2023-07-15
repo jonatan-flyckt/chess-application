@@ -1,7 +1,14 @@
 #include "chessrules.h"
 
 ChessRules::ChessRules(){
-    _accumulated_test_time = 0;
+}
+
+uint64_t nanosecond_measurement()
+{
+    uint64_t ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::high_resolution_clock::now().time_since_epoch())
+            .count();
+    return ns;
 }
 
 State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMake){
@@ -9,7 +16,9 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     currentState->_move_from_state = moveToMake;
 
     State *resultingState = new State();
+    uint64_t start = nanosecond_measurement();
     updateBitBoardWithMove(currentState, resultingState, moveToMake);
+    _accumulated_update_bit_board_time += nanosecond_measurement() - start;
 
     resultingState->_bit_board_state_seen_count = currentState->_bit_board_state_seen_count;
     resultingState->_colour_to_move = currentState->_colour_to_move == White ? Black : White;
@@ -19,15 +28,19 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     resultingState->_moves_without_capture_or_pawn_advancement = (moveToMake._move_type == Capture || moveToMake._piece._type == Pawn) ? 0 : currentState->_moves_without_capture_or_pawn_advancement+1;
     resultingState->_castling_info = currentState->_castling_info;
 
+    start = nanosecond_measurement();
     updateCastlingInfo(moveToMake, resultingState);
+    _accumulated_update_castling_time += nanosecond_measurement() - start;
 
     resultingState->_legal_moves_from_state = getLegalBitBoardMoves(resultingState);
 
     currentState->_next_state = resultingState;
     currentState = resultingState;
 
+    start = nanosecond_measurement();
     currentState->_white_king_is_in_check = bitBoardWhiteKingIsInCheck(currentState->_bit_board);
     currentState->_black_king_is_in_check = bitBoardBlackKingIsInCheck(currentState->_bit_board);
+    _accumulated_kings_in_check_time += nanosecond_measurement() - start;
 
 
     if (currentState->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
@@ -57,10 +70,12 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
         resultingState->_game_over_reason = "50 move rule";
     }
 
+    start = nanosecond_measurement();
     resultingState->_position_hash = _hasher.generateHashForPosition(resultingState->_bit_board,
                                                                      resultingState->_castling_info,
                                                                      resultingState->_colour_to_move,
                                                                      resultingState->_bit_board._en_passant_square);
+    _accumulated_hash_time += nanosecond_measurement() - start;
 
 
     //TODO: incorporate three move repetition in minimax search as well
@@ -858,8 +873,6 @@ State* ChessRules::stateFromFEN(string fen){
 }
 
 void ChessRules::runPerftTest(State *state, int maxDepth, bool printDivide){
-    QElapsedTimer testTimer;
-    testTimer.start();
     map<int, int> *movePerDepthCounter = new map<int, int>();
     movePerDepthCounter->insert_or_assign(0, 1);
 
@@ -895,7 +908,7 @@ void ChessRules::runPerftTest(State *state, int maxDepth, bool printDivide){
         cout << endl;
     }
 
-    cout << "Test completed in " << testTimer.elapsed() / 1000.0 << " seconds." << endl;
+    //cout << "Test completed in " << testTimer.elapsed() / 1000.0 << " seconds." << endl;
 }
 
 void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,

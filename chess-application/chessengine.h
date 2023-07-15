@@ -5,14 +5,15 @@
 #define INFINITY_POS 1000000000
 #define INFINITY_NEG -1000000000
 
-//#include <chessstructs.h>
+
 #include "chessrules.h"
 #include <random>
 #include <algorithm>
 #include <vector>
 #include <utility>
-#include <QElapsedTimer>
+//#include <QElapsedTimer>
 #include <QDebug>
+#include <chrono>
 
 struct MiniMaxNode{
     pair<Move, float> _move_eval_pair;
@@ -47,17 +48,9 @@ private:
 
     map<int, MiniMaxTree*> *_move_number_minimax_tree_map;
 
-    QElapsedTimer _move_generation_timer;
-
     float _accumulated_move_generation_time;
-
-    QElapsedTimer _heuristic_evaluation_timer;
-
+    float _accumulated_state_generation_time;
     float _accumulated_heuristic_evaluation_time;
-
-    QElapsedTimer _alpha_beta_timer;
-
-    float _accumulated_alpha_beta_time;
 
 };
 

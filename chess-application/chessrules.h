@@ -6,8 +6,11 @@
 #include <QDebug>
 #include "utils.h"
 #include "bitboardutils.h"
-#include <QElapsedTimer>
 #include "zobristhasher.h"
+#include <chrono>
+#include <thread>
+
+uint64_t nanosecond_measurement();
 
 class ChessRules: public BitBoardUtils
 {
@@ -17,9 +20,6 @@ public:
     bool isInsufficientMaterial(State *state);
     State *getResultingStateFromMove(State *currentState, Move moveToMake);
     void updateCastlingInfo(Move move, State *state);
-
-    float _accumulated_test_time;
-
     vector<Move> getLegalBitBoardMoves(State *state);
     void updateBitBoardWithMove(State *currentState, State *resultingState, Move move);
     bool bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour colourAttacking);
@@ -45,11 +45,23 @@ public:
     void expandPerftTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
                          int maxDepth, bool printDivide, map<string, int> *moveTypeCounter, map<string, int> *divideMap, string divideString = "");
     bool pawnsOnAdjacentColumns(int indexFirst, int indexSecond);
+
+
+    float _accumulated_update_bit_board_time;
+    float _accumulated_update_castling_time;
+    float _accumulated_kings_in_check_time;
+    float _accumulated_hash_time;
+
+
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};
     vector<pair<int, int>> _possible_king_moves{make_pair(0,1), make_pair(1,1), make_pair(1,0), make_pair(1,-1),
                 make_pair(0,-1), make_pair(-1,-1), make_pair(-1,0), make_pair(-1,1)};
+
+
+
+
 
 
 };

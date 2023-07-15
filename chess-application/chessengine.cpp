@@ -28,41 +28,55 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     tree->_max_depth = MAX_DEPTH;
 
     _accumulated_move_generation_time = 0;
+    _accumulated_state_generation_time = 0;
     _accumulated_heuristic_evaluation_time = 0;
-    _accumulated_alpha_beta_time = 0;
-    _rules._accumulated_test_time = 0;
+    _rules._accumulated_update_bit_board_time = 0;
+    _rules._accumulated_update_castling_time = 0;
+    _rules._accumulated_kings_in_check_time = 0;
+    _rules._accumulated_hash_time = 0;
+    uint64_t start = nanosecond_measurement();
 
     pair<Move, float> bestMoveEvalPair = alphaBeta(tree, startingNode, startingNode->_depth_of_node, INFINITY_NEG, INFINITY_POS, engineColour == White);
 
-    qDebug() << "Move generation time:" << _accumulated_move_generation_time;
-    qDebug() << "Heuristic evaluation time:" << _accumulated_heuristic_evaluation_time;
-    qDebug() << "Alpha-Beta time:" << _accumulated_alpha_beta_time;
-    qDebug() << "Test timer:" << _rules._accumulated_test_time;
+    qDebug() << "Total time for finding move:" << float(nanosecond_measurement() - start) / 1000000.0 << "ms";
+    qDebug() << "Move generation time:" << float(_accumulated_move_generation_time) / 1000000.0 << "ms";
+    qDebug() << "State generation time:" << float(_accumulated_state_generation_time) / 1000000.0 << "ms";
+    qDebug() << "Heuristic evaluation time:" << float(_accumulated_heuristic_evaluation_time) / 1000000.0 << "ms";
+    qDebug() << "Accumulated update bit board time:" << float(_rules._accumulated_update_bit_board_time) / 1000000.0 << "ms";
+    qDebug() << "Accumulated update castling time:" << float(_rules._accumulated_update_castling_time) / 1000000.0 << "ms";
+    qDebug() << "Accumulated kings in check time:" << float(_rules._accumulated_kings_in_check_time) / 1000000.0 << "ms";
+    qDebug() << "Accumulated hash generation time:" << float(_rules._accumulated_hash_time) / 1000000.0 << "ms";
+    qDebug() << "";
 
     startingNode->_move_eval_pair.second = bestMoveEvalPair.second;
     tree->_best_move = bestMoveEvalPair.first;
+
+
+
+
     return tree->_best_move;
 }
 
 pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, int depth, float alpha, float beta, bool maximisingPlayer){
 
     if (depth == tree->_max_depth || node->_state->_is_game_over){
-        _heuristic_evaluation_timer.start();
+        uint64_t start = nanosecond_measurement();
         float value = heuristicValueForState(node->_state);
         pair<Move, float> moveEvalPair;
         moveEvalPair.first = node->_state->_move_to_state;
         moveEvalPair.second = value;
         return moveEvalPair;
-        _accumulated_heuristic_evaluation_time += _heuristic_evaluation_timer.elapsed();
+        _accumulated_heuristic_evaluation_time += nanosecond_measurement() - start;
     }
-    _move_generation_timer.start();
+    uint64_t start = nanosecond_measurement();
     node->_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(node->_state);
+    _accumulated_move_generation_time += nanosecond_measurement() - start;
 
     //TODO: maybe keep this, maybe not
     std::random_shuffle ( node->_state->_legal_moves_from_state.begin(),
                           node->_state->_legal_moves_from_state.end() );
 
-
+    start = nanosecond_measurement();
     //TODO: move ordering
     for (auto legalMove: node->_state->_legal_moves_from_state){
         MiniMaxNode *newNode = new MiniMaxNode();
@@ -70,11 +84,9 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
         newNode->_state = _rules.getResultingStateFromMove(node->_state, legalMove);
         node->_children.push_back(newNode);
     }
-    _accumulated_move_generation_time += _move_generation_timer.elapsed();
-
+    _accumulated_state_generation_time += nanosecond_measurement() - start;
 
     if (maximisingPlayer){ //Find best move for white (maximise)
-        _alpha_beta_timer.start();
         float bestEval = INFINITY_NEG;
         Move bestMove;
         for (auto child: node->_children){
@@ -89,11 +101,9 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
             if (alpha >= beta)
                 break;
         }
-        _accumulated_alpha_beta_time += _alpha_beta_timer.elapsed();
         return pair<Move, float>(bestMove, bestEval);
     }
     else{ //Find best move for black (minimise)
-        _alpha_beta_timer.start();
         float bestEval = INFINITY_POS;
         Move bestMove;
         for (auto child: node->_children){
@@ -108,7 +118,6 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
             if (beta <= alpha)
                 break;
         }
-        _accumulated_alpha_beta_time += _alpha_beta_timer.elapsed();
         return pair<Move, float>(bestMove, bestEval);
     }
 }
@@ -128,7 +137,6 @@ float ChessEngine::heuristicValueForState(State *state){
 float ChessEngine::simpleMaterialEvaluation(State *state){
     float whiteVal = 0;
     float blackVal = 0;
-
     whiteVal += countBitsInBoard(state->_bit_board._white_pawns) * 1;
     whiteVal += countBitsInBoard(state->_bit_board._white_knights) * 3;
     whiteVal += countBitsInBoard(state->_bit_board._white_bishops) * 3;
