@@ -53,6 +53,7 @@
 #include <QTimer>
 #include <QtConcurrent/QtConcurrentRun>
 #include <QFuture>
+#include "enginethread.h"
 
 #include <future>
 
@@ -185,6 +186,8 @@ public slots:
 
     void updateBoardGraphicsAfterMove();
 
+    void onEngineMoveReady(Move move);
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;
@@ -207,6 +210,7 @@ private:
     bool _in_exploration_mode;
     State *_state_being_viewed;
     ChessEngine *_engine;
+    EngineThread *_engine_thread;
 
     QLabel *_info_label;
     QLabel *_fen_label;
@@ -259,7 +263,13 @@ private:
     PieceWidget *_piece_widget_currently_dragged;
     QPixmap _pixmap_of_dragged_piece;
     PieceWidget *_piece_widget_of_moved_from_square;
+
 };
+
+
+
+
+
 #endif // MAINWINDOW_H
 
 

@@ -120,6 +120,7 @@ float ChessEngine::heuristicValueForState(State *state){
         else
             return state->_white_won ? 100000 : -100000;
     }
+    //TODO: Create a solid function to determine state of game (opening, mid, end), rather than just using 30 moves
     return state->_number_of_moves > 30 ? simpleMaterialEvaluation(state) :
                                           simpleMaterialEvaluation(state) + simpleOpeningEvaluation(state);
 }

@@ -56,6 +56,9 @@ MainWindow::MainWindow(QWidget *parent)
     _check_for_update_board_timer = new QTimer(this);
     connect(_check_for_update_board_timer, &QTimer::timeout, this, &MainWindow::updateBoardGraphicsAfterMove);
     _check_for_update_board_timer->start(HOW_OFTEN_TO_CHECK_FOR_BOARD_GRAPHIC_UPDATE);
+
+    _engine_thread = new EngineThread();
+    connect(_engine_thread, &EngineThread::moveCalculationsFinished, this, &MainWindow::onEngineMoveReady);
 }
 
 void MainWindow::showNewGamePopup(){
@@ -691,11 +694,17 @@ void MainWindow::completeClickingMove(QString destinationSquare){
 void MainWindow::getEngineMove(){
     if (((_game->getCurrent_state()->_colour_to_move == Black && _user_is_white) ||
             (_game->getCurrent_state()->_colour_to_move == White && !_user_is_white)) && !_game->_is_game_over){
-        //TODO: perform calculations on new thread
-        Move move = _engine->selectMoveFromState(_game->getCurrent_state(), _user_is_white ? Black : White);
-        performEngineMove(move);
-        _time_to_update_board = true;
+
+        _engine_thread->setGame(_game);
+        _engine_thread->setEngine(_engine);
+        _engine_thread->setUserIsWhite(_user_is_white);
+        _engine_thread->start();
     }
+}
+
+void MainWindow::onEngineMoveReady(Move move){
+    performEngineMove(move);
+    _time_to_update_board = true;
 }
 
 void MainWindow::performEngineMove(Move move){
@@ -703,8 +712,6 @@ void MainWindow::performEngineMove(Move move){
 }
 
 bool MainWindow::completeMove(Move attemptedMove){
-    //qDebug() << "in complete move func";
-
     _info_label->setText("");
     Move moveMade;
     QString originSquare = QString::fromStdString(attemptedMove._origin_square);

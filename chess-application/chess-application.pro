@@ -47,6 +47,7 @@ HEADERS += \
     chessstructs.h \
     choosepromotionpopup.h \
     contactpopup.h \
+    enginethread.h \
     graphicsinfo.h \
     linksdownladspopup.h \
     mainwindow.h \
