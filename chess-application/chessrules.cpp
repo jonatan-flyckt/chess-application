@@ -12,6 +12,7 @@ uint64_t nanosecond_measurement()
 }
 
 State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMake){
+    uint64_t whole_func_start = nanosecond_measurement();
 
     currentState->_move_from_state = moveToMake;
 
@@ -81,6 +82,8 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     //TODO: incorporate three move repetition in minimax search as well
 
     resultingState->_is_game_over = currentState->_is_game_over;
+
+    _inner_accumulated_state_generation_time += nanosecond_measurement() - whole_func_start;
 
     return currentState;
 }

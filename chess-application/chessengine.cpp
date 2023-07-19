@@ -34,6 +34,7 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     _rules._accumulated_update_castling_time = 0;
     _rules._accumulated_kings_in_check_time = 0;
     _rules._accumulated_hash_time = 0;
+    _rules._inner_accumulated_state_generation_time = 0;
     uint64_t start = nanosecond_measurement();
 
     pair<Move, float> bestMoveEvalPair = alphaBeta(tree, startingNode, startingNode->_depth_of_node, INFINITY_NEG, INFINITY_POS, engineColour == White);
@@ -41,6 +42,7 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     qDebug() << "Total time for finding move:" << float(nanosecond_measurement() - start) / 1000000.0 << "ms";
     qDebug() << "Move generation time:" << float(_accumulated_move_generation_time) / 1000000.0 << "ms";
     qDebug() << "State generation time:" << float(_accumulated_state_generation_time) / 1000000.0 << "ms";
+    qDebug() << "Inner state generation time:" << float(_rules._inner_accumulated_state_generation_time) / 1000000.0 << "ms";
     qDebug() << "Heuristic evaluation time:" << float(_accumulated_heuristic_evaluation_time) / 1000000.0 << "ms";
     qDebug() << "Accumulated update bit board time:" << float(_rules._accumulated_update_bit_board_time) / 1000000.0 << "ms";
     qDebug() << "Accumulated update castling time:" << float(_rules._accumulated_update_castling_time) / 1000000.0 << "ms";
@@ -61,12 +63,23 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
 
     if (depth == tree->_max_depth || node->_state->_is_game_over){
         uint64_t start = nanosecond_measurement();
-        float value = heuristicValueForState(node->_state);
         pair<Move, float> moveEvalPair;
         moveEvalPair.first = node->_state->_move_to_state;
+        float value;
+        if (node->_state->_is_game_over){
+            if (node->_state->_is_draw){
+                value = 0;
+            }
+            else{
+                value =  node->_state->_white_won ? INFINITY_POS + 1 : INFINITY_NEG - 1;
+            }
+        }
+        else{
+            value = heuristicValueForState(node->_state);
+        }
         moveEvalPair.second = value;
-        return moveEvalPair;
         _accumulated_heuristic_evaluation_time += nanosecond_measurement() - start;
+        return moveEvalPair;
     }
     uint64_t start = nanosecond_measurement();
     node->_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(node->_state);

@@ -9,7 +9,8 @@
 #include "chessstructs.h"
 #include <iostream>
 #include <random>
-
+#include <QDebug>
+#include <string>
 
 
 class ZobristHasher{
@@ -21,9 +22,9 @@ public:
 
     ULL generateRandomNumber();
 
-    map<Piece, vector<ULL>> generateRandomNumbersForPieces();
+    vector<vector<ULL>> generateRandomNumbersForPieces();
 
-    map<Piece, vector<ULL>> _piece_numbers;
+    vector<vector<ULL>> _piece_numbers;
 
     ULL _black_to_move_number;
 
@@ -33,18 +34,19 @@ public:
 
     int _current_random_index;
 
-    Piece _white_pawn = Piece(White, Pawn);
-    Piece _white_rook = Piece(White, Rook);
-    Piece _white_knight = Piece(White, Knight);
-    Piece _white_bishop = Piece(White, Bishop);
-    Piece _white_queen = Piece(White, Queen);
-    Piece _white_king = Piece(White, King);
-    Piece _black_pawn = Piece(Black, Pawn);
-    Piece _black_rook = Piece(Black, Rook);
-    Piece _black_knight = Piece(Black, Knight);
-    Piece _black_bishop = Piece(Black, Bishop);
-    Piece _black_queen = Piece(Black, Queen);
-    Piece _black_king = Piece(Black, King);
+    int _white_pawn = 0;
+    int _white_rook = 1;
+    int _white_knight = 2;
+    int _white_bishop = 3;
+    int _white_queen = 4;
+    int _white_king = 5;
+    int _black_pawn = 6;
+    int _black_rook = 7;
+    int _black_knight = 8;
+    int _black_bishop = 9;
+    int _black_queen = 10;
+    int _black_king = 11;
+
 
     const int _least_significant_bit_table[64] ={
         63, 30,  3, 32, 25, 41, 22, 33,

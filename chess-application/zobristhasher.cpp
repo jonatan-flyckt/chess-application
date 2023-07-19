@@ -14,42 +14,43 @@ ULL ZobristHasher::generateHashForPosition(BitBoard board, CastlingInfo castling
     ULL hash = 0ULL;
 
     vector<int> indices = getIndicesOfBitsInBoard(board._white_pawns);
+
     for (auto index: indices)
-        hash ^= _piece_numbers[_white_pawn].at(index);
+        hash ^= _piece_numbers.at(_white_pawn).at(index);
     indices = getIndicesOfBitsInBoard(board._white_rooks);
     for (auto index: indices)
-        hash ^= _piece_numbers[_white_rook].at(index);
+        hash ^= _piece_numbers.at(_white_rook).at(index);
     indices = getIndicesOfBitsInBoard(board._white_knights);
     for (auto index: indices)
-        hash ^= _piece_numbers[_white_knight].at(index);
+        hash ^= _piece_numbers.at(_white_knight).at(index);
     indices = getIndicesOfBitsInBoard(board._white_bishops);
     for (auto index: indices)
-        hash ^= _piece_numbers[_white_bishop].at(index);
+        hash ^= _piece_numbers.at(_white_bishop).at(index);
     indices = getIndicesOfBitsInBoard(board._white_queens);
     for (auto index: indices)
-        hash ^= _piece_numbers[_white_queen].at(index);
+        hash ^= _piece_numbers.at(_white_queen).at(index);
     indices = getIndicesOfBitsInBoard(board._white_king);
     for (auto index: indices)
-        hash ^= _piece_numbers[_white_king].at(index);
+        hash ^= _piece_numbers.at(_white_king).at(index);
 
     indices = getIndicesOfBitsInBoard(board._black_pawns);
     for (auto index: indices)
-        hash ^= _piece_numbers[_black_pawn].at(index);
+        hash ^= _piece_numbers.at(_black_pawn).at(index);
     indices = getIndicesOfBitsInBoard(board._black_rooks);
     for (auto index: indices)
-        hash ^= _piece_numbers[_black_rook].at(index);
+        hash ^= _piece_numbers.at(_black_rook).at(index);
     indices = getIndicesOfBitsInBoard(board._black_knights);
     for (auto index: indices)
-        hash ^= _piece_numbers[_black_knight].at(index);
+        hash ^= _piece_numbers.at(_black_knight).at(index);
     indices = getIndicesOfBitsInBoard(board._black_bishops);
     for (auto index: indices)
-        hash ^= _piece_numbers[_black_bishop].at(index);
+        hash ^= _piece_numbers.at(_black_bishop).at(index);
     indices = getIndicesOfBitsInBoard(board._black_queens);
     for (auto index: indices)
-        hash ^= _piece_numbers[_black_queen].at(index);
+        hash ^= _piece_numbers.at(_black_queen).at(index);
     indices = getIndicesOfBitsInBoard(board._black_king);
     for (auto index: indices)
-        hash ^= _piece_numbers[_black_king].at(index);
+        hash ^= _piece_numbers.at(_black_king).at(index);
 
     if (turnToMove == Black)
         hash ^= _black_to_move_number;
@@ -73,7 +74,6 @@ ULL ZobristHasher::generateHashForPosition(BitBoard board, CastlingInfo castling
 
     for (auto number: _en_passant_file_numbers)
         hash ^= number;
-
     return hash;
 }
 
@@ -87,70 +87,72 @@ ULL ZobristHasher::generateRandomNumber(){
     return r & 0xFFFFFFFFFFFFFFFFULL;
 }
 
-map<Piece, vector<ULL> > ZobristHasher::generateRandomNumbersForPieces(){
-    map<Piece, vector<ULL>> pieceMap;
+vector<vector<ULL> > ZobristHasher::generateRandomNumbersForPieces(){
+    vector<vector<ULL>> pieceVector;
     vector<ULL> numbersArr;
+    pieceVector.resize(12);
+
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_white_pawn, numbersArr);
+    pieceVector.at(_white_pawn) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_white_rook, numbersArr);
+    pieceVector.at(_white_rook) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_white_knight, numbersArr);
+    pieceVector.at(_white_knight) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_white_bishop, numbersArr);
+    pieceVector.at(_white_bishop) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_white_queen, numbersArr);
+    pieceVector.at(_white_queen) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_white_king, numbersArr);
+    pieceVector.at(_white_king) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_black_pawn, numbersArr);
+    pieceVector.at(_black_pawn) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_black_rook, numbersArr);
+    pieceVector.at(_black_rook) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_black_knight, numbersArr);
+    pieceVector.at(_black_knight) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_black_bishop, numbersArr);
+    pieceVector.at(_black_bishop) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_black_queen, numbersArr);
+    pieceVector.at(_black_queen) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceMap.emplace(_black_king, numbersArr);
+    pieceVector.at(_black_king) = numbersArr;
     numbersArr.clear();
 
-    return pieceMap;
+    return pieceVector;
 }
 
 int ZobristHasher::popLeastSignificantBitFromBoard(ULL *board){
@@ -166,3 +168,4 @@ vector<int> ZobristHasher::getIndicesOfBitsInBoard(ULL board){
         indices.push_back(popLeastSignificantBitFromBoard(&board));
     return indices;
 }
+

@@ -51,7 +51,7 @@ public:
     float _accumulated_update_castling_time;
     float _accumulated_kings_in_check_time;
     float _accumulated_hash_time;
-
+    float _inner_accumulated_state_generation_time;
 
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
