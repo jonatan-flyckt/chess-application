@@ -94,6 +94,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     moveToMake._promotion_selection = _piece_selected_from_promotion;
 
     State *resultingState = _rules.getResultingStateFromMove(_current_state, moveToMake);
+    _current_state->_next_state = resultingState;
     //TODO: test code below more
     if (_rules.bitBoardNumberOfTimesThisStateSeen(resultingState->_position_hash, resultingState->_bit_board_state_seen_count) >= 3){
         resultingState->_is_game_over = true;

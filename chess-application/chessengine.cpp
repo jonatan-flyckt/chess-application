@@ -35,6 +35,7 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     _rules._accumulated_kings_in_check_time = 0;
     _rules._accumulated_hash_time = 0;
     _rules._inner_accumulated_state_generation_time = 0;
+    _rules._accumulated_get_legal_bit_board_moves_timer = 0;
     uint64_t start = nanosecond_measurement();
 
     pair<Move, float> bestMoveEvalPair = alphaBeta(tree, startingNode, startingNode->_depth_of_node, INFINITY_NEG, INFINITY_POS, engineColour == White);
@@ -45,6 +46,7 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     qDebug() << "Inner state generation time:" << float(_rules._inner_accumulated_state_generation_time) / 1000000.0 << "ms";
     qDebug() << "Heuristic evaluation time:" << float(_accumulated_heuristic_evaluation_time) / 1000000.0 << "ms";
     qDebug() << "Accumulated update bit board time:" << float(_rules._accumulated_update_bit_board_time) / 1000000.0 << "ms";
+    qDebug() << "Accumulated get legal bit board moves time:" << float(_rules._accumulated_get_legal_bit_board_moves_timer) / 1000000.0 << "ms";
     qDebug() << "Accumulated update castling time:" << float(_rules._accumulated_update_castling_time) / 1000000.0 << "ms";
     qDebug() << "Accumulated kings in check time:" << float(_rules._accumulated_kings_in_check_time) / 1000000.0 << "ms";
     qDebug() << "Accumulated hash generation time:" << float(_rules._accumulated_hash_time) / 1000000.0 << "ms";

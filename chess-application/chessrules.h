@@ -48,6 +48,7 @@ public:
 
 
     float _accumulated_update_bit_board_time;
+    float _accumulated_get_legal_bit_board_moves_timer;
     float _accumulated_update_castling_time;
     float _accumulated_kings_in_check_time;
     float _accumulated_hash_time;

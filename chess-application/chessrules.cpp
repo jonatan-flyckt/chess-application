@@ -14,8 +14,6 @@ uint64_t nanosecond_measurement()
 State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMake){
     uint64_t whole_func_start = nanosecond_measurement();
 
-    currentState->_move_from_state = moveToMake;
-
     State *resultingState = new State();
     uint64_t start = nanosecond_measurement();
     updateBitBoardWithMove(currentState, resultingState, moveToMake);
@@ -33,25 +31,24 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     updateCastlingInfo(moveToMake, resultingState);
     _accumulated_update_castling_time += nanosecond_measurement() - start;
 
+    start = nanosecond_measurement();
     resultingState->_legal_moves_from_state = getLegalBitBoardMoves(resultingState);
-
-    currentState->_next_state = resultingState;
-    currentState = resultingState;
+    _accumulated_get_legal_bit_board_moves_timer += nanosecond_measurement() - start;
 
     start = nanosecond_measurement();
-    currentState->_white_king_is_in_check = bitBoardWhiteKingIsInCheck(currentState->_bit_board);
-    currentState->_black_king_is_in_check = bitBoardBlackKingIsInCheck(currentState->_bit_board);
+    resultingState->_white_king_is_in_check = bitBoardWhiteKingIsInCheck(resultingState->_bit_board);
+    resultingState->_black_king_is_in_check = bitBoardBlackKingIsInCheck(resultingState->_bit_board);
     _accumulated_kings_in_check_time += nanosecond_measurement() - start;
 
 
-    if (currentState->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
-        currentState->_is_game_over = true;
+    if (resultingState->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
+        resultingState->_is_game_over = true;
 
-        if (currentState->_colour_to_move == Black && currentState->_black_king_is_in_check){
+        if (resultingState->_colour_to_move == Black && resultingState->_black_king_is_in_check){
             resultingState->_white_won = true;
             resultingState->_game_over_reason = "Check Mate";
         }
-        else if (currentState->_colour_to_move == White && currentState->_white_king_is_in_check){
+        else if (resultingState->_colour_to_move == White && resultingState->_white_king_is_in_check){
             resultingState->_black_won = true;
             resultingState->_game_over_reason = "Check Mate";
         }
@@ -60,13 +57,13 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
             resultingState->_game_over_reason = "Stalemate";
         }
     }
-    /*if (isInsufficientMaterial(currentState)){ //TODO: Replace
-        currentState->_is_game_over = true;
-        resultingState->_is_draw = true;
-        resultingState->_game_over_reason = "Insufficient mating material";
-    }*/
-    if (currentState->_moves_without_capture_or_pawn_advancement >= 100){
-        currentState->_is_game_over = true;
+    //if (isInsufficientMaterial(currentState)){ //TODO: Replace
+    //    currentState->_is_game_over = true;
+    //    resultingState->_is_draw = true;
+    //    resultingState->_game_over_reason = "Insufficient mating material";
+    //}
+    if (resultingState->_moves_without_capture_or_pawn_advancement >= 100){
+        resultingState->_is_game_over = true;
         resultingState->_is_draw = true;
         resultingState->_game_over_reason = "50 move rule";
     }
@@ -81,11 +78,10 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
 
     //TODO: incorporate three move repetition in minimax search as well
 
-    resultingState->_is_game_over = currentState->_is_game_over;
 
     _inner_accumulated_state_generation_time += nanosecond_measurement() - whole_func_start;
 
-    return currentState;
+    return resultingState;
 }
 
 void ChessRules::updateCastlingInfo(Move move, State *state){
@@ -679,6 +675,8 @@ bool ChessRules::pawnsOnAdjacentColumns(int indexFirst, int indexSecond){
     return abs((indexSecond % 8) - (indexFirst % 8)) == 1;
 }
 
+
+//Not currently used. Replace with bitboard version
 bool ChessRules::isInsufficientMaterial(State *state){
     int whiteMinorPieceCount = 0;
     int blackMinorPieceCount = 0;

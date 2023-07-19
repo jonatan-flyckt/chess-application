@@ -97,7 +97,6 @@ struct State{
     State(){};
     Colour _colour_to_move;
     Move _move_to_state;
-    Move _move_from_state;
     vector<Move> _legal_moves_from_state;
     State *_previous_state = nullptr;
     State *_next_state = nullptr;
