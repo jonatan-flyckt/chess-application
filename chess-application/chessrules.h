@@ -35,6 +35,7 @@ public:
     ULL getBitBoardOfPossibleAttacksForBishop(int index, ULL occupancy);
     ULL getBitBoardOfPossibleAttacksForRook(int index, ULL occupancy);
     vector<Move> getBitBoardCastlingMoves(BitBoard board, CastlingInfo castlingInfo, Colour colourToMove, int numberOfMoves);
+    map<Piece, vector<int>> getIndicesOfBitsForPieceTypes(BitBoard board);
 
     ZobristHasher _hasher = ZobristHasher();
 

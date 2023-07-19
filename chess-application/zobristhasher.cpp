@@ -10,47 +10,34 @@ ZobristHasher::ZobristHasher(){
         _en_passant_file_numbers.push_back(generateRandomNumber());
 }
 
-ULL ZobristHasher::generateHashForPosition(BitBoard board, CastlingInfo castlingInfo, Colour turnToMove, ULL enPassantSquare){
+ULL ZobristHasher::generateHashForPosition(map<Piece, vector<int>> indicesOfBitsInBoard, CastlingInfo castlingInfo, Colour turnToMove, vector<int> enPassantIndexVector){
     ULL hash = 0ULL;
 
-    vector<int> indices = getIndicesOfBitsInBoard(board._white_pawns);
+    for (auto index: indicesOfBitsInBoard[Piece(White, Pawn)])
+        hash ^= _piece_numbers.at(_white_pawn_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(White, Rook)])
+        hash ^= _piece_numbers.at(_white_rook_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(White, Knight)])
+        hash ^= _piece_numbers.at(_white_knight_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(White, Bishop)])
+        hash ^= _piece_numbers.at(_white_bishop_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(White, Queen)])
+        hash ^= _piece_numbers.at(_white_queen_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(White, King)])
+        hash ^= _piece_numbers.at(_white_king_index).at(index);
 
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_white_pawn).at(index);
-    indices = getIndicesOfBitsInBoard(board._white_rooks);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_white_rook).at(index);
-    indices = getIndicesOfBitsInBoard(board._white_knights);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_white_knight).at(index);
-    indices = getIndicesOfBitsInBoard(board._white_bishops);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_white_bishop).at(index);
-    indices = getIndicesOfBitsInBoard(board._white_queens);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_white_queen).at(index);
-    indices = getIndicesOfBitsInBoard(board._white_king);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_white_king).at(index);
-
-    indices = getIndicesOfBitsInBoard(board._black_pawns);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_black_pawn).at(index);
-    indices = getIndicesOfBitsInBoard(board._black_rooks);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_black_rook).at(index);
-    indices = getIndicesOfBitsInBoard(board._black_knights);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_black_knight).at(index);
-    indices = getIndicesOfBitsInBoard(board._black_bishops);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_black_bishop).at(index);
-    indices = getIndicesOfBitsInBoard(board._black_queens);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_black_queen).at(index);
-    indices = getIndicesOfBitsInBoard(board._black_king);
-    for (auto index: indices)
-        hash ^= _piece_numbers.at(_black_king).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(Black, Pawn)])
+        hash ^= _piece_numbers.at(_black_pawn_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(Black, Rook)])
+        hash ^= _piece_numbers.at(_black_rook_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(Black, Knight)])
+        hash ^= _piece_numbers.at(_black_knight_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(Black, Bishop)])
+        hash ^= _piece_numbers.at(_black_bishop_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(Black, Queen)])
+        hash ^= _piece_numbers.at(_black_queen_index).at(index);
+    for (auto index: indicesOfBitsInBoard[Piece(Black, King)])
+        hash ^= _piece_numbers.at(_black_king_index).at(index);
 
     if (turnToMove == Black)
         hash ^= _black_to_move_number;
@@ -72,8 +59,11 @@ ULL ZobristHasher::generateHashForPosition(BitBoard board, CastlingInfo castling
         }
     }
 
-    for (auto number: _en_passant_file_numbers)
-        hash ^= number;
+    if (enPassantIndexVector.size() > 0){
+        int enPassantFile = enPassantIndexVector.at(0) % 8;
+        hash ^= _en_passant_file_numbers.at(enPassantFile);
+    }
+
     return hash;
 }
 
@@ -94,78 +84,64 @@ vector<vector<ULL> > ZobristHasher::generateRandomNumbersForPieces(){
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_white_pawn) = numbersArr;
+    pieceVector.at(_white_pawn_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_white_rook) = numbersArr;
+    pieceVector.at(_white_rook_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_white_knight) = numbersArr;
+    pieceVector.at(_white_knight_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_white_bishop) = numbersArr;
+    pieceVector.at(_white_bishop_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_white_queen) = numbersArr;
+    pieceVector.at(_white_queen_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_white_king) = numbersArr;
+    pieceVector.at(_white_king_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_black_pawn) = numbersArr;
+    pieceVector.at(_black_pawn_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_black_rook) = numbersArr;
+    pieceVector.at(_black_rook_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_black_knight) = numbersArr;
+    pieceVector.at(_black_knight_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_black_bishop) = numbersArr;
+    pieceVector.at(_black_bishop_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_black_queen) = numbersArr;
+    pieceVector.at(_black_queen_index) = numbersArr;
     numbersArr.clear();
 
     for (int i = 0; i < 64; i++)
         numbersArr.push_back(generateRandomNumber());
-    pieceVector.at(_black_king) = numbersArr;
+    pieceVector.at(_black_king_index) = numbersArr;
     numbersArr.clear();
 
     return pieceVector;
-}
-
-int ZobristHasher::popLeastSignificantBitFromBoard(ULL *board){
-    ULL tempBoard = *board ^(*board - 1);
-    unsigned int halfFold = (unsigned) ((tempBoard & 0xffffffff) ^ (tempBoard >> 32));
-    *board &= (*board-1);
-    return _least_significant_bit_table[(halfFold * 0x783a9b23) >> 26];
-}
-
-vector<int> ZobristHasher::getIndicesOfBitsInBoard(ULL board){
-    vector<int> indices;
-    while (board)
-        indices.push_back(popLeastSignificantBitFromBoard(&board));
-    return indices;
 }
 

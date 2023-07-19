@@ -16,7 +16,9 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
 
     State *resultingState = new State();
     uint64_t start = nanosecond_measurement();
+
     updateBitBoardWithMove(currentState, resultingState, moveToMake);
+    resultingState->_indices_of_bits_for_piece_types = getIndicesOfBitsForPieceTypes(resultingState->_bit_board);
     _accumulated_update_bit_board_time += nanosecond_measurement() - start;
 
     resultingState->_bit_board_state_seen_count = currentState->_bit_board_state_seen_count;
@@ -69,10 +71,10 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     }
 
     start = nanosecond_measurement();
-    resultingState->_position_hash = _hasher.generateHashForPosition(resultingState->_bit_board,
+    resultingState->_position_hash = _hasher.generateHashForPosition(resultingState->_indices_of_bits_for_piece_types,
                                                                      resultingState->_castling_info,
                                                                      resultingState->_colour_to_move,
-                                                                     resultingState->_bit_board._en_passant_square);
+                                                                     getIndicesOfBitsInBoard(resultingState->_bit_board._en_passant_square));
     _accumulated_hash_time += nanosecond_measurement() - start;
 
 
@@ -641,6 +643,23 @@ vector<Move> ChessRules::getBitBoardCastlingMoves(BitBoard board, CastlingInfo c
     return moveVector;
 }
 
+map<Piece, vector<int> > ChessRules::getIndicesOfBitsForPieceTypes(BitBoard board){
+    map<Piece, vector<int>> returnMap;
+    returnMap[Piece(White, Pawn)] = getIndicesOfBitsInBoard(board._white_pawns);
+    returnMap[Piece(White, Rook)] = getIndicesOfBitsInBoard(board._white_rooks);
+    returnMap[Piece(White, Knight)] = getIndicesOfBitsInBoard(board._white_knights);
+    returnMap[Piece(White, Bishop)] = getIndicesOfBitsInBoard(board._white_bishops);
+    returnMap[Piece(White, Queen)] = getIndicesOfBitsInBoard(board._white_queens);
+    returnMap[Piece(White, King)] = getIndicesOfBitsInBoard(board._white_king);
+    returnMap[Piece(Black, Pawn)] = getIndicesOfBitsInBoard(board._black_pawns);
+    returnMap[Piece(Black, Rook)] = getIndicesOfBitsInBoard(board._black_rooks);
+    returnMap[Piece(Black, Knight)] = getIndicesOfBitsInBoard(board._black_knights);
+    returnMap[Piece(Black, Bishop)] = getIndicesOfBitsInBoard(board._black_bishops);
+    returnMap[Piece(Black, Queen)] = getIndicesOfBitsInBoard(board._black_queens);
+    returnMap[Piece(Black, King)] = getIndicesOfBitsInBoard(board._black_king);
+    return returnMap;
+}
+
 ULL ChessRules::getBitBoardOfPossibleAttacksForBishop(int index, ULL occupancy){
     //Positive directions
     int lsb = getIndexOfLeastSignificantBit(_bishop_square_attack_rays[index][NE] & occupancy);
@@ -855,10 +874,10 @@ State* ChessRules::stateFromFEN(string fen){
                 bitBoardBlackKingIsInCheck(state->_bit_board) : false;
 
 
-    state->_position_hash = _hasher.generateHashForPosition(state->_bit_board,
+    state->_position_hash = _hasher.generateHashForPosition(state->_indices_of_bits_for_piece_types,
                                                             state->_castling_info,
                                                             state->_colour_to_move,
-                                                            state->_bit_board._en_passant_square);
+                                                            getIndicesOfBitsInBoard(state->_bit_board._en_passant_square));
 
 
     vector<Move> legalMoves = getLegalBitBoardMoves(state);

@@ -11,14 +11,16 @@
 #include <random>
 #include <QDebug>
 #include <string>
+#include <vector>
+#include <map>
 
-
+using namespace std;
 class ZobristHasher{
 public:
 
     ZobristHasher();
 
-    ULL generateHashForPosition(BitBoard board, CastlingInfo castlingInfo, Colour turnToMove, ULL enPassantSquare);
+    ULL generateHashForPosition(map<Piece, vector<int>> indicesOfBitsInBoard, CastlingInfo castlingInfo, Colour turnToMove, vector<int> enPassantIndexVector);
 
     ULL generateRandomNumber();
 
@@ -34,18 +36,18 @@ public:
 
     int _current_random_index;
 
-    int _white_pawn = 0;
-    int _white_rook = 1;
-    int _white_knight = 2;
-    int _white_bishop = 3;
-    int _white_queen = 4;
-    int _white_king = 5;
-    int _black_pawn = 6;
-    int _black_rook = 7;
-    int _black_knight = 8;
-    int _black_bishop = 9;
-    int _black_queen = 10;
-    int _black_king = 11;
+    int _white_pawn_index = 0;
+    int _white_rook_index = 1;
+    int _white_knight_index = 2;
+    int _white_bishop_index = 3;
+    int _white_queen_index = 4;
+    int _white_king_index = 5;
+    int _black_pawn_index = 6;
+    int _black_rook_index = 7;
+    int _black_knight_index = 8;
+    int _black_bishop_index = 9;
+    int _black_queen_index = 10;
+    int _black_king_index = 11;
 
 
     const int _least_significant_bit_table[64] ={
@@ -58,8 +60,6 @@ public:
          7, 39, 48, 24, 59, 14, 12, 55,
         38, 28, 58, 20, 37, 17, 36,  8
     };
-    int popLeastSignificantBitFromBoard(ULL *board);
-    vector<int> getIndicesOfBitsInBoard(ULL board);
 };
 
 #endif // ZOBRISTHASHER_H

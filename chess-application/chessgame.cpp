@@ -292,8 +292,8 @@ State* ChessGame::gameStartingState(){
     startingState->_number_of_moves = 0;
     startingState->_previous_state = nullptr;
     startingState->_moves_without_capture_or_pawn_advancement = 0;
-    initiatePiecesForGraphicBoard(startingState);
-    initiateBitBoard(startingState);
+    initialisePiecesForGraphicBoard(startingState);
+    initialiseBitBoard(startingState);
 
     vector<Move> moves = _rules.getLegalBitBoardMoves(startingState);
 
@@ -301,7 +301,7 @@ State* ChessGame::gameStartingState(){
     return startingState;
 }
 
-void ChessGame::initiateBitBoard(State *startingState){
+void ChessGame::initialiseBitBoard(State *startingState){
     startingState->_bit_board._white_pawns = _starting_bitboard[Piece(White, Pawn)];
     startingState->_bit_board._white_rooks = _starting_bitboard[Piece(White, Rook)];
     startingState->_bit_board._white_bishops = _starting_bitboard[Piece(White, Bishop)];
@@ -323,9 +323,10 @@ void ChessGame::initiateBitBoard(State *startingState){
             startingState->_bit_board._black_rooks | startingState->_bit_board._black_bishops |startingState->_bit_board._black_knights |
             startingState->_bit_board._black_king |startingState->_bit_board._black_queens;
     startingState->_bit_board._all_pieces = startingState->_bit_board._all_white_pieces | startingState->_bit_board._all_black_pieces;
+    startingState->_indices_of_bits_for_piece_types = _rules.getIndicesOfBitsForPieceTypes(startingState->_bit_board);
 }
 
-void ChessGame::initiatePiecesForGraphicBoard(State *startingState){
+void ChessGame::initialisePiecesForGraphicBoard(State *startingState){
     for (int i = 0; i < startingState->_board_for_graphics.at(1).size(); i++)
         startingState->_board_for_graphics.at(1).at(i) = new Piece(White, Pawn);
     startingState->_board_for_graphics.at(0).at(0) = new Piece(White, Rook);

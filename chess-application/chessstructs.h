@@ -123,8 +123,8 @@ struct State{
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
     };
 
-
     BitBoard _bit_board;
+    map<Piece, vector<int>> _indices_of_bits_for_piece_types;
 
     string _fen_notation;
 

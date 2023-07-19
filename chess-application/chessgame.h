@@ -22,7 +22,7 @@ public:
     string fenFromState(State state);
     State* gameStartingState();
     void updatePGN();
-    void initiatePiecesForGraphicBoard(State *startingState);
+    void initialisePiecesForGraphicBoard(State *startingState);
 
     bool makeMove(string originSquare, string destinationSquare);
     vector<Move> getLegalMovesForCurrentState();
@@ -56,7 +56,7 @@ public:
 
     ChessGame* clone();
 
-    void initiateBitBoard(State *startingState);
+    void initialiseBitBoard(State *startingState);
     void updateBoardForGraphics(State *currentState, State *resultingState, Move move);
     void performCastlingMoveForGraphicBoard(Move move, State *state);
     void performEnPassantMoveForGraphicBoard(Move move, State *state);
