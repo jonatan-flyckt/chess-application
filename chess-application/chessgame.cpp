@@ -26,27 +26,27 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     //_rules.runPerftTest(testState, 3, true);
 
     //position 3, passed depth 5, 18 sec
-    //State *testState = _rules.stateFromFEN("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
+    //testState = _rules.stateFromFEN("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
     //_rules.runPerftTest(testState, 5, true);
 
     //position 4, passed depth 4, 39 sec
-    //State *testState = _rules.stateFromFEN("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+    //testState = _rules.stateFromFEN("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
     //_rules.runPerftTest(testState, 4, true);
 
     //position 5: passed depth 4, 223 sec
-    //State *testState = _rules.stateFromFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+    //testState = _rules.stateFromFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
     //_rules.runPerftTest(testState, 3, true);
 
     //position 6, passed depth 3. 8 sec
-    //State *testState = _rules.stateFromFEN("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10 ");
+    //testState = _rules.stateFromFEN("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10 ");
     //_rules.runPerftTest(testState, 3, true);
 
     //custom pos 7, passed depth 5, 15 sec
-    //State *testState = _rules.stateFromFEN("8/3k4/8/4b3/1p1p1p2/8/1PPRP2K/8 w - - 0 1");
+    //testState = _rules.stateFromFEN("8/3k4/8/4b3/1p1p1p2/8/1PPRP2K/8 w - - 0 1");
     //_rules.runPerftTest(testState, 5, true);
 
     //custom pos 8, passed depth 5, 22 sec
-    //State *testState = _rules.stateFromFEN("8/4rP2/8/8/4pk2/8/3P2PP/4K2R w K - 0 1");
+    //testState = _rules.stateFromFEN("8/4rP2/8/8/4pk2/8/3P2PP/4K2R w K - 0 1");
     //_rules.runPerftTest(testState, 5, true);
 
 
@@ -323,7 +323,7 @@ void ChessGame::initialiseBitBoard(State *startingState){
             startingState->_bit_board._black_rooks | startingState->_bit_board._black_bishops |startingState->_bit_board._black_knights |
             startingState->_bit_board._black_king |startingState->_bit_board._black_queens;
     startingState->_bit_board._all_pieces = startingState->_bit_board._all_white_pieces | startingState->_bit_board._all_black_pieces;
-    startingState->_indices_of_bits_for_piece_types = _rules.getIndicesOfBitsForPieceTypes(startingState->_bit_board);
+    startingState->_bit_board._indices_of_bits_for_piece_types = _rules.getIndicesOfBitsForPieceTypes(startingState->_bit_board);
 }
 
 void ChessGame::initialisePiecesForGraphicBoard(State *startingState){

@@ -91,6 +91,8 @@ struct BitBoard{
     ULL _all_pieces;
 
     ULL _en_passant_square;
+
+    map<Piece, vector<int>> _indices_of_bits_for_piece_types;
 };
 
 struct State{
@@ -124,7 +126,7 @@ struct State{
     };
 
     BitBoard _bit_board;
-    map<Piece, vector<int>> _indices_of_bits_for_piece_types;
+
 
     string _fen_notation;
 

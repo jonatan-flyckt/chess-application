@@ -55,6 +55,25 @@ public:
     float _accumulated_hash_time;
     float _inner_accumulated_state_generation_time;
 
+    float _pawn_timer;
+    float _knight_timer;
+    float _bishop_timer;
+    float _rook_timer;
+    float _queen_timer;
+    float _king_timer;
+    float _castling_timer;
+    float _self_check_timer;
+
+    float _self_check_first_timer;
+    float _self_check_second_timer;
+
+    float _attack_get_indices_timer;
+    float _attack_pawn_timer;
+    float _attack_knight_timer;
+    float _attack_bishop_timer;
+    float _attack_rook_timer;
+    float _attack_queen_timer;
+
 private:
     vector<pair<int, int>> _possible_knight_moves{make_pair(1,2), make_pair(1,-2), make_pair(2,1), make_pair(2,-1),
                 make_pair(-2,1), make_pair(-2,-1), make_pair(-1,2), make_pair(-1,-2)};

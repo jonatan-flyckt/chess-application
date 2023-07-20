@@ -36,6 +36,26 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     _rules._accumulated_hash_time = 0;
     _rules._inner_accumulated_state_generation_time = 0;
     _rules._accumulated_get_legal_bit_board_moves_timer = 0;
+
+    _rules._pawn_timer = 0;
+    _rules._knight_timer = 0;
+    _rules._bishop_timer = 0;
+    _rules._rook_timer = 0;
+    _rules._queen_timer = 0;
+    _rules._king_timer = 0;
+    _rules._castling_timer = 0;
+    _rules._self_check_timer = 0;
+    _rules._self_check_first_timer = 0;
+    _rules._self_check_second_timer = 0;
+
+    _rules._attack_get_indices_timer = 0;
+    _rules._attack_pawn_timer = 0;
+    _rules._attack_knight_timer = 0;
+    _rules._attack_bishop_timer = 0;
+    _rules._attack_rook_timer = 0;
+    _rules._attack_queen_timer = 0;
+
+
     uint64_t start = nanosecond_measurement();
 
     pair<Move, float> bestMoveEvalPair = alphaBeta(tree, startingNode, startingNode->_depth_of_node, INFINITY_NEG, INFINITY_POS, engineColour == White);
@@ -50,6 +70,22 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     qDebug() << "Accumulated update castling time:" << float(_rules._accumulated_update_castling_time) / 1000000.0 << "ms";
     qDebug() << "Accumulated kings in check time:" << float(_rules._accumulated_kings_in_check_time) / 1000000.0 << "ms";
     qDebug() << "Accumulated hash generation time:" << float(_rules._accumulated_hash_time) / 1000000.0 << "ms";
+    qDebug() << "pawn time:" << float(_rules._pawn_timer) / 1000000.0 << "ms";
+    qDebug() << "knight time:" << float(_rules._knight_timer) / 1000000.0 << "ms";
+    qDebug() << "bishop time:" << float(_rules._bishop_timer) / 1000000.0 << "ms";
+    qDebug() << "rook time:" << float(_rules._rook_timer) / 1000000.0 << "ms";
+    qDebug() << "queen time:" << float(_rules._queen_timer) / 1000000.0 << "ms";
+    qDebug() << "king time:" << float(_rules._king_timer) / 1000000.0 << "ms";
+    qDebug() << "castling time:" << float(_rules._castling_timer) / 1000000.0 << "ms";
+    qDebug() << "self check time:" << float(_rules._self_check_timer) / 1000000.0 << "ms";
+    qDebug() << "self check first part:" << float(_rules._self_check_first_timer) / 1000000.0 << "ms";
+    qDebug() << "self check second part:" << float(_rules._self_check_second_timer) / 1000000.0 << "ms";
+    qDebug() << "attacking square get indices:" << float(_rules._attack_get_indices_timer) / 1000000.0 << "ms";
+    qDebug() << "attacking square pawn:" << float(_rules._attack_pawn_timer) / 1000000.0 << "ms";
+    qDebug() << "attacking square knight:" << float(_rules._attack_knight_timer) / 1000000.0 << "ms";
+    qDebug() << "attacking square bishop:" << float(_rules._attack_bishop_timer) / 1000000.0 << "ms";
+    qDebug() << "attacking square rook:" << float(_rules._attack_rook_timer) / 1000000.0 << "ms";
+    qDebug() << "attacking square queen:" << float(_rules._attack_queen_timer) / 1000000.0 << "ms";
     qDebug() << "";
 
     startingNode->_move_eval_pair.second = bestMoveEvalPair.second;
