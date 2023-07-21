@@ -190,7 +190,7 @@ ULL* BitBoardUtils::generatePawnCaptureSet(Colour colour){
     for (int square = 0; square < 64; square++){
         vector<ULL> moveList;
 
-        if (square > 7 && square < 56){
+        if ((square > 7 && colour == Black) || (square < 56 && colour == White)){
             ULL oneULL = 1;
             ULL squareBit = oneULL << square;
 

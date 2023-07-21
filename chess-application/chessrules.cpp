@@ -449,43 +449,46 @@ void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingSta
 }
 
 bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour colourAttacking){
-    ULL superPiece = _bit_masks[index];
-
     uint64_t start = nanosecond_measurement();
-
-    vector<int> attackingPawns = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_pawns : board._black_pawns);
-    int attackingKing = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_king : board._black_king).at(0);
-
-    _attack_get_indices_timer += nanosecond_measurement() - start;
-
     //If the diagonal rays out from the king position intersects with any queen or bishop it is under attack
     ULL kingDiagonalRays = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
     ULL opposingBishopsAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
             (colourAttacking == White ? board._white_bishops : board._black_bishops);
-    if (kingDiagonalRays & opposingBishopsAndQueens)
+    if (kingDiagonalRays & opposingBishopsAndQueens){
+        _attack_bishop_timer += nanosecond_measurement() - start;
         return true;
+    }
+    _attack_bishop_timer += nanosecond_measurement() - start;
 
+    start = nanosecond_measurement();
     //If the vertical and horizontal rays out from the king position intersects with any queen or rook it is under attack
     ULL kingVerticalHorizontalRays = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
     ULL opposingRooksAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
             (colourAttacking == White ? board._white_rooks : board._black_rooks);
-    if (kingVerticalHorizontalRays & opposingRooksAndQueens)
+    if (kingVerticalHorizontalRays & opposingRooksAndQueens){
+        _attack_rook_timer += nanosecond_measurement() - start;
         return true;
-
-
-    ULL kingKnightMoves = _knight_move_set[index];
-    if (kingKnightMoves & (colourAttacking == White ? board._white_knights : board._black_knights))
-        return true;
-
-    for (auto piece: attackingPawns){
-        start = nanosecond_measurement();
-        ULL moves = colourAttacking == White ? _white_pawn_capture_set[piece] : _black_pawn_capture_set[piece];
-        _attack_pawn_timer += nanosecond_measurement() - start;
-        if (moves & superPiece) //The possible moves intersected with the square
-            return true;
     }
+    _attack_rook_timer += nanosecond_measurement() - start;
 
-    if (superPiece & _king_move_set[attackingKing]) //The possible moves intersected with the square
+    start = nanosecond_measurement();
+    ULL possibleKnightAttackSquares = _knight_move_set[index];
+    if (possibleKnightAttackSquares & (colourAttacking == White ? board._white_knights : board._black_knights)){
+        _attack_knight_timer += nanosecond_measurement() - start;
+        return true;
+    }
+    _attack_knight_timer += nanosecond_measurement() - start;
+
+    start = nanosecond_measurement();
+    //Get the pawn attack pattern for the non-attacking side from the position of the king to find possible attacking positions for the opposing side
+    ULL possiblePawnAttackSquares = (colourAttacking == White) ? _black_pawn_capture_set[index] : _white_pawn_capture_set[index];
+    if (possiblePawnAttackSquares & (colourAttacking == White ? board._white_pawns : board._black_pawns)){
+        _attack_pawn_timer += nanosecond_measurement() - start;
+        return true;
+    }
+    _attack_pawn_timer += nanosecond_measurement() - start;
+
+    if (_king_move_set[index] & (colourAttacking == White ? board._white_king : board._black_king))
         return true;
 
     return false;
