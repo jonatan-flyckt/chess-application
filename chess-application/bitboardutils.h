@@ -61,6 +61,8 @@ public:
 
     ULL generateSmallCentreMask();
 
+    map<ULL, int> generateSinglePieceIndexMap();
+
     string _square_from_index[64] = {
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
         "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
@@ -117,6 +119,8 @@ public:
     ULL* _black_pawn_capture_set = generatePawnCaptureSet(Black);
 
     map<Piece, ULL> _starting_bitboard = generateStartingPosition();
+
+    map<ULL, int> _single_piece_board_index_map = generateSinglePieceIndexMap();
 
     ULL* _bit_masks = generateBitMasks().first;
 

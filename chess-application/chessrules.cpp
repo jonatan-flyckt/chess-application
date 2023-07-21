@@ -322,7 +322,6 @@ bool ChessRules::bitBoardMoveCausedSelfCheck(Move move, BitBoard board){
     board._all_black_pieces = board._black_pawns | board._black_rooks | board._black_knights | board._black_bishops | board._black_queens | board._black_king;
     board._all_white_pieces = board._white_pawns | board._white_rooks | board._white_knights | board._white_bishops | board._white_queens | board._white_king;
     board._all_pieces = board._all_white_pieces | board._all_black_pieces;
-    board._indices_of_bits_for_piece_types = getIndicesOfBitsForPieceTypes(board);
     _self_check_first_timer += nanosecond_measurement() - start;
 
     start = nanosecond_measurement();
@@ -333,11 +332,11 @@ bool ChessRules::bitBoardMoveCausedSelfCheck(Move move, BitBoard board){
 }
 
 bool ChessRules::bitBoardWhiteKingIsInCheck(BitBoard board){
-    return bitBoardSquareIsUnderAttack(board._indices_of_bits_for_piece_types[Piece(White, King)].at(0), board, Black);
+    return bitBoardSquareIsUnderAttack(_single_piece_board_index_map[board._white_king], board, Black);
 }
 
 bool ChessRules::bitBoardBlackKingIsInCheck(BitBoard board){
-    return bitBoardSquareIsUnderAttack(board._indices_of_bits_for_piece_types[Piece(Black, King)].at(0), board, White);
+    return bitBoardSquareIsUnderAttack(_single_piece_board_index_map[board._black_king], board, White);
 }
 
 void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingState, Move move){
@@ -450,35 +449,6 @@ void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingSta
 
 bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour colourAttacking){
 
-    if ((colourAttacking == White ? board._white_bishops : board._black_bishops) |
-            (colourAttacking == White ? board._white_queens : board._black_queens)){
-        //If the diagonal rays out from the king position intersects with any queen or bishop it is under attack
-        uint64_t start = nanosecond_measurement();
-        ULL kingDiagonalRays = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
-        ULL opposingBishopsAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
-                (colourAttacking == White ? board._white_bishops : board._black_bishops);
-        if (kingDiagonalRays & opposingBishopsAndQueens){
-            _attack_bishop_timer += nanosecond_measurement() - start;
-            return true;
-        }
-        _attack_bishop_timer += nanosecond_measurement() - start;
-    }
-
-    if ((colourAttacking == White ? board._white_rooks : board._black_rooks) |
-            (colourAttacking == White ? board._white_queens : board._black_queens)){
-        //If the vertical and horizontal rays out from the king position intersects with any queen or rook it is under attack
-        uint64_t start = nanosecond_measurement();
-        ULL kingVerticalHorizontalRays = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
-        ULL opposingRooksAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
-                (colourAttacking == White ? board._white_rooks : board._black_rooks);
-        if (kingVerticalHorizontalRays & opposingRooksAndQueens){
-            _attack_rook_timer += nanosecond_measurement() - start;
-            return true;
-        }
-        _attack_rook_timer += nanosecond_measurement() - start;
-    }
-
-
     if (colourAttacking == White ? board._white_knights : board._black_knights){
         uint64_t start = nanosecond_measurement();
         ULL possibleKnightAttackSquares = _knight_move_set[index];
@@ -488,7 +458,6 @@ bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour c
         }
         _attack_knight_timer += nanosecond_measurement() - start;
     }
-
 
     if (colourAttacking == White ? board._white_pawns : board._black_pawns){
         //Get the pawn attack pattern for the non-attacking side from the position of the king to find possible attacking positions for the opposing side
@@ -504,6 +473,33 @@ bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour c
     if (_king_move_set[index] & (colourAttacking == White ? board._white_king : board._black_king))
         return true;
 
+    if ((colourAttacking == White ? board._white_rooks : board._black_rooks) |
+            (colourAttacking == White ? board._white_queens : board._black_queens)){
+        //If the vertical and horizontal rays out from the king position intersects with any queen or rook it is under attack
+        uint64_t start = nanosecond_measurement();
+        ULL kingVerticalHorizontalRays = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
+        ULL opposingRooksAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
+                (colourAttacking == White ? board._white_rooks : board._black_rooks);
+        if (kingVerticalHorizontalRays & opposingRooksAndQueens){
+            _attack_rook_timer += nanosecond_measurement() - start;
+            return true;
+        }
+        _attack_rook_timer += nanosecond_measurement() - start;
+    }
+
+    if ((colourAttacking == White ? board._white_bishops : board._black_bishops) |
+            (colourAttacking == White ? board._white_queens : board._black_queens)){
+        //If the diagonal rays out from the king position intersects with any queen or bishop it is under attack
+        uint64_t start = nanosecond_measurement();
+        ULL kingDiagonalRays = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
+        ULL opposingBishopsAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
+                (colourAttacking == White ? board._white_bishops : board._black_bishops);
+        if (kingDiagonalRays & opposingBishopsAndQueens){
+            _attack_bishop_timer += nanosecond_measurement() - start;
+            return true;
+        }
+        _attack_bishop_timer += nanosecond_measurement() - start;
+    }
 
     return false;
 }

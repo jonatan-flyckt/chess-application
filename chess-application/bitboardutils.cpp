@@ -458,3 +458,21 @@ ULL BitBoardUtils::generateSmallCentreMask(){
     return resultingMap;
 }
 
+map<ULL, int> BitBoardUtils::generateSinglePieceIndexMap(){
+    map<ULL, int> returnMap;
+    for (int i = 0; i < 64; i++){
+        ULL resultingBoard = 1ULL << i;
+        returnMap[resultingBoard] = i;
+    }
+    return returnMap;
+}
+
+
+
+
+
+
+
+
+
+
