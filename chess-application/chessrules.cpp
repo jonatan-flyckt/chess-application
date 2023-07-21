@@ -454,7 +454,6 @@ bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour c
     uint64_t start = nanosecond_measurement();
 
     vector<int> attackingPawns = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_pawns : board._black_pawns);
-    vector<int> attackingKnights = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_knights : board._black_knights);
     int attackingKing = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_king : board._black_king).at(0);
 
     _attack_get_indices_timer += nanosecond_measurement() - start;
@@ -473,14 +472,10 @@ bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour c
     if (kingVerticalHorizontalRays & opposingRooksAndQueens)
         return true;
 
-    for (auto piece: attackingKnights){
-        start = nanosecond_measurement();
-        ULL moves = _knight_move_set[piece];
-        _attack_knight_timer += nanosecond_measurement() - start;
-        if (moves & superPiece) //The possible moves intersected with the square
-            return true;
-    }
 
+    ULL kingKnightMoves = _knight_move_set[index];
+    if (kingKnightMoves & (colourAttacking == White ? board._white_knights : board._black_knights))
+        return true;
 
     for (auto piece: attackingPawns){
         start = nanosecond_measurement();
