@@ -455,41 +455,23 @@ bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour c
 
     vector<int> attackingPawns = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_pawns : board._black_pawns);
     vector<int> attackingKnights = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_knights : board._black_knights);
-    vector<int> attackingBishops = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_bishops : board._black_bishops);
-    vector<int> attackingRooks = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_rooks : board._black_rooks);
-    vector<int> attackingQueens = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_queens : board._black_queens);
     int attackingKing = getIndicesOfBitsInBoard(colourAttacking == White ? board._white_king : board._black_king).at(0);
 
     _attack_get_indices_timer += nanosecond_measurement() - start;
 
+    //If the diagonal rays out from the king position intersects with any queen or bishop it is under attack
+    ULL kingDiagonalRays = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
+    ULL opposingBishopsAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
+            (colourAttacking == White ? board._white_bishops : board._black_bishops);
+    if (kingDiagonalRays & opposingBishopsAndQueens)
+        return true;
 
-    for (auto piece: attackingQueens){
-        start = nanosecond_measurement();
-        ULL moves = getBitBoardOfPossibleAttacksForBishop(piece, board._all_pieces);
-        moves |= getBitBoardOfPossibleAttacksForRook(piece, board._all_pieces);
-        _attack_queen_timer += nanosecond_measurement() - start;
-        if (moves & superPiece) //The possible moves intersected with the square
-            return true;
-    }
-
-
-    for (auto piece: attackingBishops){
-        start = nanosecond_measurement();
-        ULL moves = getBitBoardOfPossibleAttacksForBishop(piece, board._all_pieces);
-        _attack_bishop_timer += nanosecond_measurement() - start;
-        if (moves & superPiece) //The possible moves intersected with the square
-            return true;
-    }
-
-
-    for (auto piece: attackingRooks){
-        start = nanosecond_measurement();
-        ULL moves = getBitBoardOfPossibleAttacksForRook(piece, board._all_pieces);
-        _attack_rook_timer += nanosecond_measurement() - start;
-        if (moves & superPiece) //The possible moves intersected with the square
-            return true;
-    }
-
+    //If the vertical and horizontal rays out from the king position intersects with any queen or rook it is under attack
+    ULL kingVerticalHorizontalRays = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
+    ULL opposingRooksAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
+            (colourAttacking == White ? board._white_rooks : board._black_rooks);
+    if (kingVerticalHorizontalRays & opposingRooksAndQueens)
+        return true;
 
     for (auto piece: attackingKnights){
         start = nanosecond_measurement();
