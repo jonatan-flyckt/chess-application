@@ -947,11 +947,11 @@ State* ChessRules::stateFromFEN(string fen){
     return state;
 }
 
-void ChessRules::runPerftTest(State *state, int maxDepth, bool printDivide){
+bool ChessRules::runPerftTest(State *state, int maxDepth, map<string, int> *correctDivide){
     map<int, int> *movePerDepthCounter = new map<int, int>();
     movePerDepthCounter->insert_or_assign(0, 1);
 
-    map<string, int> *divideMap = printDivide ? new map<string, int>() : nullptr;
+    map<string, int> *divideMap = new map<string, int>();
 
     map<string, int> *moveTypeCounter = new map<string, int>();
     moveTypeCounter->insert_or_assign("captures", 0);
@@ -961,7 +961,7 @@ void ChessRules::runPerftTest(State *state, int maxDepth, bool printDivide){
     moveTypeCounter->insert_or_assign("checks", 0);
     moveTypeCounter->insert_or_assign("check_mates", 0);
 
-    expandPerftTree(state, movePerDepthCounter, 0, maxDepth, printDivide, moveTypeCounter, divideMap);
+    expandPerftTree(state, movePerDepthCounter, 0, maxDepth, moveTypeCounter, divideMap);
 
     if (movePerDepthCounter->size() > 0){
         cout << endl;
@@ -974,27 +974,42 @@ void ChessRules::runPerftTest(State *state, int maxDepth, bool printDivide){
         cout << it->first << ": " << it->second << endl;
     cout << endl;
 
-    if (printDivide){
+    if (correctDivide != nullptr){
+        //If we know the correct results beforehand:
+        bool testSuccessful = true;
         if (divideMap->size() > 0){
             cout << "Divide:" << endl << endl;
-            for (map<string, int>::iterator it = divideMap->begin(); it != divideMap->end(); ++it)
-                cout << it->first << ": " << it->second << endl;
+            for (map<string, int>::iterator it = divideMap->begin(); it != divideMap->end(); ++it){
+                bool correctForSplit = it->second == (*correctDivide)[it->first];
+                cout << it->first << " - " << "Engine split: " << it->second <<
+                        ", Correct split: " << (*correctDivide)[it->first] <<
+                     "  ->  " << (correctForSplit ? "Success":"Fail") << endl;
+                testSuccessful = testSuccessful && correctForSplit;
+            }
         }
+        cout << endl << "Test "<< (testSuccessful ? "succeeded" : "failed") << " for position." << endl;
+        return testSuccessful;
+    }
+    else{
+        //If we do not know the correct results:
+        if (divideMap->size() > 0){
+                cout << "Divide:" << endl << endl;
+                for (map<string, int>::iterator it = divideMap->begin(); it != divideMap->end(); ++it)
+                    cout << it->first << ": " << it->second << endl;
+            }
         cout << endl;
     }
-
-    //cout << "Test completed in " << testTimer.elapsed() / 1000.0 << " seconds." << endl;
 }
 
 void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
-                                 int maxDepth, bool printDivide, map<string, int> *moveTypeCounter,
+                                 int maxDepth, map<string, int> *moveTypeCounter,
                                  map<string, int> *divideMap, string divideString){
 
     vector<Move> legalMoves;
     if (currentDepth < maxDepth)
         legalMoves = getLegalBitBoardMoves(currentState);
 
-    if (printDivide && currentDepth == 0){
+    if (currentDepth == 0){
         for (auto move: legalMoves){
             string str = "";
             str += move._origin_square;
@@ -1011,13 +1026,13 @@ void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDept
             movePerDepthCounter->insert(pair<int, int>(currentDepth, 1));
     }
 
-    if (printDivide && currentDepth == maxDepth){
+    if (currentDepth == maxDepth){
         divideMap->find(divideString)->second++;
     }
 
     for (auto move: legalMoves){
         State *resultingState = getResultingStateFromMove(currentState, move);
-        if (printDivide && currentDepth == 0){
+        if (currentDepth == 0){
             divideString = "";
             divideString += move._origin_square;
             divideString += move._destination_square;
@@ -1041,11 +1056,35 @@ void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDept
         }
 
         if (currentDepth < maxDepth){
-            expandPerftTree(resultingState, movePerDepthCounter, currentDepth+1, maxDepth, printDivide,
+            expandPerftTree(resultingState, movePerDepthCounter, currentDepth+1, maxDepth,
                             moveTypeCounter, divideMap, divideString);
         }
         delete resultingState;
     }
+}
+
+bool ChessRules::testMoveGenerationCorrectness()
+{
+    uint32_t startForEntireTest = nanosecond_measurement();
+    bool testSuccessful = true;
+
+    for (auto testPos: _move_generation_test_positions){
+        uint32_t startForPosition = nanosecond_measurement();
+        cout << endl << "Testing move generation for position:" << endl <<
+                "FEN: " << testPos._fen << endl <<
+                "Depth: " << testPos._depth << endl <<
+                "Description: " << testPos._description << endl << endl;
+
+        testSuccessful = testSuccessful && runPerftTest(stateFromFEN(testPos._fen), testPos._depth, testPos._correct_split_results);
+        uint32_t elapsedForPosition = nanosecond_measurement() - startForPosition;
+        cout << "Time for test: " << float(elapsedForPosition) / 1000000000.0 << " seconds" << endl;
+    }
+
+    uint32_t elapsedForEntireTest = nanosecond_measurement() - startForEntireTest;
+    cout << endl << "Move generation test completed. Test " << (testSuccessful ? "succeeded.":"failed.") << endl
+         << "Total time taken: " << float(elapsedForEntireTest) / 1000000000.0 << " seconds" << endl;
+
+    return testSuccessful;
 }
 
 

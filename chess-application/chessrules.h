@@ -42,9 +42,10 @@ public:
     int bitBoardNumberOfTimesThisStateSeen(ULL hash, map<ULL, int> *stateSeenCount);
 
     State* stateFromFEN(string fen);
-    void runPerftTest(State *state, int maxDepth, bool printDivide = false);
+    bool runPerftTest(State *state, int maxDepth, map<string, int> *correctDivide = nullptr);
     void expandPerftTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
-                         int maxDepth, bool printDivide, map<string, int> *moveTypeCounter, map<string, int> *divideMap, string divideString = "");
+                         int maxDepth, map<string, int> *moveTypeCounter, map<string, int> *divideMap, string divideString = "");
+    bool testMoveGenerationCorrectness();
     bool pawnsOnAdjacentColumns(int indexFirst, int indexSecond);
 
 
