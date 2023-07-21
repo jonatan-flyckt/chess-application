@@ -11,6 +11,7 @@
 #include <thread>
 
 uint64_t nanosecond_measurement();
+uint64_t millisecond_measurement();
 
 class ChessRules: public BitBoardUtils
 {
@@ -45,7 +46,7 @@ public:
     bool runPerftTest(State *state, int maxDepth, map<string, int> *correctDivide = nullptr);
     void expandPerftTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
                          int maxDepth, map<string, int> *moveTypeCounter, map<string, int> *divideMap, string divideString = "");
-    bool testMoveGenerationCorrectness();
+    bool testMoveGenerationCorrectness(string testSize="small");
     bool pawnsOnAdjacentColumns(int indexFirst, int indexSecond);
 
 

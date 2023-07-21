@@ -11,6 +11,14 @@ uint64_t nanosecond_measurement()
     return ns;
 }
 
+uint64_t millisecond_measurement()
+{
+    uint64_t ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch())
+            .count();
+    return ms;
+}
+
 State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMake){
     uint64_t whole_func_start = nanosecond_measurement();
 
@@ -1063,27 +1071,43 @@ void ChessRules::expandPerftTree(State *currentState, map<int, int> *movePerDept
     }
 }
 
-bool ChessRules::testMoveGenerationCorrectness()
+bool ChessRules::testMoveGenerationCorrectness(string testSize)
 {
-    uint32_t startForEntireTest = nanosecond_measurement();
+    cout << "-------------------------------------------------" << endl <<
+            "-------------------------------------------------" << endl <<
+            "-------------------------------------------------" << endl <<
+            "-------------------------------------------------" << endl;
+    cout << endl << "Running " << testSize << " move generation test." << endl;
+    uint32_t startForEntireTest = millisecond_measurement();
     bool testSuccessful = true;
 
-    for (auto testPos: _move_generation_test_positions){
-        uint32_t startForPosition = nanosecond_measurement();
+    vector<MoveGenerationTestPos> testVector;
+    if (testSize == "small")
+        testVector = _move_generation_test_positions_small;
+    if (testSize == "large")
+        testVector = _move_generation_test_positions_large;
+
+    for (auto testPos: testVector){
+        cout << "-------------------------------------------------" << endl;
+        uint32_t startForPosition = millisecond_measurement();
         cout << endl << "Testing move generation for position:" << endl <<
                 "FEN: " << testPos._fen << endl <<
                 "Depth: " << testPos._depth << endl <<
                 "Description: " << testPos._description << endl << endl;
 
         testSuccessful = testSuccessful && runPerftTest(stateFromFEN(testPos._fen), testPos._depth, testPos._correct_split_results);
-        uint32_t elapsedForPosition = nanosecond_measurement() - startForPosition;
-        cout << "Time for test: " << float(elapsedForPosition) / 1000000000.0 << " seconds" << endl;
+        uint32_t elapsedForPosition = millisecond_measurement() - startForPosition;
+        cout << "Time for test: " << float(elapsedForPosition) / 1000.0 << " seconds" << endl;
+        cout << "-------------------------------------------------" << endl;
     }
 
-    uint32_t elapsedForEntireTest = nanosecond_measurement() - startForEntireTest;
-    cout << endl << "Move generation test completed. Test " << (testSuccessful ? "succeeded.":"failed.") << endl
-         << "Total time taken: " << float(elapsedForEntireTest) / 1000000000.0 << " seconds" << endl;
-
+    uint32_t elapsedForEntireTest = millisecond_measurement() - startForEntireTest;
+    cout << endl << "Move generation test completed." << endl << endl << (testSuccessful ? "SUCCESS":"FAIL") << endl << endl
+         << "Total time taken: " << float(elapsedForEntireTest) / 1000.0 << " seconds" << endl;
+    cout << "-------------------------------------------------" << endl <<
+            "-------------------------------------------------" << endl <<
+            "-------------------------------------------------" << endl <<
+            "-------------------------------------------------" << endl;
     return testSuccessful;
 }
 
