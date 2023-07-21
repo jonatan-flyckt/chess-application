@@ -18,7 +18,6 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     uint64_t start = nanosecond_measurement();
 
     updateBitBoardWithMove(currentState, resultingState, moveToMake);
-    resultingState->_bit_board._indices_of_bits_for_piece_types = getIndicesOfBitsForPieceTypes(resultingState->_bit_board);
     _accumulated_update_bit_board_time += nanosecond_measurement() - start;
 
     resultingState->_bit_board_state_seen_count = currentState->_bit_board_state_seen_count;
@@ -315,6 +314,7 @@ bool ChessRules::bitBoardMoveCausedSelfCheck(Move move, BitBoard board){
     board._all_black_pieces = board._black_pawns | board._black_rooks | board._black_knights | board._black_bishops | board._black_queens | board._black_king;
     board._all_white_pieces = board._white_pawns | board._white_rooks | board._white_knights | board._white_bishops | board._white_queens | board._white_king;
     board._all_pieces = board._all_white_pieces | board._all_black_pieces;
+    board._indices_of_bits_for_piece_types = getIndicesOfBitsForPieceTypes(board);
     _self_check_first_timer += nanosecond_measurement() - start;
 
     start = nanosecond_measurement();
@@ -436,6 +436,8 @@ void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingSta
             resultingState->_bit_board._black_rooks | resultingState->_bit_board._black_bishops |
             resultingState->_bit_board._black_knights | resultingState->_bit_board._black_queens;
     resultingState->_bit_board._all_pieces = resultingState->_bit_board._all_white_pieces | resultingState->_bit_board._all_black_pieces;
+
+    resultingState->_bit_board._indices_of_bits_for_piece_types = getIndicesOfBitsForPieceTypes(resultingState->_bit_board);
 }
 
 bool ChessRules::bitBoardSquareIsUnderAttack(int index, BitBoard board, Colour colourAttacking){
@@ -693,18 +695,21 @@ vector<Move> ChessRules::getBitBoardCastlingMoves(BitBoard board, CastlingInfo c
 
 map<Piece, vector<int> > ChessRules::getIndicesOfBitsForPieceTypes(BitBoard board){
     map<Piece, vector<int>> returnMap;
+
     returnMap[Piece(White, Pawn)] = getIndicesOfBitsInBoard(board._white_pawns);
     returnMap[Piece(White, Rook)] = getIndicesOfBitsInBoard(board._white_rooks);
     returnMap[Piece(White, Knight)] = getIndicesOfBitsInBoard(board._white_knights);
     returnMap[Piece(White, Bishop)] = getIndicesOfBitsInBoard(board._white_bishops);
     returnMap[Piece(White, Queen)] = getIndicesOfBitsInBoard(board._white_queens);
     returnMap[Piece(White, King)] = getIndicesOfBitsInBoard(board._white_king);
+
     returnMap[Piece(Black, Pawn)] = getIndicesOfBitsInBoard(board._black_pawns);
     returnMap[Piece(Black, Rook)] = getIndicesOfBitsInBoard(board._black_rooks);
     returnMap[Piece(Black, Knight)] = getIndicesOfBitsInBoard(board._black_knights);
     returnMap[Piece(Black, Bishop)] = getIndicesOfBitsInBoard(board._black_bishops);
     returnMap[Piece(Black, Queen)] = getIndicesOfBitsInBoard(board._black_queens);
     returnMap[Piece(Black, King)] = getIndicesOfBitsInBoard(board._black_king);
+
     return returnMap;
 }
 
