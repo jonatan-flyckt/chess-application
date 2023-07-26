@@ -25,6 +25,22 @@ uint32_t bitAbs(uint32_t num);
 
 vector<string> splitString(string str, string delimiter);
 
+bool boardContainsExactlyOnePiece(ULL board);
+
+static const Piece _white_pawn_piece_const = Piece(White, Pawn);
+static const Piece _white_rook_piece_const = Piece(White, Rook);
+static const Piece _white_bishop_piece_const = Piece(White, Bishop);
+static const Piece _white_knight_piece_const = Piece(White, Knight);
+static const Piece _white_queen_piece_const = Piece(White, Queen);
+static const Piece _white_king_piece_const = Piece(White, King);
+
+static const Piece _black_pawn_piece_const = Piece(Black, Pawn);
+static const Piece _black_rook_piece_const = Piece(Black, Rook);
+static const Piece _black_bishop_piece_const = Piece(Black, Bishop);
+static const Piece _black_knight_piece_const = Piece(Black, Knight);
+static const Piece _black_queen_piece_const = Piece(Black, Queen);
+static const Piece _black_king_piece_const = Piece(Black, King);
+
 //Move generation test positions and their correct results defined below:
 struct MoveGenerationTestPos{
     MoveGenerationTestPos(string fen, string description, int depth, map<string, int> *correctSplitResults){

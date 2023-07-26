@@ -148,18 +148,18 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
     else
         state->_bit_board._en_passant_square = 0;
 
+
     uint64_t start = nanosecond_measurement();
-    vector<int> pawnIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_pawns : state->_bit_board._black_pawns);
     vector<Move> pawnMoves;
-    for (auto index: pawnIndices)
+    for (auto index: state->_bit_board._indices_of_bits_for_piece_types[state->_colour_to_move == White ? _white_pawn_piece_const : _black_pawn_piece_const]){
         for (auto move: getBitBoardPseudoMovesForPawn(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves, state->_bit_board._en_passant_square))
             pawnMoves.push_back(move);
+    }
     _pawn_timer += nanosecond_measurement() - start;
 
     start = nanosecond_measurement();
-    vector<int> knightIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_knights : state->_bit_board._black_knights);
     vector<Move> knightMoves;
-    for (auto index: knightIndices)
+    for (auto index: state->_bit_board._indices_of_bits_for_piece_types[state->_colour_to_move == White ? _white_knight_piece_const : _black_knight_piece_const])
         for (auto move: getBitBoardPseudoMovesForKnight(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             knightMoves.push_back(move);
     _knight_timer += nanosecond_measurement() - start;
@@ -172,25 +172,22 @@ vector<Move> ChessRules::getLegalBitBoardMoves(State *state){
     _king_timer += nanosecond_measurement() - start;
 
     start = nanosecond_measurement();
-    vector<int> bishopIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_bishops : state->_bit_board._black_bishops);
     vector<Move> bishopMoves;
-    for (auto index: bishopIndices)
+    for (auto index: state->_bit_board._indices_of_bits_for_piece_types[state->_colour_to_move == White ? _white_bishop_piece_const : _black_bishop_piece_const])
         for (auto move: getBitBoardPseudoMovesForBishop(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             bishopMoves.push_back(move);
     _bishop_timer += nanosecond_measurement() - start;
 
     start = nanosecond_measurement();
-    vector<int> rookIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_rooks : state->_bit_board._black_rooks);
     vector<Move> rookMoves;
-    for (auto index: rookIndices)
+    for (auto index: state->_bit_board._indices_of_bits_for_piece_types[state->_colour_to_move == White ? _white_rook_piece_const : _black_rook_piece_const])
         for (auto move: getBitBoardPseudoMovesForRook(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             rookMoves.push_back(move);
     _rook_timer += nanosecond_measurement() - start;
 
     start = nanosecond_measurement();
-    vector<int> queenIndices = getIndicesOfBitsInBoard(state->_colour_to_move == White ? state->_bit_board._white_queens : state->_bit_board._black_queens);
     vector<Move> queenMoves;
-    for (auto index: queenIndices)
+    for (auto index: state->_bit_board._indices_of_bits_for_piece_types[state->_colour_to_move == White ? _white_queen_piece_const : _black_queen_piece_const])
         for (auto move: getBitBoardPseudoMovesForQueen(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves))
             queenMoves.push_back(move);
     _queen_timer += nanosecond_measurement() - start;
@@ -510,9 +507,16 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForRook(int index, BitBoard board
 
     vector<Move> moveVector;
 
-    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
+    //Try to avoid the expensive getIndicesOfBitsInoard if possible
+    vector<int> indexVector;
+    if (boardContainsExactlyOnePiece(pseudoLegalMoves))
+        indexVector.push_back(_single_piece_board_index_map[pseudoLegalMoves]);
+    else
+        indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
+
+    for (auto resultingIndex : indexVector){
         MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
-        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Rook), _square_from_index[index],_square_from_index[resultingIndex],
+        moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_rook_piece_const : _black_rook_piece_const, _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, moveType));
     }
     return moveVector;
@@ -536,9 +540,16 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForKnight(int index, BitBoard boa
 
     vector<Move> moveVector;
 
-    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
+    //Try to avoid the expensive getIndicesOfBitsInoard if possible
+    vector<int> indexVector;
+    if (boardContainsExactlyOnePiece(pseudoLegalMoves))
+        indexVector.push_back(_single_piece_board_index_map[pseudoLegalMoves]);
+    else
+        indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
+
+    for (auto resultingIndex : indexVector){
         MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
-        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Knight), _square_from_index[index],_square_from_index[resultingIndex],
+        moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_knight_piece_const : _black_knight_piece_const, _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, moveType));
     }
     return moveVector;
@@ -550,9 +561,16 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForBishop(int index, BitBoard boa
 
     vector<Move> moveVector;
 
-    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
+    //Try to avoid the expensive getIndicesOfBitsInoard if possible
+    vector<int> indexVector;
+    if (boardContainsExactlyOnePiece(pseudoLegalMoves))
+        indexVector.push_back(_single_piece_board_index_map[pseudoLegalMoves]);
+    else
+        indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
+
+    for (auto resultingIndex : indexVector){
         MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
-        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Bishop), _square_from_index[index],_square_from_index[resultingIndex],
+        moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_bishop_piece_const : _black_bishop_piece_const, _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, moveType));
     }
     return moveVector;
@@ -560,7 +578,7 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForBishop(int index, BitBoard boa
 
 vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare){
     ULL possiblePushes = colourToMove == White ? _white_pawn_move_set[index] : _black_pawn_move_set[index];
-    ULL possibleCaptures = colourToMove == White ? _white_pawn_capture_set[index] : _black_pawn_capture_set[index]; //TODO: check if this is an error, should be capture_set?
+    ULL possibleCaptures = colourToMove == White ? _white_pawn_capture_set[index] : _black_pawn_capture_set[index];
     ULL pseudoLegalPushes = possiblePushes &~board._all_pieces;
     ULL pseudoLegalCaptures = colourToMove == White ? possibleCaptures &board._all_black_pieces : possibleCaptures &board._all_white_pieces;
 
@@ -574,18 +592,35 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
     }
 
     vector<Move> moveVector;
-    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalPushes | pseudoLegalCaptures)){
+
+    //Try to avoid the expensive getIndicesOfBitsInoard if possible
+    vector<int> indexVector;
+    if (boardContainsExactlyOnePiece(pseudoLegalPushes | pseudoLegalCaptures))
+        indexVector.push_back(_single_piece_board_index_map[pseudoLegalPushes | pseudoLegalCaptures]);
+    else if (boardContainsExactlyOnePiece(pseudoLegalPushes) && boardContainsExactlyOnePiece(pseudoLegalCaptures)){
+        indexVector.push_back(_single_piece_board_index_map[pseudoLegalPushes]);
+        indexVector.push_back(_single_piece_board_index_map[pseudoLegalCaptures]);
+    }
+    else{
+        indexVector = getIndicesOfBitsInBoard(pseudoLegalPushes | pseudoLegalCaptures);
+    }
+
+    for (auto resultingIndex : indexVector){
         MoveType typeOfMove;
         uint32_t absVal = abs(index - resultingIndex);
         if ((index > 47 && colourToMove == White) || (index < 16 && colourToMove == Black)){ //Promotion move
             typeOfMove = (absVal == 8 || absVal == 16) ? Promotion : PromotionCapture;
-            moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+            moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_pawn_piece_const : _black_pawn_piece_const,
+                                      _square_from_index[index],_square_from_index[resultingIndex],
                                       numberOfMoves+1, typeOfMove, Queen));
-            moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+            moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_pawn_piece_const : _black_pawn_piece_const,
+                                      _square_from_index[index],_square_from_index[resultingIndex],
                                       numberOfMoves+1, typeOfMove, Rook));
-            moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+            moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_pawn_piece_const : _black_pawn_piece_const,
+                                      _square_from_index[index],_square_from_index[resultingIndex],
                                       numberOfMoves+1, typeOfMove, Knight));
-            moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],_square_from_index[resultingIndex],
+            moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_pawn_piece_const : _black_pawn_piece_const,
+                                      _square_from_index[index],_square_from_index[resultingIndex],
                                       numberOfMoves+1, typeOfMove, Bishop));
         }
         else{
@@ -596,17 +631,17 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
     }
 
     if (enPassantSquare){ //The previous move made en passant possible
-        int enPassantIndex = getIndicesOfBitsInBoard(enPassantSquare).at(0);
+        int enPassantIndex = _single_piece_board_index_map[enPassantSquare];
         if (colourToMove == White){
             if (index >= 32 && index <= 39){ //Only check for en passant if the pawn being examined is on the same row as the en passant square
                 if ((_bit_masks[index]<<7) &enPassantSquare){
                     if (pawnsOnAdjacentColumns(enPassantIndex, index))
-                        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                        moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_pawn_piece_const : _black_pawn_piece_const, _square_from_index[index],
                                                   _square_from_index[index+7], numberOfMoves+1, EnPassant));
                 }
                 else if ((_bit_masks[index]<<9) &enPassantSquare){
                     if (pawnsOnAdjacentColumns(enPassantIndex, index))
-                        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                        moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_pawn_piece_const : _black_pawn_piece_const, _square_from_index[index],
                                               _square_from_index[index+9], numberOfMoves+1, EnPassant));
                 }
             }
@@ -615,12 +650,12 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForPawn(int index, BitBoard board
             if (index >= 24 && index <= 31){ //Only check for en passant if the pawn being examined is on the same row as the en passant square
                 if ((_bit_masks[index]>>7) &enPassantSquare){
                     if (pawnsOnAdjacentColumns(enPassantIndex, index))
-                        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                        moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_pawn_piece_const : _black_pawn_piece_const, _square_from_index[index],
                                               _square_from_index[index-7], numberOfMoves+1, EnPassant));
                 }
                 else if ((_bit_masks[index]>>9) &enPassantSquare){
                     if (pawnsOnAdjacentColumns(enPassantIndex, index))
-                        moveVector.push_back(Move(colourToMove, Piece(colourToMove, Pawn), _square_from_index[index],
+                        moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_pawn_piece_const : _black_pawn_piece_const, _square_from_index[index],
                                               _square_from_index[index-9], numberOfMoves+1, EnPassant));
                 }
             }
@@ -633,10 +668,17 @@ vector<Move> ChessRules::getBitBoardPseudoMovesForKing(int index, BitBoard board
     ULL possibleAttacks = _king_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
-    //TODO: castling
 
     vector<Move> moveVector;
-    for (auto resultingIndex : getIndicesOfBitsInBoard(pseudoLegalMoves)){
+
+    //Try to avoid the expensive getIndicesOfBitsInoard if possible
+    vector<int> indexVector;
+    if (boardContainsExactlyOnePiece(pseudoLegalMoves))
+        indexVector.push_back(_single_piece_board_index_map[pseudoLegalMoves]);
+    else
+        indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
+
+    for (auto resultingIndex : indexVector){
         MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
         moveVector.push_back(Move(colourToMove, Piece(colourToMove, King), _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, moveType));

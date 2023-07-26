@@ -68,12 +68,12 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     qDebug() << "Accumulated update castling time:" << float(_rules._accumulated_update_castling_time) / 1000000.0 << "ms";
     qDebug() << "Accumulated kings in check time:" << float(_rules._accumulated_kings_in_check_time) / 1000000.0 << "ms";
     qDebug() << "Accumulated hash generation time:" << float(_rules._accumulated_hash_time) / 1000000.0 << "ms";
-    qDebug() << "pawn time:" << float(_rules._pawn_timer) / 1000000.0 << "ms";
-    qDebug() << "knight time:" << float(_rules._knight_timer) / 1000000.0 << "ms";
-    qDebug() << "bishop time:" << float(_rules._bishop_timer) / 1000000.0 << "ms";
-    qDebug() << "rook time:" << float(_rules._rook_timer) / 1000000.0 << "ms";
-    qDebug() << "queen time:" << float(_rules._queen_timer) / 1000000.0 << "ms";
-    qDebug() << "king time:" << float(_rules._king_timer) / 1000000.0 << "ms";
+    qDebug() << "pseudo pawn time:" << float(_rules._pawn_timer) / 1000000.0 << "ms";
+    qDebug() << "pseudo knight time:" << float(_rules._knight_timer) / 1000000.0 << "ms";
+    qDebug() << "pseudo bishop time:" << float(_rules._bishop_timer) / 1000000.0 << "ms";
+    qDebug() << "pseudo rook time:" << float(_rules._rook_timer) / 1000000.0 << "ms";
+    qDebug() << "pseudo queen time:" << float(_rules._queen_timer) / 1000000.0 << "ms";
+    qDebug() << "pseudo king time:" << float(_rules._king_timer) / 1000000.0 << "ms";
     qDebug() << "castling time:" << float(_rules._castling_timer) / 1000000.0 << "ms";
     qDebug() << "self check time:" << float(_rules._self_check_timer) / 1000000.0 << "ms";
     qDebug() << "self check first part:" << float(_rules._self_check_first_timer) / 1000000.0 << "ms";

@@ -63,3 +63,7 @@ vector<string> splitString(string str, string delimiter) {
     res.push_back (str.substr (pos_start));
     return res;
 }
+
+bool boardContainsExactlyOnePiece(ULL board){
+    return board!=0 && (board & (board-1))==0;
+}
