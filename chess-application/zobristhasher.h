@@ -20,7 +20,7 @@ public:
 
     ZobristHasher();
 
-    ULL generateHashForPosition(map<Piece, vector<int>> indicesOfBitsInBoard, CastlingInfo castlingInfo, Colour turnToMove, vector<int> enPassantIndexVector);
+    ULL generateHashForPosition(unordered_map<Piece, vector<int>> indicesOfBitsInBoard, CastlingInfo castlingInfo, Colour turnToMove, vector<int> enPassantIndexVector);
 
     ULL generateRandomNumber();
 

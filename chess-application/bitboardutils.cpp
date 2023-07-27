@@ -60,11 +60,11 @@ ULL* BitBoardUtils::generateKingMoveSet(){
     return attackMap;
 }
 
-map<RookDirections, ULL>* BitBoardUtils::generateRookMoveSet(){
-    map<RookDirections, ULL>* attackMap = new map<RookDirections, ULL>[64];
+unordered_map<RookDirections, ULL> *BitBoardUtils::generateRookMoveSet(){
+    unordered_map<RookDirections, ULL>* attackMap = new unordered_map<RookDirections, ULL>[64];
 
     for (int square = 0; square < 64; square++){
-        map<RookDirections, ULL> squareRays;
+        unordered_map<RookDirections, ULL> squareRays;
         ULL oneULL = 1;
         ULL squareBit = oneULL << square;
 
@@ -107,10 +107,10 @@ map<RookDirections, ULL>* BitBoardUtils::generateRookMoveSet(){
     return attackMap;
 }
 
-map<BishopDirections, ULL>* BitBoardUtils::generateBishopMoveSet(){
-    map<BishopDirections, ULL>* attackMap = new map<BishopDirections, ULL>[64];
+unordered_map<BishopDirections, ULL> *BitBoardUtils::generateBishopMoveSet(){
+    unordered_map<BishopDirections, ULL>* attackMap = new unordered_map<BishopDirections, ULL>[64];
     for (int square = 0; square < 64; square++){
-        map<BishopDirections, ULL> squareRays;
+        unordered_map<BishopDirections, ULL> squareRays;
         ULL oneULL = 1;
         ULL squareBit = oneULL << square;
         ULL moveBoard = 0;
@@ -238,8 +238,8 @@ ULL *BitBoardUtils::generateFilledDownToMasks(){
     return maskArray;
 }
 
-map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
-    map<Piece, ULL> startingBoard;
+unordered_map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
+    unordered_map<Piece, ULL> startingBoard;
 
     ULL board = 0;
     for (int i = 8; i < 16; i++){
@@ -458,8 +458,8 @@ ULL BitBoardUtils::generateSmallCentreMask(){
     return resultingMap;
 }
 
-map<ULL, int> BitBoardUtils::generateSinglePieceIndexMap(){
-    map<ULL, int> returnMap;
+unordered_map<ULL, int> BitBoardUtils::generateSinglePieceIndexMap(){
+    unordered_map<ULL, int> returnMap;
     for (int i = 0; i < 64; i++){
         ULL resultingBoard = 1ULL << i;
         returnMap[resultingBoard] = i;

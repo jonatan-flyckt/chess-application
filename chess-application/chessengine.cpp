@@ -1,7 +1,7 @@
 #include "chessengine.h"
 
 ChessEngine::ChessEngine(){
-    _move_number_minimax_tree_map = new map<int, MiniMaxTree*>();
+    _move_number_minimax_tree_map = new unordered_map<int, MiniMaxTree*>();
 }
 
 ChessEngine::~ChessEngine(){
@@ -105,7 +105,7 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
                 value = 0;
             }
             else{
-                value =  node->_state->_white_won ? INFINITY_POS + 1 : INFINITY_NEG - 1;
+                value =  node->_state->_white_won ? INFINITY_POS: INFINITY_NEG;
             }
         }
         else{

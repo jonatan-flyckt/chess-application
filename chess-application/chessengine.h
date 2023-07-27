@@ -46,7 +46,7 @@ private:
 
     ChessRules _rules;
 
-    map<int, MiniMaxTree*> *_move_number_minimax_tree_map;
+    unordered_map<int, MiniMaxTree*> *_move_number_minimax_tree_map;
 
     float _accumulated_move_generation_time;
     float _accumulated_state_generation_time;

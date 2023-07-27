@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include "utils.h"
 #include <cstring>
 #include <iostream>
@@ -19,9 +20,9 @@ public:
 
     ULL*  generateKingMoveSet();
 
-    map<BishopDirections, ULL>*  generateBishopMoveSet();
+    unordered_map<BishopDirections, ULL>*  generateBishopMoveSet();
 
-    map<RookDirections, ULL>*  generateRookMoveSet();
+    unordered_map<RookDirections, ULL>*  generateRookMoveSet();
 
     ULL*  generatePawnMoveSet(Colour colour);
 
@@ -31,7 +32,7 @@ public:
 
     ULL* generateFilledDownToMasks();
 
-    map<Piece, ULL> generateStartingPosition();
+    unordered_map<Piece, ULL> generateStartingPosition();
 
     pair<ULL*, ULL*> generateBitMasks();
 
@@ -61,9 +62,9 @@ public:
 
     ULL generateSmallCentreMask();
 
-    map<ULL, int> generateSinglePieceIndexMap();
+    unordered_map<ULL, int> generateSinglePieceIndexMap();
 
-    string _square_from_index[64] = {
+    const string _square_from_index[64] = {
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
         "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
         "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
@@ -73,7 +74,7 @@ public:
         "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
         "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"};
 
-    map<string, int> _index_from_square{
+    unordered_map<string, int> _index_from_square{
         {"a1", 0}, {"b1", 1},  {"c1", 2}, {"d1", 3}, {"e1", 4}, {"f1", 5}, {"g1", 6}, {"h1", 7},
         {"a2", 8}, {"b2", 9},  {"c2", 10}, {"d2", 11}, {"e2", 12}, {"f2", 13}, {"g2", 14}, {"h2", 15},
         {"a3", 16}, {"b3", 17}, {"c3", 18}, {"d3", 19}, {"e3", 20}, {"f3", 21}, {"g3", 22}, {"h3", 23},
@@ -106,39 +107,39 @@ public:
        13, 18,  8, 12,  7,  6,  5, 63
     };
 
-    ULL* _knight_move_set = generateKnightMoveSet();
+    const ULL* _knight_move_set = generateKnightMoveSet();
 
-    ULL* _king_move_set = generateKingMoveSet();
+    const ULL* _king_move_set = generateKingMoveSet();
 
-    ULL* _white_pawn_move_set = generatePawnMoveSet(White);
+    const ULL* _white_pawn_move_set = generatePawnMoveSet(White);
 
-    ULL* _black_pawn_move_set = generatePawnMoveSet(Black);
+    const ULL* _black_pawn_move_set = generatePawnMoveSet(Black);
 
-    ULL* _white_pawn_capture_set = generatePawnCaptureSet(White);
+    const ULL* _white_pawn_capture_set = generatePawnCaptureSet(White);
 
-    ULL* _black_pawn_capture_set = generatePawnCaptureSet(Black);
+    const ULL* _black_pawn_capture_set = generatePawnCaptureSet(Black);
 
-    map<Piece, ULL> _starting_bitboard = generateStartingPosition();
+    unordered_map<Piece, ULL> _starting_bitboard = generateStartingPosition();
 
-    map<ULL, int> _single_piece_board_index_map = generateSinglePieceIndexMap();
+    unordered_map<ULL, int> _single_piece_board_index_map = generateSinglePieceIndexMap();
 
-    ULL* _bit_masks = generateBitMasks().first;
+    const ULL* _bit_masks = generateBitMasks().first;
 
-    ULL* _bit_masks_complement = generateBitMasks().second;
+    const ULL* _bit_masks_complement = generateBitMasks().second;
 
-    ULL* _filled_up_to_masks = generateFilledUpToMasks();
+    const ULL* _filled_up_to_masks = generateFilledUpToMasks();
 
-    ULL* _filled_down_to_masks = generateFilledDownToMasks();
+    const ULL* _filled_down_to_masks = generateFilledDownToMasks();
 
-    map<BishopDirections, ULL>* _bishop_square_attack_rays = generateBishopMoveSet();
+    unordered_map<BishopDirections, ULL>* _bishop_square_attack_rays = generateBishopMoveSet();
 
-    map<RookDirections, ULL>* _rook_square_attack_rays = generateRookMoveSet();
+    unordered_map<RookDirections, ULL>* _rook_square_attack_rays = generateRookMoveSet();
 
-    ULL _large_centre_mask = generateLargeCentreMask();
+    const ULL _large_centre_mask = generateLargeCentreMask();
 
-    ULL _medium_centre_mask = generateMediumCentreMask();
+    const ULL _medium_centre_mask = generateMediumCentreMask();
 
-    ULL _small_centre_mask = generateSmallCentreMask();
+    const ULL _small_centre_mask = generateSmallCentreMask();
 
 };
 

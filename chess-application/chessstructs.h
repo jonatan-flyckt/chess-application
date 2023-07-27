@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <utility>
 
 
@@ -32,6 +33,17 @@ struct Piece{
     bool operator<(const Piece &o) const{
         return _colour < o._colour || (_colour == o._colour && _type < o._type);
     }
+};
+
+//Fast hashing function for Piece:
+template <>
+struct std::hash<Piece>
+{
+  size_t operator()(const Piece& o) const
+  {
+    return ((hash<int>()(o._colour)
+             ^ (hash<int>()(o._type) << 4)));
+  }
 };
 
 struct Move{
@@ -92,7 +104,7 @@ struct BitBoard{
 
     ULL _en_passant_square;
 
-    map<Piece, vector<int>> _indices_of_bits_for_piece_types;
+    unordered_map<Piece, vector<int>> _indices_of_bits_for_piece_types;
 };
 
 struct State{
@@ -134,10 +146,10 @@ struct State{
     bool _white_won = false;
     bool _black_won = false;
     string _game_over_reason;
-    map<string, int> *_state_seen_count;
+    unordered_map<string, int> *_state_seen_count;
 
     ULL _position_hash;
-    map<ULL, int> *_bit_board_state_seen_count;
+    unordered_map<ULL, int> *_bit_board_state_seen_count;
 };
 
 #endif // STRUCTS_H

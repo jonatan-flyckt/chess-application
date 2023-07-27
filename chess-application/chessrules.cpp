@@ -734,8 +734,8 @@ vector<Move> ChessRules::getCastlingMoves(BitBoard board, CastlingInfo castlingI
     return moveVector;
 }
 
-map<Piece, vector<int> > ChessRules::getIndicesOfBitsForPieceTypes(BitBoard board){
-    map<Piece, vector<int>> returnMap;
+unordered_map<Piece, vector<int> > ChessRules::getIndicesOfBitsForPieceTypes(BitBoard board){
+    unordered_map<Piece, vector<int>> returnMap;
 
     returnMap[Piece(White, Pawn)] = getIndicesOfBitsInBoard(board._white_pawns);
     returnMap[Piece(White, Rook)] = getIndicesOfBitsInBoard(board._white_rooks);
@@ -830,7 +830,7 @@ bool ChessRules::isInsufficientMaterial(State *state){
     return false;
 }
 
-int ChessRules::bitBoardNumberOfTimesThisStateSeen(ULL hash, map<ULL, int> *stateSeenCount){
+int ChessRules::bitBoardNumberOfTimesThisStateSeen(ULL hash, unordered_map<ULL, int> *stateSeenCount){
     if (stateSeenCount->count(hash) > 0)
         stateSeenCount->find(hash)->second += 1;
     else
@@ -841,8 +841,8 @@ int ChessRules::bitBoardNumberOfTimesThisStateSeen(ULL hash, map<ULL, int> *stat
 State* ChessRules::stateFromFEN(string fen){
     State *state = new State();
     state->_previous_state = nullptr;
-    state->_bit_board_state_seen_count = new map<ULL, int>;
-    state->_state_seen_count = new map<string, int>;
+    state->_bit_board_state_seen_count = new unordered_map<ULL, int>;
+    state->_state_seen_count = new unordered_map<string, int>;
 
     vector<string> splitFen = splitString(fen, " ");
 

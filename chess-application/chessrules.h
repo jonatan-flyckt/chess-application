@@ -36,11 +36,11 @@ public:
     ULL getBitBoardOfPossibleAttacksForBishop(int index, ULL occupancy);
     ULL getBitBoardOfPossibleAttacksForRook(int index, ULL occupancy);
     vector<Move> getCastlingMoves(BitBoard board, CastlingInfo castlingInfo, Colour colourToMove, int numberOfMoves);
-    map<Piece, vector<int>> getIndicesOfBitsForPieceTypes(BitBoard board);
+    unordered_map<Piece, vector<int>> getIndicesOfBitsForPieceTypes(BitBoard board);
 
     ZobristHasher _hasher = ZobristHasher();
 
-    int bitBoardNumberOfTimesThisStateSeen(ULL hash, map<ULL, int> *stateSeenCount);
+    int bitBoardNumberOfTimesThisStateSeen(ULL hash, unordered_map<ULL, int> *stateSeenCount);
 
     State* stateFromFEN(string fen);
     bool runPerftTest(State *state, int maxDepth, map<string, int> *correctDivide = nullptr);

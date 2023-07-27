@@ -10,7 +10,7 @@ ZobristHasher::ZobristHasher(){
         _en_passant_file_numbers.push_back(generateRandomNumber());
 }
 
-ULL ZobristHasher::generateHashForPosition(map<Piece, vector<int>> indicesOfBitsInBoard, CastlingInfo castlingInfo, Colour turnToMove, vector<int> enPassantIndexVector){
+ULL ZobristHasher::generateHashForPosition(unordered_map<Piece, vector<int>> indicesOfBitsInBoard, CastlingInfo castlingInfo, Colour turnToMove, vector<int> enPassantIndexVector){
     ULL hash = 0ULL;
 
     for (auto index: indicesOfBitsInBoard[Piece(White, Pawn)])
