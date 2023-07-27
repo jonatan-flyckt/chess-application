@@ -17,7 +17,7 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     updatePGN();
     _current_state->_state_seen_count = new map<string, int>();
     _current_state->_bit_board_state_seen_count = new map<ULL, int>();
-    _current_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(_current_state);
+    _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state);
     updatePGN();
 
     _rules.testMoveGenerationCorrectness("small"); //Takes roughly 10 seconds
@@ -262,7 +262,7 @@ State* ChessGame::gameStartingState(){
     initialisePiecesForGraphicBoard(startingState);
     initialiseBitBoard(startingState);
 
-    vector<Move> moves = _rules.getLegalBitBoardMoves(startingState);
+    vector<Move> moves = _rules.getLegalMoves(startingState);
 
     setFenForState(startingState);
     return startingState;

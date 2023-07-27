@@ -74,7 +74,7 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     qDebug() << "pseudo rook time:" << float(_rules._rook_timer) / 1000000.0 << "ms";
     qDebug() << "pseudo queen time:" << float(_rules._queen_timer) / 1000000.0 << "ms";
     qDebug() << "pseudo king time:" << float(_rules._king_timer) / 1000000.0 << "ms";
-    qDebug() << "castling time:" << float(_rules._castling_timer) / 1000000.0 << "ms";
+    qDebug() << "castling time:" << float(_rules._castling_timer) / 1000000.0 << "ms" << endl;
     qDebug() << "self check time:" << float(_rules._self_check_timer) / 1000000.0 << "ms";
     qDebug() << "self check first part:" << float(_rules._self_check_first_timer) / 1000000.0 << "ms";
     qDebug() << "self check second part:" << float(_rules._self_check_second_timer) / 1000000.0 << "ms";
@@ -116,7 +116,7 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
         return moveEvalPair;
     }
     uint64_t start = nanosecond_measurement();
-    node->_state->_legal_moves_from_state = _rules.getLegalBitBoardMoves(node->_state);
+    node->_state->_legal_moves_from_state = _rules.getLegalMoves(node->_state);
     _accumulated_move_generation_time += nanosecond_measurement() - start;
 
     //TODO: maybe keep this, maybe not
