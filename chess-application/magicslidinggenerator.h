@@ -16,7 +16,7 @@ public:
 
     ULL getBishopAttackRays(int index, ULL occupancy);
 
-    void initaliseSliderMasksAndAttacks(PieceType pieceType);
+    void initaliseSliderAttacks(PieceType pieceType);
 
     ULL setOccupancy(int index, int bitsInMask, ULL attackMask);
 

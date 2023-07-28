@@ -360,25 +360,18 @@ int BitBoardUtils::getIndexOfMostSignificantBit(ULL bitboard) {
 
 vector<int> BitBoardUtils::getIndicesOfBitsInBoard(ULL board){
     vector<int> indices;
-    if (!board){ //Return empty vector if board was zero
-        cout << "empty" << endl;
+    if (!board) //Return empty vector if board was zero
         return indices;
-    }
-
     //To avoid expensive operations, check if the single or double piece board index contains the hash of the board
     if (_single_piece_board_index_map.count(board) > 0){
         indices.push_back(_single_piece_board_index_map[board]);
-        cout << "used map for 1" << endl;
         return indices;
     }
-    if (_two_piece_board_index_map.count(board) > 0){
-        cout << "used map for 2" << endl;
+    if (_two_piece_board_index_map.count(board) > 0)
         return _two_piece_board_index_map[board];
-    }
 
     while (board)
         indices.push_back(popLeastSignificantBitFromBoard(&board));
-    cout << "did not use map" << endl;
     return indices;
 }
 

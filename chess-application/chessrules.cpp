@@ -475,7 +475,6 @@ bool ChessRules::squareIsUnderAttack(int index, BitBoard board, Colour colourAtt
             (colourAttacking == White ? board._white_queens : board._black_queens)){
         //If the vertical and horizontal rays out from the king position intersects with any queen or rook it is under attack
         uint64_t start = nanosecond_measurement();
-        //ULL kingVerticalHorizontalRays = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
         ULL kingVerticalHorizontalRays = _slide_move_generator.getRookAttackRays(index, board._all_pieces);
 
         ULL opposingRooksAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
@@ -491,7 +490,6 @@ bool ChessRules::squareIsUnderAttack(int index, BitBoard board, Colour colourAtt
             (colourAttacking == White ? board._white_queens : board._black_queens)){
         //If the diagonal rays out from the king position intersects with any queen or bishop it is under attack
         uint64_t start = nanosecond_measurement();
-        //ULL kingDiagonalRays = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
         ULL kingDiagonalRays = _slide_move_generator.getBishopAttackRays(index, board._all_pieces);
 
         ULL opposingBishopsAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
@@ -507,7 +505,6 @@ bool ChessRules::squareIsUnderAttack(int index, BitBoard board, Colour colourAtt
 }
 
 vector<Move> ChessRules::getPseudoLegalMovesForRook(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
-    //ULL possibleAttacks = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
     ULL possibleAttacks = _slide_move_generator.getRookAttackRays(index, board._all_pieces);
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
@@ -537,7 +534,6 @@ vector<Move> ChessRules::getPseudoLegalMovesForQueen(int index, BitBoard board, 
 }
 
 vector<Move> ChessRules::getPseudoLegalMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
-    //ULL possibleAttacks = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
     ULL possibleAttacks = _slide_move_generator.getBishopAttackRays(index, board._all_pieces);
 
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
