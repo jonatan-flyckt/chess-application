@@ -27,6 +27,7 @@ SOURCES += \
     contactpopup.cpp \
     graphicsinfo.cpp \
     linksdownladspopup.cpp \
+    magicslidinggenerator.cpp \
     main.cpp \
     mainwindow.cpp \
     newgamepopup.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
     enginethread.h \
     graphicsinfo.h \
     linksdownladspopup.h \
+    magicslidinggenerator.h \
     mainwindow.h \
     newgamepopup.h \
     notationwidget.h \

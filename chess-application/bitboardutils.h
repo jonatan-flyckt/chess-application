@@ -16,6 +16,10 @@ class BitBoardUtils
 {
 public:
 
+    ULL getBit(ULL bitboard, int index){return (bitboard & (1ULL << index));}
+    ULL setBit(ULL bitboard, int index){return (bitboard |= (1ULL << index));}
+    ULL popBit(ULL bitboard, int index){return (getBit(bitboard, index) ? (bitboard ^= (1ULL << index)) : 0);}
+
     ULL*  generateKnightMoveSet();
 
     ULL*  generateKingMoveSet();

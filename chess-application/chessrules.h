@@ -9,6 +9,7 @@
 #include "zobristhasher.h"
 #include <chrono>
 #include <thread>
+#include "magicslidinggenerator.h"
 
 uint64_t nanosecond_measurement();
 uint64_t millisecond_measurement();
@@ -39,6 +40,7 @@ public:
     unordered_map<Piece, vector<int>> getIndicesOfBitsForPieceTypes(BitBoard board);
 
     ZobristHasher _hasher = ZobristHasher();
+    MagicSlidingGenerator _slide_move_generator = MagicSlidingGenerator();
 
     int bitBoardNumberOfTimesThisStateSeen(ULL hash, unordered_map<ULL, int> *stateSeenCount);
 
