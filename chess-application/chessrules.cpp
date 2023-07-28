@@ -475,7 +475,9 @@ bool ChessRules::squareIsUnderAttack(int index, BitBoard board, Colour colourAtt
             (colourAttacking == White ? board._white_queens : board._black_queens)){
         //If the vertical and horizontal rays out from the king position intersects with any queen or rook it is under attack
         uint64_t start = nanosecond_measurement();
-        ULL kingVerticalHorizontalRays = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
+        //ULL kingVerticalHorizontalRays = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
+        ULL kingVerticalHorizontalRays = _slide_move_generator.getRookAttackRays(index, board._all_pieces);
+
         ULL opposingRooksAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
                 (colourAttacking == White ? board._white_rooks : board._black_rooks);
         if (kingVerticalHorizontalRays & opposingRooksAndQueens){
@@ -489,7 +491,9 @@ bool ChessRules::squareIsUnderAttack(int index, BitBoard board, Colour colourAtt
             (colourAttacking == White ? board._white_queens : board._black_queens)){
         //If the diagonal rays out from the king position intersects with any queen or bishop it is under attack
         uint64_t start = nanosecond_measurement();
-        ULL kingDiagonalRays = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
+        //ULL kingDiagonalRays = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
+        ULL kingDiagonalRays = _slide_move_generator.getBishopAttackRays(index, board._all_pieces);
+
         ULL opposingBishopsAndQueens = (colourAttacking == White ? board._white_queens : board._black_queens) |
                 (colourAttacking == White ? board._white_bishops : board._black_bishops);
         if (kingDiagonalRays & opposingBishopsAndQueens){
@@ -503,17 +507,14 @@ bool ChessRules::squareIsUnderAttack(int index, BitBoard board, Colour colourAtt
 }
 
 vector<Move> ChessRules::getPseudoLegalMovesForRook(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
-    ULL possibleAttacks = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
+    //ULL possibleAttacks = getBitBoardOfPossibleAttacksForRook(index, board._all_pieces);
+    ULL possibleAttacks = _slide_move_generator.getRookAttackRays(index, board._all_pieces);
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
     vector<Move> moveVector;
 
-    //Try to avoid the expensive getIndicesOfBitsInoard if possible
     vector<int> indexVector;
-    if (boardContainsExactlyOnePiece(pseudoLegalMoves))
-        indexVector.push_back(_single_piece_board_index_map[pseudoLegalMoves]);
-    else
-        indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
+    indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
 
     for (auto resultingIndex : indexVector){
         MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
@@ -535,6 +536,25 @@ vector<Move> ChessRules::getPseudoLegalMovesForQueen(int index, BitBoard board, 
     return queenMoves;
 }
 
+vector<Move> ChessRules::getPseudoLegalMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+    //ULL possibleAttacks = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
+    ULL possibleAttacks = _slide_move_generator.getBishopAttackRays(index, board._all_pieces);
+
+    ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
+
+    vector<Move> moveVector;
+
+    vector<int> indexVector;
+    indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
+
+    for (auto resultingIndex : indexVector){
+        MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
+        moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_bishop_piece_const : _black_bishop_piece_const, _square_from_index[index],_square_from_index[resultingIndex],
+                                  numberOfMoves+1, moveType));
+    }
+    return moveVector;
+}
+
 vector<Move> ChessRules::getPseudoLegalMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
     ULL possibleAttacks = _knight_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
@@ -543,35 +563,11 @@ vector<Move> ChessRules::getPseudoLegalMovesForKnight(int index, BitBoard board,
 
     //Try to avoid the expensive getIndicesOfBitsInoard if possible
     vector<int> indexVector;
-    if (boardContainsExactlyOnePiece(pseudoLegalMoves))
-        indexVector.push_back(_single_piece_board_index_map[pseudoLegalMoves]);
-    else
-        indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
+    indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
 
     for (auto resultingIndex : indexVector){
         MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
         moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_knight_piece_const : _black_knight_piece_const, _square_from_index[index],_square_from_index[resultingIndex],
-                                  numberOfMoves+1, moveType));
-    }
-    return moveVector;
-}
-
-vector<Move> ChessRules::getPseudoLegalMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
-    ULL possibleAttacks = getBitBoardOfPossibleAttacksForBishop(index, board._all_pieces);
-    ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
-
-    vector<Move> moveVector;
-
-    //Try to avoid the expensive getIndicesOfBitsInoard if possible
-    vector<int> indexVector;
-    if (boardContainsExactlyOnePiece(pseudoLegalMoves))
-        indexVector.push_back(_single_piece_board_index_map[pseudoLegalMoves]);
-    else
-        indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
-
-    for (auto resultingIndex : indexVector){
-        MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;
-        moveVector.push_back(Move(colourToMove, colourToMove == White ? _white_bishop_piece_const : _black_bishop_piece_const, _square_from_index[index],_square_from_index[resultingIndex],
                                   numberOfMoves+1, moveType));
     }
     return moveVector;
@@ -594,17 +590,8 @@ vector<Move> ChessRules::gerPseudoLegalMovesForPawn(int index, BitBoard board, C
 
     vector<Move> moveVector;
 
-    //Try to avoid the expensive getIndicesOfBitsInoard if possible
     vector<int> indexVector;
-    if (boardContainsExactlyOnePiece(pseudoLegalPushes | pseudoLegalCaptures))
-        indexVector.push_back(_single_piece_board_index_map[pseudoLegalPushes | pseudoLegalCaptures]);
-    else if (boardContainsExactlyOnePiece(pseudoLegalPushes) && boardContainsExactlyOnePiece(pseudoLegalCaptures)){
-        indexVector.push_back(_single_piece_board_index_map[pseudoLegalPushes]);
-        indexVector.push_back(_single_piece_board_index_map[pseudoLegalCaptures]);
-    }
-    else{
-        indexVector = getIndicesOfBitsInBoard(pseudoLegalPushes | pseudoLegalCaptures);
-    }
+    indexVector = getIndicesOfBitsInBoard(pseudoLegalPushes | pseudoLegalCaptures);
 
     for (auto resultingIndex : indexVector){
         MoveType typeOfMove;
@@ -669,15 +656,9 @@ vector<Move> ChessRules::getPseudoLegalMovesForKing(int index, BitBoard board, C
     ULL possibleAttacks = _king_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
-
     vector<Move> moveVector;
-
-    //Try to avoid the expensive getIndicesOfBitsInoard if possible
     vector<int> indexVector;
-    if (boardContainsExactlyOnePiece(pseudoLegalMoves))
-        indexVector.push_back(_single_piece_board_index_map[pseudoLegalMoves]);
-    else
-        indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
+    indexVector = getIndicesOfBitsInBoard(pseudoLegalMoves);
 
     for (auto resultingIndex : indexVector){
         MoveType moveType = _bit_masks[resultingIndex] & (colourToMove == White ? board._all_black_pieces : board._all_white_pieces) ? Capture : Standard;

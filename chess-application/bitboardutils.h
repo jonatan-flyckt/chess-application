@@ -68,6 +68,8 @@ public:
 
     unordered_map<ULL, int> generateSinglePieceIndexMap();
 
+    unordered_map<ULL, vector<int>> generateTwoPieceIndexMap();
+
     const string _square_from_index[64] = {
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
         "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
@@ -126,6 +128,8 @@ public:
     unordered_map<Piece, ULL> _starting_bitboard = generateStartingPosition();
 
     unordered_map<ULL, int> _single_piece_board_index_map = generateSinglePieceIndexMap();
+
+    unordered_map<ULL, vector<int>> _two_piece_board_index_map = generateTwoPieceIndexMap();
 
     const ULL* _bit_masks = generateBitMasks().first;
 
