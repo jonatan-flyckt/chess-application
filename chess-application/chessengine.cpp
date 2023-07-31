@@ -105,7 +105,7 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
                 value = 0;
             }
             else{
-                value =  node->_state->_white_won ? INFINITY_POS: INFINITY_NEG;
+                value =  node->_state->_white_won ? WHITE_WIN_EVAL: BLACK_WIN_EVAL;
             }
         }
         else{
@@ -174,7 +174,7 @@ float ChessEngine::heuristicValueForState(State *state){
         if (state->_is_draw)
             return 0;
         else
-            return state->_white_won ? 100000 : -100000;
+            return state->_white_won ? WHITE_WIN_EVAL : BLACK_WIN_EVAL;
     }
     //TODO: Create a solid function to determine state of game (opening, mid, end), rather than just using 30 moves
     return state->_number_of_moves > 30 ? simpleMaterialEvaluation(state) :

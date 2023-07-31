@@ -4,6 +4,8 @@
 #define MAX_DEPTH 3
 #define INFINITY_POS 1000000000
 #define INFINITY_NEG -1000000000
+#define WHITE_WIN_EVAL 100000000 //Must be less than infinity pos
+#define BLACK_WIN_EVAL -100000000 //Must be larger than ininity neg
 
 
 #include "chessrules.h"
