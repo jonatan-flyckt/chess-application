@@ -46,7 +46,9 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     _rules._castling_timer = 0;
     _rules._self_check_timer = 0;
     _rules._self_check_first_timer = 0;
-    _rules._self_check_second_timer = 0;
+    _rules._self_check_second_timer_old = 0;
+    _rules._self_check_second_timer_new = 0;
+    _rules._self_check_inner_timer = 0;
 
     _rules._attack_pawn_timer = 0;
     _rules._attack_knight_timer = 0;
@@ -76,8 +78,10 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     qDebug() << "pseudo king time:" << float(_rules._king_timer) / 1000000.0 << "ms";
     qDebug() << "castling time:" << float(_rules._castling_timer) / 1000000.0 << "ms" << endl;
     qDebug() << "self check time:" << float(_rules._self_check_timer) / 1000000.0 << "ms";
+    qDebug() << "self check inner time:" << float(_rules._self_check_inner_timer) / 1000000.0 << "ms";
     qDebug() << "self check first part:" << float(_rules._self_check_first_timer) / 1000000.0 << "ms";
-    qDebug() << "self check second part:" << float(_rules._self_check_second_timer) / 1000000.0 << "ms";
+    qDebug() << "self check second part old:" << float(_rules._self_check_second_timer_old) / 1000000.0 << "ms";
+    qDebug() << "self check second part new:" << float(_rules._self_check_second_timer_new) / 1000000.0 << "ms";
     qDebug() << "attacking square pawn:" << float(_rules._attack_pawn_timer) / 1000000.0 << "ms";
     qDebug() << "attacking square knight:" << float(_rules._attack_knight_timer) / 1000000.0 << "ms";
     qDebug() << "attacking square bishop/queen:" << float(_rules._attack_bishop_timer) / 1000000.0 << "ms";

@@ -152,7 +152,7 @@ vector<Move> ChessRules::getLegalMoves(State *state){
     uint64_t start = nanosecond_measurement();
     vector<Move> pawnMoves;
     for (auto index: state->_bit_board._indices_of_bits_for_piece_types[state->_colour_to_move == White ? _white_pawn_piece_const : _black_pawn_piece_const]){
-        for (auto move: gerPseudoLegalMovesForPawn(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves, state->_bit_board._en_passant_square))
+        for (auto move: getPseudoLegalMovesForPawn(index, state->_bit_board, state->_colour_to_move, state->_number_of_moves, state->_bit_board._en_passant_square))
             pawnMoves.push_back(move);
     }
     _pawn_timer += nanosecond_measurement() - start;
@@ -207,19 +207,21 @@ vector<Move> ChessRules::getLegalMoves(State *state){
     allPossibleMoves.insert( allPossibleMoves.end(), queenMoves.begin(), queenMoves.end() );
     allPossibleMoves.insert( allPossibleMoves.end(), castlingMoves.begin(), castlingMoves.end() );
 
-
     start = nanosecond_measurement();
-    //Remove all moves that caused self check:
-
-    vector<Move>::iterator iter = allPossibleMoves.begin();
-    while(iter != allPossibleMoves.end())
-        pseudoLegalMoveCausedSelfCheck(*iter, state->_bit_board) ? iter = allPossibleMoves.erase(iter) : iter++;
+    // Remove all moves that caused self check:
+    allPossibleMoves.erase(std::remove_if(allPossibleMoves.begin(), allPossibleMoves.end(),
+                                          [&](const Move& move) {
+                                              return pseudoLegalMoveCausedSelfCheck(move, state->_bit_board);
+                                          }),
+                           allPossibleMoves.end());
 
     _self_check_timer += nanosecond_measurement() - start;
     return allPossibleMoves;
+
 }
 
 bool ChessRules::pseudoLegalMoveCausedSelfCheck(Move move, BitBoard board){
+    uint64_t whole_func_start = nanosecond_measurement();
 
     uint64_t start = nanosecond_measurement();
 
@@ -322,11 +324,25 @@ bool ChessRules::pseudoLegalMoveCausedSelfCheck(Move move, BitBoard board){
     board._all_pieces = board._all_white_pieces | board._all_black_pieces;
     _self_check_first_timer += nanosecond_measurement() - start;
 
-    start = nanosecond_measurement();
-    bool returnBool = move._colour_performing_move == White ? whiteKingIsInCheck(board): blackKingIsInCheck(board);
-    _self_check_second_timer += nanosecond_measurement() - start;
 
-    return returnBool;
+
+/*    uint64_t start_1 = nanosecond_measurement();
+    bool returnBoolOld = move._colour_performing_move == White ? whiteKingIsInCheck(board): blackKingIsInCheck(board);
+    _self_check_second_timer_old += nanosecond_measurement() - start_1;
+*/
+
+
+    uint64_t start_2 = nanosecond_measurement();
+    bool returnBoolNew = move._colour_performing_move == White ?
+                squareIsUnderAttack(_single_piece_board_index_map[board._white_king], board, Black):
+        squareIsUnderAttack(_single_piece_board_index_map[board._black_king], board, White);
+    _self_check_second_timer_new += nanosecond_measurement() - start_2;
+
+
+
+    _self_check_inner_timer += nanosecond_measurement() - whole_func_start;
+
+    return returnBoolNew;
 }
 
 bool ChessRules::whiteKingIsInCheck(BitBoard board){
@@ -569,7 +585,7 @@ vector<Move> ChessRules::getPseudoLegalMovesForKnight(int index, BitBoard board,
     return moveVector;
 }
 
-vector<Move> ChessRules::gerPseudoLegalMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare){
+vector<Move> ChessRules::getPseudoLegalMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare){
     ULL possiblePushes = colourToMove == White ? _white_pawn_move_set[index] : _black_pawn_move_set[index];
     ULL possibleCaptures = colourToMove == White ? _white_pawn_capture_set[index] : _black_pawn_capture_set[index];
     ULL pseudoLegalPushes = possiblePushes &~board._all_pieces;

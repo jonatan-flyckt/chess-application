@@ -26,7 +26,7 @@ public:
     void updateBitBoardWithMove(State *currentState, State *resultingState, Move move);
     bool squareIsUnderAttack(int index, BitBoard board, Colour colourAttacking);
     vector<Move> getPseudoLegalMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
-    vector<Move> gerPseudoLegalMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare);
+    vector<Move> getPseudoLegalMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare);
     vector<Move> getPseudoLegalMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
     vector<Move> getPseudoLegalMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
     vector<Move> getPseudoLegalMovesForRook(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
@@ -69,7 +69,9 @@ public:
     float _self_check_timer;
 
     float _self_check_first_timer;
-    float _self_check_second_timer;
+    float _self_check_second_timer_old;
+    float _self_check_second_timer_new;
+    float _self_check_inner_timer;
 
     float _attack_pawn_timer;
     float _attack_knight_timer;
