@@ -12,9 +12,9 @@ class MagicSlidingGenerator: public BitBoardUtils
 public:
     MagicSlidingGenerator();
 
-    ULL getRookAttackRays(int index, ULL occupancy);
+    ULL getRookAttackRays(const int &index, ULL occupancy);
 
-    ULL getBishopAttackRays(int index, ULL occupancy);
+    ULL getBishopAttackRays(const int &index, ULL occupancy);
 
     void initaliseSliderAttacks(PieceType pieceType);
 

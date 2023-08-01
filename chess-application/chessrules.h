@@ -24,19 +24,19 @@ public:
     void updateCastlingInfo(Move move, State *state);
     vector<Move> getLegalMoves(State *state);
     void updateBitBoardWithMove(State *currentState, State *resultingState, Move move);
-    bool squareIsUnderAttack(int index, BitBoard board, Colour colourAttacking);
-    vector<Move> getPseudoLegalMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
-    vector<Move> getPseudoLegalMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare);
-    vector<Move> getPseudoLegalMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
-    vector<Move> getPseudoLegalMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
-    vector<Move> getPseudoLegalMovesForRook(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
-    vector<Move> getPseudoLegalMovesForQueen(int index, BitBoard board, Colour colourToMove, int numberOfMoves);
-    bool pseudoLegalMoveCausedSelfCheck(Move move, BitBoard board);
-    bool whiteKingIsInCheck(BitBoard board);
-    bool blackKingIsInCheck(BitBoard board);
+    bool squareIsUnderAttack(const int &index, const BitBoard &board, const Colour &colourAttacking);
+    vector<Move> getPseudoLegalMovesForKing(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves);
+    vector<Move> getPseudoLegalMovesForPawn(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves, const ULL &enPassantSquare);
+    vector<Move> getPseudoLegalMovesForKnight(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves);
+    vector<Move> getPseudoLegalMovesForBishop(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves);
+    vector<Move> getPseudoLegalMovesForRook(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves);
+    vector<Move> getPseudoLegalMovesForQueen(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves);
+    bool pseudoLegalMoveCausedSelfCheck(const Move &move, const BitBoard &board);
+    bool whiteKingIsInCheck(const BitBoard &board);
+    bool blackKingIsInCheck(const BitBoard &board);
     ULL getBitBoardOfPossibleAttacksForBishop(int index, ULL occupancy);
     ULL getBitBoardOfPossibleAttacksForRook(int index, ULL occupancy);
-    vector<Move> getCastlingMoves(BitBoard board, CastlingInfo castlingInfo, Colour colourToMove, int numberOfMoves);
+    vector<Move> getCastlingMoves(const BitBoard &board, const CastlingInfo &castlingInfo, const Colour &colourToMove, const int &numberOfMoves);
     unordered_map<Piece, vector<int>> getIndicesOfBitsForPieceTypes(BitBoard board);
 
     ZobristHasher _hasher = ZobristHasher();
@@ -49,7 +49,7 @@ public:
     void expandPerftTree(State *currentState, map<int, int> *movePerDepthCounter, int currentDepth,
                          int maxDepth, map<string, int> *moveTypeCounter, map<string, int> *divideMap, string divideString = "");
     bool testMoveGenerationCorrectness(string testSize="small");
-    bool pawnsOnAdjacentColumns(int indexFirst, int indexSecond);
+    bool pawnsOnAdjacentColumns(const int &indexFirst, const int &indexSecond);
 
 
     float _accumulated_update_bit_board_time;
@@ -69,8 +69,7 @@ public:
     float _self_check_timer;
 
     float _self_check_first_timer;
-    float _self_check_second_timer_old;
-    float _self_check_second_timer_new;
+    float _self_check_second_timer;
     float _self_check_inner_timer;
 
     float _attack_pawn_timer;

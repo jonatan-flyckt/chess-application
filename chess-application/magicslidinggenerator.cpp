@@ -10,14 +10,14 @@ MagicSlidingGenerator::MagicSlidingGenerator(){
 
 }
 
-ULL MagicSlidingGenerator::getRookAttackRays(int index, ULL occupancy){
+ULL MagicSlidingGenerator::getRookAttackRays(const int &index, ULL occupancy){
     occupancy &= _rook_masks[index];
     occupancy *=  _rook_magics[index];
     occupancy >>= _rook_relevant_bits[index];
     return _rook_attacks[index][occupancy];
 }
 
-ULL MagicSlidingGenerator::getBishopAttackRays(int index, ULL occupancy){
+ULL MagicSlidingGenerator::getBishopAttackRays(const int &index, ULL occupancy){
     occupancy &= _bishop_masks[index];
     occupancy *=  _bishop_magics[index];
     occupancy >>= _bishop_relevant_bits[index];

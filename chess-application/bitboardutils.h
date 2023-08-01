@@ -52,7 +52,7 @@ public:
 
     void printBoard(ULL board);
 
-    int getIndexOfLeastSignificantBit(ULL bitboard);
+    int getIndexOfLeastSignificantBit(const ULL &bitboard);
 
     int getIndexOfMostSignificantBit(ULL bitboard);
 

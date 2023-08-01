@@ -340,7 +340,7 @@ int BitBoardUtils::popLeastSignificantBitFromBoard(ULL *board){
     return _least_significant_bit_table[(halfFold * 0x783a9b23) >> 26];
 }
 
-int BitBoardUtils::getIndexOfLeastSignificantBit(ULL bitboard) {
+int BitBoardUtils::getIndexOfLeastSignificantBit(const ULL &bitboard) {
     if (bitboard != 0)
         return countBitsInBoard((bitboard & -bitboard) - 1);
     else

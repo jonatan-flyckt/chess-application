@@ -211,8 +211,8 @@ vector<Move> ChessRules::getLegalMoves(State *state){
     // Remove all moves that caused self check:
     allPossibleMoves.erase(std::remove_if(allPossibleMoves.begin(), allPossibleMoves.end(),
                                           [&](const Move& move) {
-                                              return pseudoLegalMoveCausedSelfCheck(move, state->_bit_board);
-                                          }),
+        return pseudoLegalMoveCausedSelfCheck(move, state->_bit_board);
+    }),
                            allPossibleMoves.end());
 
     _self_check_timer += nanosecond_measurement() - start;
@@ -220,8 +220,9 @@ vector<Move> ChessRules::getLegalMoves(State *state){
 
 }
 
-bool ChessRules::pseudoLegalMoveCausedSelfCheck(Move move, BitBoard board){
+bool ChessRules::pseudoLegalMoveCausedSelfCheck(const Move &move, const BitBoard &board){
     uint64_t whole_func_start = nanosecond_measurement();
+    BitBoard boardCopy = board;
 
     uint64_t start = nanosecond_measurement();
 
@@ -231,125 +232,113 @@ bool ChessRules::pseudoLegalMoveCausedSelfCheck(Move move, BitBoard board){
 
     if (move._colour_performing_move == White){
         if (move._piece._type == Pawn)
-            board._white_pawns = (board._white_pawns | destinationMask) & originComplementMask;
+            boardCopy._white_pawns = (boardCopy._white_pawns | destinationMask) & originComplementMask;
         if (move._piece._type == Knight)
-            board._white_knights = (board._white_knights | destinationMask) & originComplementMask;
+            boardCopy._white_knights = (boardCopy._white_knights | destinationMask) & originComplementMask;
         if (move._piece._type == Bishop)
-            board._white_bishops = (board._white_bishops | destinationMask) & originComplementMask;
+            boardCopy._white_bishops = (boardCopy._white_bishops | destinationMask) & originComplementMask;
         if (move._piece._type == Rook)
-            board._white_rooks = (board._white_rooks | destinationMask) & originComplementMask;
+            boardCopy._white_rooks = (boardCopy._white_rooks | destinationMask) & originComplementMask;
         if (move._piece._type == Queen)
-            board._white_queens = (board._white_queens | destinationMask) & originComplementMask;
+            boardCopy._white_queens = (boardCopy._white_queens | destinationMask) & originComplementMask;
         if (move._piece._type == King)
-            board._white_king = (board._white_king | destinationMask) & originComplementMask;
+            boardCopy._white_king = (boardCopy._white_king | destinationMask) & originComplementMask;
 
         if (move._move_type == EnPassant){
-            board._black_pawns &= ~(1ULL<<(getIndexOfLeastSignificantBit(board._en_passant_square)-8));
+            boardCopy._black_pawns &= ~(1ULL<<(getIndexOfLeastSignificantBit(boardCopy._en_passant_square)-8));
         }
         else if (move._move_type == LongCastle){
-            board._white_king = _bit_masks[_index_from_square["c1"]];
-            board._white_rooks =
-                    (board._white_rooks & _bit_masks_complement[_index_from_square["a1"]]) | _bit_masks[_index_from_square["d1"]];
+            boardCopy._white_king = _bit_masks[_index_from_square["c1"]];
+            boardCopy._white_rooks =
+                    (boardCopy._white_rooks & _bit_masks_complement[_index_from_square["a1"]]) | _bit_masks[_index_from_square["d1"]];
         }
         else if (move._move_type == ShortCastle){
-            board._white_king = _bit_masks[_index_from_square["g1"]];
-            board._white_rooks =
-                    (board._white_rooks & _bit_masks_complement[_index_from_square["h1"]]) | _bit_masks[_index_from_square["f1"]];
+            boardCopy._white_king = _bit_masks[_index_from_square["g1"]];
+            boardCopy._white_rooks =
+                    (boardCopy._white_rooks & _bit_masks_complement[_index_from_square["h1"]]) | _bit_masks[_index_from_square["f1"]];
         }
         else if (move._move_type == Promotion || move._move_type == PromotionCapture){
-            board._white_pawns &= (destinationComplementMask ^ _bit_masks[_index_from_square[move._origin_square]]);
+            boardCopy._white_pawns &= (destinationComplementMask ^ _bit_masks[_index_from_square[move._origin_square]]);
             if (move._promotion_selection == Queen)
-                board._white_queens |= destinationMask;
+                boardCopy._white_queens |= destinationMask;
             else if (move._promotion_selection == Knight)
-                board._white_knights |= destinationMask;
+                boardCopy._white_knights |= destinationMask;
             else if (move._promotion_selection == Bishop)
-                board._white_bishops |= destinationMask;
+                boardCopy._white_bishops |= destinationMask;
             else if(move._promotion_selection == Rook)
-                board._white_rooks |= destinationMask;
+                boardCopy._white_rooks |= destinationMask;
         }
 
-        board._black_pawns &= destinationComplementMask;
-        board._black_rooks &= destinationComplementMask;
-        board._black_knights &= destinationComplementMask;
-        board._black_bishops &= destinationComplementMask;
-        board._black_queens &= destinationComplementMask;
+        boardCopy._black_pawns &= destinationComplementMask;
+        boardCopy._black_rooks &= destinationComplementMask;
+        boardCopy._black_knights &= destinationComplementMask;
+        boardCopy._black_bishops &= destinationComplementMask;
+        boardCopy._black_queens &= destinationComplementMask;
     }
     else{
         if (move._piece._type == Pawn)
-            board._black_pawns = (board._black_pawns | destinationMask) & originComplementMask;
+            boardCopy._black_pawns = (boardCopy._black_pawns | destinationMask) & originComplementMask;
         if (move._piece._type == Knight)
-            board._black_knights = (board._black_knights | destinationMask) & originComplementMask;
+            boardCopy._black_knights = (boardCopy._black_knights | destinationMask) & originComplementMask;
         if (move._piece._type == Bishop)
-            board._black_bishops = (board._black_bishops | destinationMask) & originComplementMask;
+            boardCopy._black_bishops = (boardCopy._black_bishops | destinationMask) & originComplementMask;
         if (move._piece._type == Rook)
-            board._black_rooks = (board._black_rooks | destinationMask) & originComplementMask;
+            boardCopy._black_rooks = (boardCopy._black_rooks | destinationMask) & originComplementMask;
         if (move._piece._type == Queen)
-            board._black_queens = (board._black_queens | destinationMask) & originComplementMask;
+            boardCopy._black_queens = (boardCopy._black_queens | destinationMask) & originComplementMask;
         if (move._piece._type == King)
-            board._black_king = (board._black_king | destinationMask) & originComplementMask;
+            boardCopy._black_king = (boardCopy._black_king | destinationMask) & originComplementMask;
 
         if (move._move_type == EnPassant){
-            board._white_pawns &= ~(1ULL<<(getIndexOfLeastSignificantBit(board._en_passant_square)+8));
+            boardCopy._white_pawns &= ~(1ULL<<(getIndexOfLeastSignificantBit(boardCopy._en_passant_square)+8));
         }
         else if (move._move_type == LongCastle){
-            board._black_king = _bit_masks[_index_from_square["c8"]];
-            board._black_rooks =
-                    (board._black_rooks & _bit_masks_complement[_index_from_square["a8"]]) | _bit_masks[_index_from_square["d8"]];
+            boardCopy._black_king = _bit_masks[_index_from_square["c8"]];
+            boardCopy._black_rooks =
+                    (boardCopy._black_rooks & _bit_masks_complement[_index_from_square["a8"]]) | _bit_masks[_index_from_square["d8"]];
         }
         else if (move._move_type == ShortCastle){
-            board._black_king = _bit_masks[_index_from_square["g8"]];
-            board._black_rooks =
-                    (board._black_rooks & _bit_masks_complement[_index_from_square["h8"]]) | _bit_masks[_index_from_square["f8"]];
+            boardCopy._black_king = _bit_masks[_index_from_square["g8"]];
+            boardCopy._black_rooks =
+                    (boardCopy._black_rooks & _bit_masks_complement[_index_from_square["h8"]]) | _bit_masks[_index_from_square["f8"]];
         }
         else if (move._move_type == Promotion || move._move_type == PromotionCapture){
-            board._black_pawns &= (destinationComplementMask ^ _bit_masks[_index_from_square[move._origin_square]]);
+            boardCopy._black_pawns &= (destinationComplementMask ^ _bit_masks[_index_from_square[move._origin_square]]);
             if (move._promotion_selection == Queen)
-                board._black_queens |= destinationMask;
+                boardCopy._black_queens |= destinationMask;
             else if (move._promotion_selection == Knight)
-                board._black_knights |= destinationMask;
+                boardCopy._black_knights |= destinationMask;
             else if (move._promotion_selection == Bishop)
-                board._black_bishops |= destinationMask;
+                boardCopy._black_bishops |= destinationMask;
             else if(move._promotion_selection == Rook)
-                board._black_rooks |= destinationMask;
+                boardCopy._black_rooks |= destinationMask;
         }
 
-        board._white_pawns &= destinationComplementMask;
-        board._white_rooks &= destinationComplementMask;
-        board._white_knights &= destinationComplementMask;
-        board._white_bishops &= destinationComplementMask;
-        board._white_queens &= destinationComplementMask;
+        boardCopy._white_pawns &= destinationComplementMask;
+        boardCopy._white_rooks &= destinationComplementMask;
+        boardCopy._white_knights &= destinationComplementMask;
+        boardCopy._white_bishops &= destinationComplementMask;
+        boardCopy._white_queens &= destinationComplementMask;
     }
-    board._all_black_pieces = board._black_pawns | board._black_rooks | board._black_knights | board._black_bishops | board._black_queens | board._black_king;
-    board._all_white_pieces = board._white_pawns | board._white_rooks | board._white_knights | board._white_bishops | board._white_queens | board._white_king;
-    board._all_pieces = board._all_white_pieces | board._all_black_pieces;
+    boardCopy._all_black_pieces = boardCopy._black_pawns | boardCopy._black_rooks | boardCopy._black_knights | boardCopy._black_bishops | boardCopy._black_queens | boardCopy._black_king;
+    boardCopy._all_white_pieces = boardCopy._white_pawns | boardCopy._white_rooks | boardCopy._white_knights | boardCopy._white_bishops | boardCopy._white_queens | boardCopy._white_king;
+    boardCopy._all_pieces = boardCopy._all_white_pieces | boardCopy._all_black_pieces;
     _self_check_first_timer += nanosecond_measurement() - start;
 
-
-
-/*    uint64_t start_1 = nanosecond_measurement();
-    bool returnBoolOld = move._colour_performing_move == White ? whiteKingIsInCheck(board): blackKingIsInCheck(board);
-    _self_check_second_timer_old += nanosecond_measurement() - start_1;
-*/
-
-
-    uint64_t start_2 = nanosecond_measurement();
-    bool returnBoolNew = move._colour_performing_move == White ?
-                squareIsUnderAttack(_single_piece_board_index_map[board._white_king], board, Black):
-        squareIsUnderAttack(_single_piece_board_index_map[board._black_king], board, White);
-    _self_check_second_timer_new += nanosecond_measurement() - start_2;
-
-
+    start = nanosecond_measurement();
+    bool returnBool = move._colour_performing_move == White ? whiteKingIsInCheck(boardCopy): blackKingIsInCheck(boardCopy);
+    _self_check_second_timer += nanosecond_measurement() - start;
 
     _self_check_inner_timer += nanosecond_measurement() - whole_func_start;
 
-    return returnBoolNew;
+    return returnBool;
 }
 
-bool ChessRules::whiteKingIsInCheck(BitBoard board){
+bool ChessRules::whiteKingIsInCheck(const BitBoard& board){
     return squareIsUnderAttack(_single_piece_board_index_map[board._white_king], board, Black);
 }
 
-bool ChessRules::blackKingIsInCheck(BitBoard board){
+bool ChessRules::blackKingIsInCheck(const BitBoard &board){
     return squareIsUnderAttack(_single_piece_board_index_map[board._black_king], board, White);
 }
 
@@ -461,7 +450,7 @@ void ChessRules::updateBitBoardWithMove(State *currentState, State *resultingSta
     resultingState->_bit_board._indices_of_bits_for_piece_types = getIndicesOfBitsForPieceTypes(resultingState->_bit_board);
 }
 
-bool ChessRules::squareIsUnderAttack(int index, BitBoard board, Colour colourAttacking){
+bool ChessRules::squareIsUnderAttack(const int &index, const BitBoard &board, const Colour &colourAttacking){
 
     if (colourAttacking == White ? board._white_knights : board._black_knights){
         uint64_t start = nanosecond_measurement();
@@ -520,7 +509,7 @@ bool ChessRules::squareIsUnderAttack(int index, BitBoard board, Colour colourAtt
     return false;
 }
 
-vector<Move> ChessRules::getPseudoLegalMovesForRook(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getPseudoLegalMovesForRook(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves){
     ULL possibleAttacks = _slide_move_generator.getRookAttackRays(index, board._all_pieces);
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
@@ -537,7 +526,7 @@ vector<Move> ChessRules::getPseudoLegalMovesForRook(int index, BitBoard board, C
     return moveVector;
 }
 
-vector<Move> ChessRules::getPseudoLegalMovesForQueen(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getPseudoLegalMovesForQueen(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves){
     vector<Move> rookMoves = getPseudoLegalMovesForRook(index, board, colourToMove, numberOfMoves);
     vector<Move> bishopMoves = getPseudoLegalMovesForBishop(index, board, colourToMove, numberOfMoves);
     vector<Move> queenMoves;
@@ -549,7 +538,7 @@ vector<Move> ChessRules::getPseudoLegalMovesForQueen(int index, BitBoard board, 
     return queenMoves;
 }
 
-vector<Move> ChessRules::getPseudoLegalMovesForBishop(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getPseudoLegalMovesForBishop(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves){
     ULL possibleAttacks = _slide_move_generator.getBishopAttackRays(index, board._all_pieces);
 
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
@@ -567,7 +556,7 @@ vector<Move> ChessRules::getPseudoLegalMovesForBishop(int index, BitBoard board,
     return moveVector;
 }
 
-vector<Move> ChessRules::getPseudoLegalMovesForKnight(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getPseudoLegalMovesForKnight(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves){
     ULL possibleAttacks = _knight_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
@@ -585,7 +574,7 @@ vector<Move> ChessRules::getPseudoLegalMovesForKnight(int index, BitBoard board,
     return moveVector;
 }
 
-vector<Move> ChessRules::getPseudoLegalMovesForPawn(int index, BitBoard board, Colour colourToMove, int numberOfMoves, ULL enPassantSquare){
+vector<Move> ChessRules::getPseudoLegalMovesForPawn(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves, const ULL &enPassantSquare){
     ULL possiblePushes = colourToMove == White ? _white_pawn_move_set[index] : _black_pawn_move_set[index];
     ULL possibleCaptures = colourToMove == White ? _white_pawn_capture_set[index] : _black_pawn_capture_set[index];
     ULL pseudoLegalPushes = possiblePushes &~board._all_pieces;
@@ -664,7 +653,7 @@ vector<Move> ChessRules::getPseudoLegalMovesForPawn(int index, BitBoard board, C
     return moveVector;
 }
 
-vector<Move> ChessRules::getPseudoLegalMovesForKing(int index, BitBoard board, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getPseudoLegalMovesForKing(const int &index, const BitBoard &board, const Colour &colourToMove, const int &numberOfMoves){
     ULL possibleAttacks = _king_move_set[index];
     ULL pseudoLegalMoves = colourToMove == White ? possibleAttacks &~board._all_white_pieces : possibleAttacks &~board._all_black_pieces;
 
@@ -681,7 +670,7 @@ vector<Move> ChessRules::getPseudoLegalMovesForKing(int index, BitBoard board, C
     return moveVector;
 }
 
-vector<Move> ChessRules::getCastlingMoves(BitBoard board, CastlingInfo castlingInfo, Colour colourToMove, int numberOfMoves){
+vector<Move> ChessRules::getCastlingMoves(const BitBoard &board, const CastlingInfo &castlingInfo, const Colour &colourToMove, const int &numberOfMoves){
     vector<Move> moveVector;
     if (colourToMove == White){
         if (!castlingInfo._white_castled && !castlingInfo._white_king_has_moved){
@@ -777,7 +766,7 @@ ULL ChessRules::getBitBoardOfPossibleAttacksForRook(int index, ULL occupancy){
     return NMoves | EMoves | SMoves | WMoves;
 }
 
-bool ChessRules::pawnsOnAdjacentColumns(int indexFirst, int indexSecond){
+bool ChessRules::pawnsOnAdjacentColumns(const int &indexFirst, const int &indexSecond){
     return abs((indexSecond % 8) - (indexFirst % 8)) == 1;
 }
 
