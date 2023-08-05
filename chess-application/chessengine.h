@@ -1,7 +1,7 @@
 #ifndef CHESSENGINE_H
 #define CHESSENGINE_H
 
-#define MAX_DEPTH 3
+#define MAX_DEPTH 4
 #define INFINITY_POS 1000000000
 #define INFINITY_NEG -1000000000
 #define WHITE_WIN_EVAL 100000000 //Must be less than infinity pos
@@ -21,6 +21,17 @@ struct MiniMaxNode{
     State *_state;
     vector<MiniMaxNode*> _children;
     int _depth_of_node;
+    float _heuristic_value;
+};
+
+struct MiniMaxNodeComparator{
+    bool descending;
+
+    MiniMaxNodeComparator(bool descending) : descending(descending) {}
+
+    bool operator()(const MiniMaxNode* node1, const MiniMaxNode* node2) const {
+        return descending ? node1->_heuristic_value > node2->_heuristic_value : node1->_heuristic_value < node2->_heuristic_value;
+    }
 };
 
 struct MiniMaxTree{
@@ -35,7 +46,7 @@ public:
     ChessEngine();
     ~ChessEngine();
     Move selectMoveFromState(State *state, Colour engineColour);
-    float heuristicValueForState(State *state);
+    float fastSimpleHeuristicValueForState(State *state);
     float simpleMaterialEvaluation(State *state);
     float simpleOpeningEvaluation(State *state);
     Move makeRandomMove(State *state);
@@ -43,6 +54,8 @@ public:
     Move miniMax(State *state, Colour engineColour);
     pair<Move, float> alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, int depth, float alpha, float beta, bool maximisingPlayer);
     int countBitsInBoard(ULL board);
+
+    void insertSorted(vector<MiniMaxNode*>& _children, MiniMaxNode* newNode, bool descending);
 private:
 
     ChessRules _rules;

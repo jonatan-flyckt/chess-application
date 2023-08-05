@@ -111,7 +111,7 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
             }
         }
         else{
-            value = heuristicValueForState(node->_state);
+            value = fastSimpleHeuristicValueForState(node->_state);
         }
         moveEvalPair.second = value;
         _accumulated_heuristic_evaluation_time += nanosecond_measurement() - start;
@@ -126,14 +126,22 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
                           node->_state->_legal_moves_from_state.end() );
 
     start = nanosecond_measurement();
-    //TODO: move ordering
+
     for (auto legalMove: node->_state->_legal_moves_from_state){
         MiniMaxNode *newNode = new MiniMaxNode();
         newNode->_depth_of_node = depth+1;
         newNode->_state = _rules.getResultingStateFromMove(node->_state, legalMove);
-        node->_children.push_back(newNode);
+
+        //without move ordering:
+        //node->_children.push_back(newNode);
+
+        //with move ordering:
+        newNode->_heuristic_value = fastSimpleHeuristicValueForState(newNode->_state);
+        insertSorted(node->_children, newNode, maximisingPlayer);
     }
     _accumulated_state_generation_time += nanosecond_measurement() - start;
+
+
 
     if (maximisingPlayer){ //Find best move for white (maximise)
         float bestEval = INFINITY_NEG;
@@ -171,7 +179,7 @@ pair<Move, float> ChessEngine::alphaBeta(MiniMaxTree *tree, MiniMaxNode *node, i
     }
 }
 
-float ChessEngine::heuristicValueForState(State *state){
+float ChessEngine::fastSimpleHeuristicValueForState(State *state){
     if (state->_is_game_over){
         if (state->_is_draw)
             return 0;
@@ -263,9 +271,9 @@ Move ChessEngine::makeRandomMove(State *state){
            mt19937{random_device{}()});
     return out[0];
 }
-
-
-
-
-
-
+// Function to insert a new node into the sorted vector
+void ChessEngine::insertSorted(vector<MiniMaxNode*>& _children, MiniMaxNode* newNode, bool descending) {
+    auto comp = MiniMaxNodeComparator(descending);
+    auto it = std::lower_bound(_children.begin(), _children.end(), newNode, comp);
+    _children.insert(it, newNode);
+}
