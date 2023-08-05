@@ -468,6 +468,57 @@ ULL BitBoardUtils::generateSmallCentreMask(){
     return resultingMap;
 }
 
+void BitBoardUtils::printFullBitboard(const BitBoard &board){
+    cout << "White Pawns:";
+    printBoard(board._white_pawns);
+    cout << endl;
+    cout << "White Rooks:";
+    printBoard(board._white_rooks);
+    cout << endl;
+    cout << "White Knights:";
+    printBoard(board._white_knights);
+    cout << endl;
+    cout << "White Bishops:";
+    printBoard(board._white_bishops);
+    cout << endl;
+    cout << "White Queens:";
+    printBoard(board._white_queens);
+    cout << endl;
+    cout << "White King:";
+    printBoard(board._white_king);
+    cout << endl;
+    cout << "Black Pawns:";
+    printBoard(board._black_pawns);
+    cout << endl;
+    cout << "Black Rooks:";
+    printBoard(board._black_rooks);
+    cout << endl;
+    cout << "Black Knights:";
+    printBoard(board._black_knights);
+    cout << endl;
+    cout << "Black Bishops:";
+    printBoard(board._black_bishops);
+    cout << endl;
+    cout << "Black Queens:";
+    printBoard(board._black_queens);
+    cout << endl;
+    cout << "Black King:";
+    printBoard(board._black_king);
+    cout << endl;
+    cout << "All White Pieces:";
+    printBoard(board._all_white_pieces);
+    cout << endl;
+    cout << "All Black Pieces:";
+    printBoard(board._all_black_pieces);
+    cout << endl;
+    cout << "All Pieces:";
+    printBoard(board._all_pieces);
+    cout << endl;
+    cout << "En Passant Square:";
+    printBoard(board._en_passant_square);
+    cout << endl;
+}
+
 unordered_map<ULL, int> BitBoardUtils::generateSinglePieceIndexMap(){
     unordered_map<ULL, int> returnMap;
     for (int i = 0; i < 64; i++){

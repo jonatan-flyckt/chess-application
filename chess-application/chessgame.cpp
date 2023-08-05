@@ -20,8 +20,9 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state);
     updatePGN();
 
-    _rules.testMoveGenerationCorrectness("small"); //Takes roughly 5 seconds
-    //_rules.testMoveGenerationCorrectness("large"); //Takes roughly 3 minutes
+
+    _rules.testMoveGenerationCorrectness("small"); //Takes roughly 2 seconds
+    //_rules.testMoveGenerationCorrectness("large"); //Takes roughly 70 seconds
 }
 
 ChessGame::~ChessGame(){

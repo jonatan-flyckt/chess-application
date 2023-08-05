@@ -66,6 +66,8 @@ public:
 
     ULL generateSmallCentreMask();
 
+    void printFullBitboard(const BitBoard &board);
+
     unordered_map<ULL, int> generateSinglePieceIndexMap();
 
     unordered_map<ULL, vector<int>> generateTwoPieceIndexMap();
