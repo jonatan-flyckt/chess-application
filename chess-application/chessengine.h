@@ -47,9 +47,14 @@ public:
     ~ChessEngine();
     Move selectMoveFromState(State *state, Colour engineColour);
     float fastSimpleHeuristicValueForState(State *state);
-    float simpleMaterialEvaluation(State *state);
+    float materialEvaluation(State *state);
     float simpleOpeningEvaluation(State *state);
+    float simpleMidGameEvaluation(State *state);
+
     float simpleEndGameEvaluation(State *state);
+    float forceKingToEdgeInEndGame(State *state, float materialEval);
+    float encouragePawnPushing(State *state, int multiplier=1);
+
     Move makeRandomMove(State *state);
 
     Move miniMax(State *state, Colour engineColour);

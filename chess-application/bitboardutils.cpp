@@ -498,6 +498,70 @@ ULL BitBoardUtils::generateLargeCornerMask(){
     return resultingMap;
 }
 
+ULL BitBoardUtils::generateFirstRankMask(){
+    ULL resultingMap = 0;
+    for (int i = 0; i < 8; i++){
+        resultingMap |= 1ULL<<i;
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateSecondRankMask(){
+    ULL resultingMap = 0;
+    for (int i = 8; i < 16; i++){
+        resultingMap |= 1ULL<<i;
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateThirdRankMask(){
+    ULL resultingMap = 0;
+    for (int i = 16; i < 24; i++){
+        resultingMap |= 1ULL<<i;
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateFourthRankMask(){
+    ULL resultingMap = 0;
+    for (int i = 24; i < 32; i++){
+        resultingMap |= 1ULL<<i;
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateFifthRankMask(){
+    ULL resultingMap = 0;
+    for (int i = 32; i < 40; i++){
+        resultingMap |= 1ULL<<i;
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateSixthRankMask(){
+    ULL resultingMap = 0;
+    for (int i = 40; i < 48; i++){
+        resultingMap |= 1ULL<<i;
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateSeventhRankMask(){
+    ULL resultingMap = 0;
+    for (int i = 48; i < 56; i++){
+        resultingMap |= 1ULL<<i;
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateEighthRankMask(){
+    ULL resultingMap = 0;
+    for (int i = 56; i < 64; i++){
+        resultingMap |= 1ULL<<i;
+    }
+    return resultingMap;
+}
+
 void BitBoardUtils::printFullBitboard(const BitBoard &board){
     cout << "White Pawns:";
     printBoard(board._white_pawns);

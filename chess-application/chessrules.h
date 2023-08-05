@@ -51,6 +51,8 @@ public:
     bool testMoveGenerationCorrectness(string testSize="small");
     bool pawnsOnAdjacentColumns(const int &indexFirst, const int &indexSecond);
 
+    GamePhase determineGamePhase(State *state);
+
 
     float _accumulated_update_bit_board_time;
     float _accumulated_get_legal_bit_board_moves_timer;

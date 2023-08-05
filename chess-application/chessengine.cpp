@@ -14,6 +14,15 @@ ChessEngine::ChessEngine(){
     printBoard(_small_corner_mask_complement);
     printBoard(_large_corner_mask);
     printBoard(_large_corner_mask_complement);
+
+    printBoard(_first_rank_mask);
+    printBoard(_second_rank_mask);
+    printBoard(_third_rank_mask);
+    printBoard(_fourth_rank_mask);
+    printBoard(_fifth_rank_mask);
+    printBoard(_sixth_rank_mask);
+    printBoard(_seventh_rank_mask);
+    printBoard(_eighth_rank_mask);
 }
 
 ChessEngine::~ChessEngine(){
@@ -22,6 +31,7 @@ ChessEngine::~ChessEngine(){
 }
 
 Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
+    cout << endl << "Game phase: " << state->_game_phase << endl;
     return miniMax(state, engineColour);
     //return makeRandomMove(state);
 }
@@ -198,12 +208,25 @@ float ChessEngine::fastSimpleHeuristicValueForState(State *state){
         else
             return state->_white_won ? WHITE_WIN_EVAL : BLACK_WIN_EVAL;
     }
+    switch (state->_game_phase){
+        case Opening:
+            return simpleOpeningEvaluation(state);
+        case MidGame:
+            return simpleMidGameEvaluation(state);
+        case EndGame:
+            return simpleEndGameEvaluation(state);
+        case LateEndGame:
+            return simpleEndGameEvaluation(state);
+        default:
+            return simpleMidGameEvaluation(state);
+    }
+
     //TODO: Create a solid function to determine state of game (opening, mid, end), rather than just using 30 moves
-    return state->_number_of_moves > 30 ? simpleMaterialEvaluation(state) :
-                                          simpleOpeningEvaluation(state);
+    //return state->_number_of_moves > 30 ? simpleMaterialEvaluation(state) :
+    //                                      simpleOpeningEvaluation(state);
 }
 
-float ChessEngine::simpleMaterialEvaluation(State *state){
+float ChessEngine::materialEvaluation(State *state){
     float whiteVal = 0;
     float blackVal = 0;
     whiteVal += countBitsInBoard(state->_bit_board._white_pawns) * 1;
@@ -221,7 +244,18 @@ float ChessEngine::simpleMaterialEvaluation(State *state){
     return whiteVal - blackVal;
 }
 
+
+
 float ChessEngine::simpleEndGameEvaluation(State *state){
+    float eval = 0;
+    float materialEval = materialEvaluation(state);
+    eval += materialEval;
+    eval += forceKingToEdgeInEndGame(state, materialEval);
+    eval += encouragePawnPushing(state);
+    return eval;
+}
+
+float ChessEngine::forceKingToEdgeInEndGame(State *state, float materialEval){
     //Very simple end-game evaluation to try to force opponent's king to the corner or edge of the board
     float opposingKingSmallCornerBonus = 0.2;
     float opposingKingLargeCornerBonus = 0.1;
@@ -230,15 +264,14 @@ float ChessEngine::simpleEndGameEvaluation(State *state){
     float opposingKingNonLargeCentreBonus = 0.05;
     int maximumMaterialEvalBonusLimit = 15;
 
-    float whiteVal = 0;
-    float blackVal = 0;
-
     //The player who has the piece advantage should not be punished as much for having their king in the corner
     //That is, we are trying to help the player with a winning position to force the opponent's king to the edge
     //The player with advantage gets a bigger multiplier the bigger their material advantage is, up to 15, after which they always get a multiplier of 1
-    float materialEvaluation = simpleMaterialEvaluation(state);
-    float whiteWinningMultiplier = min(static_cast<float>(1), (max(materialEvaluation / maximumMaterialEvalBonusLimit, static_cast<float>(0))));
-    float blackWinningMultiplier = min(static_cast<float>(1), (max(materialEvaluation / -maximumMaterialEvalBonusLimit, static_cast<float>(0))));
+    float whiteWinningMultiplier = min(static_cast<float>(1), (max(materialEval / maximumMaterialEvalBonusLimit, static_cast<float>(0))));
+    float blackWinningMultiplier = min(static_cast<float>(1), (max(materialEval / -maximumMaterialEvalBonusLimit, static_cast<float>(0))));
+
+    float whiteVal = 0;
+    float blackVal = 0;
 
     if (state->_bit_board._black_king & _small_square_centre_mask_complement)
         whiteVal += opposingKingNonSmallCentreBonus * whiteWinningMultiplier;
@@ -262,7 +295,74 @@ float ChessEngine::simpleEndGameEvaluation(State *state){
     if (state->_bit_board._white_king & _small_corner_mask)
         blackVal += opposingKingSmallCornerBonus * blackWinningMultiplier;
 
-    return materialEvaluation + whiteVal - blackVal;
+    return materialEval + whiteVal - blackVal;
+}
+
+float ChessEngine::encouragePawnPushing(State *state, int multiplier){
+    float seventhRankBonus = 0.8 * multiplier;
+    float sixthRankBonus = 0.3 * multiplier;
+    float fifthRankBonus = 0.1 * multiplier;
+    float fourthRankBonus = 0.01 * multiplier;
+    float thirdRankBonus = 0.01 * multiplier;
+
+    float eval = 0;
+
+    BitBoard board = state->_bit_board;
+    float whitePawnsOnThird = (board._white_pawns & _third_rank_mask);
+    float whitePawnsOnFourth = (board._white_pawns & _fourth_rank_mask);
+    float whitePawnsOnFifth = (board._white_pawns & _fifth_rank_mask);
+    float whitePawnsOnSixth = (board._white_pawns & _sixth_rank_mask);
+    float whitePawnsOnSeventh = (board._white_pawns & _seventh_rank_mask);
+    if (whitePawnsOnThird)
+        eval += countBitsInBoard(whitePawnsOnThird) * thirdRankBonus;
+    if (whitePawnsOnFourth)
+        eval += countBitsInBoard(whitePawnsOnFourth) * fourthRankBonus;
+    if (whitePawnsOnFifth)
+        eval += countBitsInBoard(whitePawnsOnFifth) * fifthRankBonus;
+    if (whitePawnsOnSixth)
+        eval += countBitsInBoard(whitePawnsOnSixth) * sixthRankBonus;
+    if (whitePawnsOnSeventh)
+        eval += countBitsInBoard(whitePawnsOnSeventh) * seventhRankBonus;
+
+    float blackPawnsOnThird = (board._black_pawns & _sixth_rank_mask);
+    float blackPawnsOnFourth = (board._black_pawns & _fifth_rank_mask);
+    float blackPawnsOnFifth = (board._black_pawns & _fourth_rank_mask);
+    float blackPawnsOnSixth = (board._black_pawns & _third_rank_mask);
+    float blackPawnsOnSeventh = (board._black_pawns & _second_rank_mask);
+    if (blackPawnsOnThird)
+        eval -= countBitsInBoard(blackPawnsOnThird) * thirdRankBonus;
+    if (blackPawnsOnFourth)
+        eval -= countBitsInBoard(blackPawnsOnFourth) * fourthRankBonus;
+    if (blackPawnsOnFifth)
+        eval -= countBitsInBoard(blackPawnsOnFifth) * fifthRankBonus;
+    if (blackPawnsOnSixth)
+        eval -= countBitsInBoard(blackPawnsOnSixth) * sixthRankBonus;
+    if (blackPawnsOnSeventh)
+        eval -= countBitsInBoard(blackPawnsOnSeventh) * seventhRankBonus;
+
+    return eval;
+}
+
+float ChessEngine::simpleMidGameEvaluation(State *state){
+    //Really encourage castling if not performed yet
+    float castlingBonus = 1.5;
+    float rooksOnSeventhBonus = 0.3;
+
+    float whiteVal = 0;
+    float blackVal = 0;
+
+    //castling bonuses:
+    if (state->_castling_info._white_castled)
+        whiteVal += castlingBonus;
+    if (state->_castling_info._black_castled)
+        blackVal += castlingBonus;
+
+    if (state->_bit_board._white_rooks & _seventh_rank_mask)
+        whiteVal += rooksOnSeventhBonus;
+    if (state->_bit_board._black_rooks & _second_rank_mask)
+        blackVal += rooksOnSeventhBonus;
+
+    return materialEvaluation(state) + encouragePawnPushing(state, 0.3) + whiteVal - blackVal;
 }
 
 float ChessEngine::simpleOpeningEvaluation(State *state){
@@ -308,7 +408,7 @@ float ChessEngine::simpleOpeningEvaluation(State *state){
     if (state->_castling_info._black_castled)
         blackVal += castlingBonus;
 
-    return simpleMaterialEvaluation(state) + whiteVal - blackVal;
+    return materialEvaluation(state) + whiteVal - blackVal;
 }
 
 int ChessEngine::countBitsInBoard(ULL board){

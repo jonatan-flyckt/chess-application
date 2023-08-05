@@ -266,6 +266,7 @@ State* ChessGame::gameStartingState(){
     vector<Move> moves = _rules.getLegalMoves(startingState);
 
     setFenForState(startingState);
+    startingState->_game_phase = Opening;
     return startingState;
 }
 

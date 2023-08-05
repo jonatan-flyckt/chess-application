@@ -18,6 +18,8 @@ enum PieceType{Pawn, Rook, Knight, Bishop, Queen, King};
 
 enum MoveType{Standard, Capture, LongCastle, ShortCastle, EnPassant, Promotion, PromotionCapture};
 
+enum GamePhase{Opening, MidGame, EndGame, LateEndGame};
+
 enum Difficulty{Easy, Normal, Hard, FakeLast};
 
 struct Piece{
@@ -139,6 +141,7 @@ struct State{
 
     BitBoard _bit_board;
 
+    GamePhase _game_phase;
 
     string _fen_notation;
 

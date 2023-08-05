@@ -86,6 +86,7 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
 
     //TODO: incorporate three move repetition in minimax search as well
 
+    resultingState->_game_phase = determineGamePhase(resultingState);
 
     _inner_accumulated_state_generation_time += nanosecond_measurement() - whole_func_start;
 
@@ -925,8 +926,60 @@ bool ChessRules::pawnsOnAdjacentColumns(const int &indexFirst, const int &indexS
     return abs((indexSecond % 8) - (indexFirst % 8)) == 1;
 }
 
+GamePhase ChessRules::determineGamePhase(State *state){
+    if (state->_number_of_moves <= 12){
+        //Always consider it the opening at least up until both players have moved 6 times each
+        return Opening;
+    }
+    //TODO: Check if the position is an opening book position. If it is, return Opening
 
-//Not currently used. Replace with bitboard version
+    BitBoard board = state->_bit_board;
+    int numWhiteMajorMinorPieces = countBitsInBoard(board._white_queens | board._white_rooks | board._white_bishops | board._white_knights);
+    int numBlackMajorMinorPieces = countBitsInBoard(board._black_queens | board._black_rooks | board._black_bishops | board._black_knights);
+
+    //The end-game starts when there are 6 or fewer major or minor pieces
+    if (numWhiteMajorMinorPieces + numBlackMajorMinorPieces <= 6){
+        if (abs(numWhiteMajorMinorPieces - numBlackMajorMinorPieces) >= 4){
+            //One player has a lot more major or minor pieces than the other player
+            return LateEndGame;
+        }
+        if (numBlackMajorMinorPieces + numWhiteMajorMinorPieces <= 3){
+            //There are very few major or minor pieces left
+            return LateEndGame;
+        }
+        return EndGame;
+    }
+    //Mid-game starts when there are 10 or fewer major or minor pieces, or when the back rank is sparse enough for one player, or when white/black pieces are sufficiently mixed
+    if (numWhiteMajorMinorPieces + numBlackMajorMinorPieces <= 10){
+        return MidGame;
+    }
+    if (countBitsInBoard(board._all_white_pieces & _first_rank_mask) <= 3){
+        return MidGame;
+    }
+    if (countBitsInBoard(board._all_black_pieces & _eighth_rank_mask) <= 3){
+        return MidGame;
+    }
+    //TODO: determine if black and white have mixed pieces sufficiently to be considered a mid-game position
+    vector<int> whiteIndices = getIndicesOfBitsInBoard(board._all_white_pieces);
+    int numWhiteBlackPiecesTouching = 0;
+    for (auto index: whiteIndices){
+        //Use the pre-calculated king move set to determine if an opponent piece is on an adjacent square
+        ULL overlap = _king_move_set[index] & board._all_black_pieces;
+        if (overlap){
+            numWhiteBlackPiecesTouching += countBitsInBoard(overlap);
+        }
+    }
+    if (numWhiteBlackPiecesTouching > 10){
+        //This number probably needs to be tweaked
+        return MidGame;
+    }
+
+    //It is later than move 8, but not yet mid-game
+    return Opening;
+}
+
+
+//TODO: Not currently used. Replace with bitboard version
 bool ChessRules::isInsufficientMaterial(State *state){
     int whiteMinorPieceCount = 0;
     int blackMinorPieceCount = 0;
@@ -1121,6 +1174,7 @@ State* ChessRules::stateFromFEN(string fen){
     state->_is_draw = !((state->_white_won || state->_black_won) && state->_is_game_over);
 
     state->_legal_moves_from_state = legalMoves;
+    state->_game_phase = determineGamePhase(state);
 
     return state;
 }

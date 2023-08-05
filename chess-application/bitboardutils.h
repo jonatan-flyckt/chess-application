@@ -72,6 +72,16 @@ public:
 
     ULL generateLargeCornerMask();
 
+    ULL generateFirstRankMask();
+    ULL generateSecondRankMask();
+    ULL generateThirdRankMask();
+    ULL generateFourthRankMask();
+    ULL generateFifthRankMask();
+    ULL generateSixthRankMask();
+    ULL generateSeventhRankMask();
+    ULL generateEighthRankMask();
+
+
     void printFullBitboard(const BitBoard &board);
 
     unordered_map<ULL, int> generateSinglePieceIndexMap();
@@ -168,6 +178,16 @@ public:
 
     const ULL _large_corner_mask = generateLargeCornerMask();
     const ULL _large_corner_mask_complement = ~_large_corner_mask;
+
+    const ULL _first_rank_mask = generateFirstRankMask();
+    const ULL _second_rank_mask = generateSecondRankMask();
+    const ULL _third_rank_mask = generateThirdRankMask();
+    const ULL _fourth_rank_mask = generateFourthRankMask();
+    const ULL _fifth_rank_mask = generateFifthRankMask();
+    const ULL _sixth_rank_mask = generateSixthRankMask();
+    const ULL _seventh_rank_mask = generateSeventhRankMask();
+    const ULL _eighth_rank_mask = generateEighthRankMask();
+
 
 };
 
