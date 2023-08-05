@@ -49,6 +49,7 @@ public:
     float fastSimpleHeuristicValueForState(State *state);
     float simpleMaterialEvaluation(State *state);
     float simpleOpeningEvaluation(State *state);
+    float simpleEndGameEvaluation(State *state);
     Move makeRandomMove(State *state);
 
     Move miniMax(State *state, Colour engineColour);

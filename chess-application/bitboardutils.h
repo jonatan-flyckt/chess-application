@@ -60,11 +60,17 @@ public:
 
     ULL mirrorVertical(ULL x);
 
-    ULL generateLargeCentreMask();
+    ULL generateMediumSquareCentreMask();
 
-    ULL generateMediumCentreMask();
+    ULL generateLargeSquareCentreMask();
 
-    ULL generateSmallCentreMask();
+    ULL generateMediumRectangleCentreMask();
+
+    ULL generateSmallSquareCentreMask();
+
+    ULL generateSmallCornerMask();
+
+    ULL generateLargeCornerMask();
 
     void printFullBitboard(const BitBoard &board);
 
@@ -145,11 +151,23 @@ public:
 
     unordered_map<RookDirections, ULL>* _rook_square_attack_rays = generateRookMoveSet();
 
-    const ULL _large_centre_mask = generateLargeCentreMask();
+    const ULL _large_square_centre_mask = generateLargeSquareCentreMask();
+    const ULL _large_square_centre_mask_complement = ~_large_square_centre_mask;
 
-    const ULL _medium_centre_mask = generateMediumCentreMask();
+    const ULL _medium_square_centre_mask = generateMediumSquareCentreMask();
+    const ULL _medium_square_centre_mask_complement = ~_medium_square_centre_mask;
 
-    const ULL _small_centre_mask = generateSmallCentreMask();
+    const ULL _medium_rectangle_centre_mask = generateMediumRectangleCentreMask();
+    const ULL _medium_rectangle_centre_mask_complement = ~_medium_rectangle_centre_mask;
+
+    const ULL _small_square_centre_mask = generateSmallSquareCentreMask();
+    const ULL _small_square_centre_mask_complement = ~_small_square_centre_mask;
+
+    const ULL _small_corner_mask = generateSmallCornerMask();
+    const ULL _small_corner_mask_complement = ~_small_corner_mask;
+
+    const ULL _large_corner_mask = generateLargeCornerMask();
+    const ULL _large_corner_mask_complement = ~_large_corner_mask;
 
 };
 

@@ -2,6 +2,18 @@
 
 ChessEngine::ChessEngine(){
     _move_number_minimax_tree_map = new unordered_map<int, MiniMaxTree*>();
+    printBoard(_large_square_centre_mask);
+    printBoard(_large_square_centre_mask_complement);
+    printBoard(_medium_square_centre_mask);
+    printBoard(_medium_square_centre_mask_complement);
+    printBoard(_medium_rectangle_centre_mask);
+    printBoard(_medium_rectangle_centre_mask_complement);
+    printBoard(_small_square_centre_mask);
+    printBoard(_small_square_centre_mask_complement);
+    printBoard(_small_corner_mask);
+    printBoard(_small_corner_mask_complement);
+    printBoard(_large_corner_mask);
+    printBoard(_large_corner_mask_complement);
 }
 
 ChessEngine::~ChessEngine(){
@@ -188,7 +200,7 @@ float ChessEngine::fastSimpleHeuristicValueForState(State *state){
     }
     //TODO: Create a solid function to determine state of game (opening, mid, end), rather than just using 30 moves
     return state->_number_of_moves > 30 ? simpleMaterialEvaluation(state) :
-                                          simpleMaterialEvaluation(state) + simpleOpeningEvaluation(state);
+                                          simpleOpeningEvaluation(state);
 }
 
 float ChessEngine::simpleMaterialEvaluation(State *state){
@@ -207,6 +219,50 @@ float ChessEngine::simpleMaterialEvaluation(State *state){
     blackVal += countBitsInBoard(state->_bit_board._black_queens) * 9;
 
     return whiteVal - blackVal;
+}
+
+float ChessEngine::simpleEndGameEvaluation(State *state){
+    //Very simple end-game evaluation to try to force opponent's king to the corner or edge of the board
+    float opposingKingSmallCornerBonus = 0.2;
+    float opposingKingLargeCornerBonus = 0.1;
+    float opposingKingNonSmallCentreBonus = 0.05;
+    float opposingKingNonMediumCentreBonus = 0.05;
+    float opposingKingNonLargeCentreBonus = 0.05;
+    int maximumMaterialEvalBonusLimit = 15;
+
+    float whiteVal = 0;
+    float blackVal = 0;
+
+    //The player who has the piece advantage should not be punished as much for having their king in the corner
+    //That is, we are trying to help the player with a winning position to force the opponent's king to the edge
+    //The player with advantage gets a bigger multiplier the bigger their material advantage is, up to 15, after which they always get a multiplier of 1
+    float materialEvaluation = simpleMaterialEvaluation(state);
+    float whiteWinningMultiplier = min(static_cast<float>(1), (max(materialEvaluation / maximumMaterialEvalBonusLimit, static_cast<float>(0))));
+    float blackWinningMultiplier = min(static_cast<float>(1), (max(materialEvaluation / -maximumMaterialEvalBonusLimit, static_cast<float>(0))));
+
+    if (state->_bit_board._black_king & _small_square_centre_mask_complement)
+        whiteVal += opposingKingNonSmallCentreBonus * whiteWinningMultiplier;
+    if (state->_bit_board._black_king & _medium_square_centre_mask_complement)
+        whiteVal += opposingKingNonMediumCentreBonus * whiteWinningMultiplier;
+    if (state->_bit_board._black_king & _large_square_centre_mask_complement)
+        whiteVal += opposingKingNonLargeCentreBonus * whiteWinningMultiplier;
+    if (state->_bit_board._black_king & _large_corner_mask)
+        whiteVal += opposingKingLargeCornerBonus * whiteWinningMultiplier;
+    if (state->_bit_board._black_king & _small_corner_mask)
+        whiteVal += opposingKingSmallCornerBonus * whiteWinningMultiplier;
+
+    if (state->_bit_board._white_king & _small_square_centre_mask_complement)
+        blackVal += opposingKingNonSmallCentreBonus * blackWinningMultiplier;
+    if (state->_bit_board._white_king & _medium_square_centre_mask_complement)
+        blackVal += opposingKingNonMediumCentreBonus * blackWinningMultiplier;
+    if (state->_bit_board._white_king & _large_square_centre_mask_complement)
+        blackVal += opposingKingNonLargeCentreBonus * blackWinningMultiplier;
+    if (state->_bit_board._white_king & _large_corner_mask)
+        blackVal += opposingKingLargeCornerBonus * blackWinningMultiplier;
+    if (state->_bit_board._white_king & _small_corner_mask)
+        blackVal += opposingKingSmallCornerBonus * blackWinningMultiplier;
+
+    return materialEvaluation + whiteVal - blackVal;
 }
 
 float ChessEngine::simpleOpeningEvaluation(State *state){
@@ -232,19 +288,19 @@ float ChessEngine::simpleOpeningEvaluation(State *state){
     blackVal += countBitsInBoard(state->_bit_board._black_king & _starting_bitboard[Piece(Black, King)]) * kingAndRooksOnStartingSquareBonus;
 
     //centre control bonuses:
-    whiteVal += countBitsInBoard(state->_bit_board._white_knights & _large_centre_mask) * centreControlBonus;
-    whiteVal += countBitsInBoard(state->_bit_board._white_knights & _medium_centre_mask) * centreControlBonus;
-    whiteVal += countBitsInBoard(state->_bit_board._white_knights & _small_centre_mask) * centreControlBonus;
-    whiteVal += countBitsInBoard(state->_bit_board._white_pawns & _large_centre_mask) * centreControlBonus;
-    whiteVal += countBitsInBoard(state->_bit_board._white_pawns & _medium_centre_mask) * centreControlBonus;
-    whiteVal += countBitsInBoard(state->_bit_board._white_pawns & _small_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_knights & _medium_square_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_knights & _medium_rectangle_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_knights & _small_square_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_pawns & _medium_square_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_pawns & _medium_rectangle_centre_mask) * centreControlBonus;
+    whiteVal += countBitsInBoard(state->_bit_board._white_pawns & _small_square_centre_mask) * centreControlBonus;
 
-    blackVal += countBitsInBoard(state->_bit_board._black_knights & _large_centre_mask) * centreControlBonus;
-    blackVal += countBitsInBoard(state->_bit_board._black_knights & _medium_centre_mask) * centreControlBonus;
-    blackVal += countBitsInBoard(state->_bit_board._black_knights & _small_centre_mask) * centreControlBonus;
-    blackVal += countBitsInBoard(state->_bit_board._black_pawns & _large_centre_mask) * centreControlBonus;
-    blackVal += countBitsInBoard(state->_bit_board._black_pawns & _medium_centre_mask) * centreControlBonus;
-    blackVal += countBitsInBoard(state->_bit_board._black_pawns & _small_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_knights & _medium_square_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_knights & _medium_rectangle_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_knights & _small_square_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_pawns & _medium_square_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_pawns & _medium_rectangle_centre_mask) * centreControlBonus;
+    blackVal += countBitsInBoard(state->_bit_board._black_pawns & _small_square_centre_mask) * centreControlBonus;
 
     //castling bonuses:
     if (state->_castling_info._white_castled)
@@ -252,7 +308,7 @@ float ChessEngine::simpleOpeningEvaluation(State *state){
     if (state->_castling_info._black_castled)
         blackVal += castlingBonus;
 
-    return whiteVal - blackVal;
+    return simpleMaterialEvaluation(state) + whiteVal - blackVal;
 }
 
 int ChessEngine::countBitsInBoard(ULL board){

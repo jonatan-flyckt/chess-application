@@ -438,7 +438,7 @@ ULL BitBoardUtils::mirrorVertical(ULL x) {
             ( (x >> 56) );
 }
 
-ULL BitBoardUtils::generateLargeCentreMask(){
+ULL BitBoardUtils::generateMediumSquareCentreMask(){
     ULL resultingMap = 0;
     for (int i = 16; i <= 47; i++){
         if (i % 8 >= 2 && i % 8 <= 5){
@@ -448,7 +448,17 @@ ULL BitBoardUtils::generateLargeCentreMask(){
     return resultingMap;
 }
 
-ULL BitBoardUtils::generateMediumCentreMask(){
+ULL BitBoardUtils::generateLargeSquareCentreMask(){
+    ULL resultingMap = 0;
+    for (int i = 8; i <= 55; i++){
+        if (i % 8 >= 1 && i % 8 <= 6){
+            resultingMap |= 1ULL<<i;
+        }
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateMediumRectangleCentreMask(){
     ULL resultingMap = 0;
     for (int i = 24; i <= 39; i++){
         if (i % 8 >= 2 && i % 8 <= 5){
@@ -458,10 +468,30 @@ ULL BitBoardUtils::generateMediumCentreMask(){
     return resultingMap;
 }
 
-ULL BitBoardUtils::generateSmallCentreMask(){
+ULL BitBoardUtils::generateSmallSquareCentreMask(){
     ULL resultingMap = 0;
     for (int i = 24; i <= 39; i++){
         if (i % 8 >= 3 && i % 8 <= 4){
+            resultingMap |= 1ULL<<i;
+        }
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateSmallCornerMask(){
+    ULL resultingMap = 0;
+    for (int i = 0; i <= 63; i++){
+        if ((i % 8 <= 1 || i % 8 >= 6) && (i < 16 || i > 47)){
+            resultingMap |= 1ULL<<i;
+        }
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateLargeCornerMask(){
+    ULL resultingMap = 0;
+    for (int i = 0; i <= 63; i++){
+        if ((i % 8 <= 2 || i % 8 >= 5) && (i < 24 || i > 39)){
             resultingMap |= 1ULL<<i;
         }
     }
