@@ -11,7 +11,12 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _black_won = false;
     _white_resigned = false;
     _black_resigned = false;
+
+
     _current_state = gameStartingState();
+
+
+
     _state_vector = new vector<State*>();
     _state_vector->push_back(_current_state);
     updatePGN();
