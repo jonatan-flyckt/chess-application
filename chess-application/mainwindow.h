@@ -188,6 +188,8 @@ public slots:
 
     void onEngineMoveReady(Move move);
 
+    void changeTheme(const QString &selectedTheme);
+
 private:
     Ui::MainWindow *_ui;
     QGridLayout *_board_grid_layout;

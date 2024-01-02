@@ -489,8 +489,11 @@ void MainWindow::setLeftLayout(){
     _theme_combo_box = new QComboBox();
     _theme_combo_box->addItem("Standard");
     _theme_combo_box->setItemText(0, "Standard");
+    _theme_combo_box->addItem("Placeholder");
     _theme_combo_box->setFixedWidth(160);
     _left_vertical_layout->addWidget(_theme_combo_box);
+    connect(_theme_combo_box, QOverload<const QString&>::of(&QComboBox::currentTextChanged),
+            this, &MainWindow::changeTheme);
 
     _new_game_button->setEnabled(true);
     _resign_game_button->setHidden(true);
@@ -705,6 +708,19 @@ void MainWindow::getEngineMove(){
 void MainWindow::onEngineMoveReady(Move move){
     performEngineMove(move);
     _time_to_update_board = true;
+}
+
+void MainWindow::changeTheme(const QString &selectedTheme){
+    qDebug() << selectedTheme;
+    QString path = ":/images/images/" + selectedTheme + "/";
+    qDebug() << path;
+    _graphics_info.setGraphicsFromPath(path);
+
+
+
+    loadStateGraphically(_game->getCurrent_state());
+    //TODO: get graphical state to show with the new selected theme
+
 }
 
 void MainWindow::performEngineMove(Move move){

@@ -8,8 +8,10 @@ void GraphicsInfo::setGraphicsFromPath(QString path){
     QString graphicsPath;
     QFileInfo checkFile(path);
     bool dirExists = (checkFile.exists() && checkFile.isDir());
-    if (!dirExists)
-        graphicsPath = ":/images/images/standard/";
+    if (!dirExists){
+        graphicsPath = ":/images/images/Standard/";
+        //graphicsPath = ":/images/images/Placeholders/";
+    }
     else
         graphicsPath = path;
 
