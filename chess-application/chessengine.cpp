@@ -90,9 +90,6 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     startingNode->_move_eval_pair.second = bestMoveEvalPair.second;
     tree->_best_move = bestMoveEvalPair.first;
 
-
-
-
     return tree->_best_move;
 }
 
@@ -199,10 +196,6 @@ float ChessEngine::fastSimpleHeuristicValueForState(State *state){
         default:
             return simpleMidGameEvaluation(state);
     }
-
-    //TODO: Create a solid function to determine state of game (opening, mid, end), rather than just using 30 moves
-    //return state->_number_of_moves > 30 ? simpleMaterialEvaluation(state) :
-    //                                      simpleOpeningEvaluation(state);
 }
 
 float ChessEngine::materialEvaluation(State *state){
@@ -222,8 +215,6 @@ float ChessEngine::materialEvaluation(State *state){
 
     return whiteVal - blackVal;
 }
-
-
 
 float ChessEngine::simpleEndGameEvaluation(State *state){
     float eval = 0;

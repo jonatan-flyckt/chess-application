@@ -13,7 +13,6 @@
 #define TOP_LAYOUT_ROW 0
 
 
-
 #include <QMainWindow>
 #include <QGridLayout>
 #include <QLabel>
@@ -54,6 +53,8 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include <QFuture>
 #include "enginethread.h"
+#include "bitboardutils.h"
+
 
 #include <future>
 
@@ -61,7 +62,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public BitBoardUtils
 {
     Q_OBJECT
 
@@ -96,7 +97,6 @@ public:
     void highlightCurrentMovingFromSquare(QString highlightSquare);
     void removeHighlightCurrentMovingFromSquare(QString highlightSquare);
     void highlightCheck(State *state);
-    void doNotHightlightCheck();
 
     void promotedPawnSelection();
     void setLeftLayout();

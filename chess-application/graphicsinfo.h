@@ -32,6 +32,15 @@ public:
     QPixmap _black_square;
     QPixmap _white_square;
 
+
+    QMap<QString, QPixmap> _base_square_map;
+    QMap<QString, QPixmap> _legal_move_highlight_square_map;
+    QMap<QString, QPixmap> _check_highlight_square_map;
+    QMap<QString, QPixmap> _misc_highlight_square_map;
+
+
+
+
     QPixmap _white_king;
     QPixmap _white_queen;
     QPixmap _white_rook;

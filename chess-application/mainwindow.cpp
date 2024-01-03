@@ -192,8 +192,7 @@ void MainWindow::loadStateGraphically(State *state){
 
     if (state->_number_of_moves > 0)
         highlightPreviousMove(state);
-    if (state->_white_king_is_in_check || state->_black_king_is_in_check)
-        highlightCheck(state);
+
     clearAllPiecesFromBoard();
     addPiecesToBoardFromState(state);
     _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(state->_fen_notation));
@@ -307,6 +306,8 @@ void MainWindow::highlightPreviousMove(State *state){
             }
         }
     }
+    if (state->_white_king_is_in_check || state->_black_king_is_in_check)
+        highlightCheck(state);
 }
 
 void MainWindow::removeAllSquareHighlights(){
@@ -666,18 +667,14 @@ void MainWindow::startClickingMove(QString originSquare){
             (_game->getCurrent_state()->_colour_to_move == Black && denotation == "black")){
         highlightCurrentMovingFromSquare(originSquare);
     }
-    //qDebug() << "started clicking move from: " + originSquare;
 }
 
 void MainWindow::completeClickingMove(QString destinationSquare){
     removeLegalSquaresHighlight();
     removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
     if (!_legal_destination_squares_for_origin_square.contains(destinationSquare)){
-        //qDebug() << "move was not legal";
         _clicking_move_in_progress = false;
         highlightPreviousMove(_game->getCurrent_state());
-        if (_game->getCurrent_state()->_white_king_is_in_check || _game->getCurrent_state()->_black_king_is_in_check)
-            highlightCheck(_game->getCurrent_state());
         return;
     }
     Move attemptedMove;
@@ -688,7 +685,6 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     _legal_destination_squares_for_origin_square.clear();
     _clicking_move_in_progress = false;
     _move_in_progress_origin_square = "";
-    //qDebug() << "completed clicking move to: " + destinationSquare;
 
     _time_to_update_board = true;
 
@@ -711,16 +707,9 @@ void MainWindow::onEngineMoveReady(Move move){
 }
 
 void MainWindow::changeTheme(const QString &selectedTheme){
-    qDebug() << selectedTheme;
     QString path = ":/images/images/" + selectedTheme + "/";
-    qDebug() << path;
     _graphics_info.setGraphicsFromPath(path);
-
-
-
     loadStateGraphically(_game->getCurrent_state());
-    //TODO: get graphical state to show with the new selected theme
-
 }
 
 void MainWindow::performEngineMove(Move move){
@@ -790,8 +779,6 @@ bool MainWindow::completeMove(Move attemptedMove){
     else
         _player_moved_against_engine = false;
 
-    //qDebug() << "material evaluation: " << _engine->simpleMaterialEvaluation(_game->getCurrent_state());
-
     return true;
 }
 
@@ -847,7 +834,6 @@ void MainWindow::contactPopup(){
 }
 
 void MainWindow::checkIfPlayerMadeMove(){
-    //qDebug() << "checking if player made move";
     if (_player_moved_against_engine){
         _player_moved_against_engine = false;
         getEngineMove();
@@ -864,23 +850,21 @@ void MainWindow::updateBoardGraphicsAfterMove(){
 void MainWindow::highlightCheck(State *state){
     if (!_in_exploration_mode && !_game->_is_game_over)
         _info_label->setText("Check");
-    for (auto square: _square_widgets){
-        if (square->id() == QString::fromStdString(state->_square_under_check)){
-            if (square->getDenotation() == "white")
-                square->changePixmap(_graphics_info._check_highlight_white);
-            else
-                square->changePixmap(_graphics_info._check_highlight_black);
-        }
-    }
-}
 
-void MainWindow::doNotHightlightCheck(){
-    for (auto square: _square_widgets){
-        if (square->id() == QString::fromStdString(_game->_square_under_check)){
-            if (square->getDenotation() == "white")
-                square->changePixmap(_graphics_info._white_square);
-            else
-                square->changePixmap(_graphics_info._black_square);
+    QString squareToHiglight;
+    if (state->_white_king_is_in_check || state->_black_king_is_in_check){
+        if (state->_white_king_is_in_check)
+            squareToHiglight = QString::fromStdString(_square_from_index[getIndicesOfBitsInBoard(state->_bit_board._white_king).at(0)]);
+        else
+            squareToHiglight = QString::fromStdString(_square_from_index[getIndicesOfBitsInBoard(state->_bit_board._black_king).at(0)]);
+
+        for (auto square: _square_widgets){
+            if (square->id() == squareToHiglight){
+                if (square->getDenotation() == "white")
+                    square->changePixmap(_graphics_info._check_highlight_white);
+                else
+                    square->changePixmap(_graphics_info._check_highlight_black);
+            }
         }
     }
 }
@@ -957,7 +941,6 @@ void MainWindow::startDraggingMove(QString originSquare){
     }
     _piece_widget_of_moved_from_square = pieceToMove;
 
-    //qDebug() << "started dragging move from: " + originSquare;
 }
 
 void MainWindow::setDraggingMoveReadyToComplete(){
@@ -969,7 +952,6 @@ void MainWindow::completeDraggingMove(){
     removeLegalSquaresHighlight();
     removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
     if (!_legal_destination_squares_for_origin_square.contains(_currently_hovered_square)){
-        //qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
         removePieceGraphically(_piece_widget_currently_dragged);
         _piece_widget_currently_dragged = nullptr;
@@ -980,7 +962,6 @@ void MainWindow::completeDraggingMove(){
     attemptedMove._origin_square = _move_in_progress_origin_square.toStdString();
     attemptedMove._destination_square = _currently_hovered_square.toStdString();
     if (!completeMove(attemptedMove)){
-        //qDebug() << "move was not legal";
         _dragging_move_in_progress = false;
         removePieceGraphically(_piece_widget_currently_dragged);
         _piece_widget_currently_dragged = nullptr;
@@ -991,7 +972,6 @@ void MainWindow::completeDraggingMove(){
     _dragging_move_in_progress = false;
     removePieceGraphically(_piece_widget_currently_dragged);
     _piece_widget_currently_dragged = nullptr;
-    //qDebug() << "completed dragging move to: " + _currently_hovered_square;
     _time_to_update_board = true;
 }
 
@@ -1025,7 +1005,6 @@ void MainWindow::movePieceWidget(QPoint mousePos){
 }
 
 void MainWindow::copyFENToClipboard(){
-    qDebug() << "clicked copy FEN";
     QClipboard *clipBoard = QApplication::clipboard();
     clipBoard->setText(_fen_label->text().split('\n').at(1));
 }

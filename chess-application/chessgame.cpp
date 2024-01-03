@@ -12,10 +12,7 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _white_resigned = false;
     _black_resigned = false;
 
-
     _current_state = gameStartingState();
-
-
 
     _state_vector = new vector<State*>();
     _state_vector->push_back(_current_state);
@@ -108,15 +105,16 @@ void ChessGame::updateBoardForGraphics(State *currentState, State *resultingStat
         resultingState->_board_for_graphics.at(rowTo).at(colTo) = new Piece(pieceToMove._colour, moveToMake._promotion_selection);
     if (moveToMake._move_type == EnPassant)
         performEnPassantMoveForGraphicBoard(moveToMake, resultingState);
-    if (currentState->_white_king_is_in_check || currentState->_black_king_is_in_check){
-        if (currentState->_white_king_is_in_check)
-            currentState->_square_under_check = _square_from_index[getIndicesOfBitsInBoard(currentState->_bit_board._white_king).at(0)];
+
+    if (resultingState->_white_king_is_in_check || resultingState->_black_king_is_in_check){
+        if (resultingState->_white_king_is_in_check)
+            resultingState->_square_under_check = _square_from_index[getIndicesOfBitsInBoard(resultingState->_bit_board._white_king).at(0)];
         else
-            currentState->_square_under_check = _square_from_index[getIndicesOfBitsInBoard(currentState->_bit_board._black_king).at(0)];
+            resultingState->_square_under_check = _square_from_index[getIndicesOfBitsInBoard(resultingState->_bit_board._black_king).at(0)];
     }
     else
-        currentState->_square_under_check = "";
-    setFenForState(currentState);
+        resultingState->_square_under_check = "";
+    setFenForState(resultingState);
 }
 
 void ChessGame::performCastlingMoveForGraphicBoard(Move move, State *state){
