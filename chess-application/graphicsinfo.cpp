@@ -5,15 +5,16 @@ GraphicsInfo::GraphicsInfo(){
 }
 
 void GraphicsInfo::setGraphicsFromPath(QString path){
-    QString graphicsPath;
-    QFileInfo checkFile(path);
-    bool dirExists = (checkFile.exists() && checkFile.isDir());
-    if (!dirExists){
+    QString graphicsPath = path;
+
+    qDebug() << "Inside GraphicsInfo class" << graphicsPath;
+
+    if (!QFileInfo::exists(graphicsPath + "white_king.png")) {
         graphicsPath = ":/images/images/Standard/";
-        //graphicsPath = ":/images/images/Placeholders/";
+        qDebug() << "Graphics path does not exist.";
     }
-    else
-        graphicsPath = path;
+
+    qDebug() << "Inside GraphicsInfo class" << graphicsPath;
 
     _legal_move_highlight_black.load(graphicsPath+"legal_move_highlight_black.png");
     _legal_move_highlight_white.load(graphicsPath+"legal_move_highlight_white.png");

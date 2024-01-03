@@ -2,27 +2,6 @@
 
 ChessEngine::ChessEngine(){
     _move_number_minimax_tree_map = new unordered_map<int, MiniMaxTree*>();
-    printBoard(_large_square_centre_mask);
-    printBoard(_large_square_centre_mask_complement);
-    printBoard(_medium_square_centre_mask);
-    printBoard(_medium_square_centre_mask_complement);
-    printBoard(_medium_rectangle_centre_mask);
-    printBoard(_medium_rectangle_centre_mask_complement);
-    printBoard(_small_square_centre_mask);
-    printBoard(_small_square_centre_mask_complement);
-    printBoard(_small_corner_mask);
-    printBoard(_small_corner_mask_complement);
-    printBoard(_large_corner_mask);
-    printBoard(_large_corner_mask_complement);
-
-    printBoard(_first_rank_mask);
-    printBoard(_second_rank_mask);
-    printBoard(_third_rank_mask);
-    printBoard(_fourth_rank_mask);
-    printBoard(_fifth_rank_mask);
-    printBoard(_sixth_rank_mask);
-    printBoard(_seventh_rank_mask);
-    printBoard(_eighth_rank_mask);
 }
 
 ChessEngine::~ChessEngine(){

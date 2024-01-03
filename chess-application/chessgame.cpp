@@ -26,7 +26,7 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     updatePGN();
 
 
-    _rules.testMoveGenerationCorrectness("small"); //Takes roughly 2 seconds
+    //_rules.testMoveGenerationCorrectness("small"); //Takes roughly 2 seconds
     //_rules.testMoveGenerationCorrectness("large"); //Takes roughly 70 seconds
 }
 

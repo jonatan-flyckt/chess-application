@@ -1058,10 +1058,10 @@ State* ChessRules::stateFromFEN(string fen){
     state->_castling_info._black_castled = state->_castling_info._black_king_has_moved;
 
 
-    qDebug() << state->_bit_board._en_passant_square;
+    //qDebug() << state->_bit_board._en_passant_square;
     state->_bit_board._en_passant_square = enPassantString == "-" ? 0ULL : _bit_masks[_index_from_square[enPassantString]];
-    qDebug() << state->_bit_board._en_passant_square;
-    qDebug() << &enPassantString;
+    //qDebug() << state->_bit_board._en_passant_square;
+    //qDebug() << &enPassantString;
 
 
     if (state->_bit_board._en_passant_square){
