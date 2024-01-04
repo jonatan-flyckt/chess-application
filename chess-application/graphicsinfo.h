@@ -25,6 +25,8 @@ public:
 
     void setGraphicsFromPath(QString themeName, Colour playerColour);
 
+    void setSquareGraphics(Colour playerColour);
+
     QPixmap _legal_move_highlight_white;
     QPixmap _legal_move_highlight_black;
     QPixmap _check_highlight_white;
@@ -62,6 +64,9 @@ public:
     QFont _header_font;
     QFont _fen_font;
     QFont _info_font;
+
+    QString _current_theme_name;
+    QString _current_graphics_path;
 
 private:
 
