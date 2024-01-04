@@ -188,7 +188,7 @@ public slots:
 
     void onEngineMoveReady(Move move);
 
-    void changeTheme(const QString &selectedTheme);
+    void changeBoardTheme(const QString &selectedTheme);
 
 private:
     Ui::MainWindow *_ui;

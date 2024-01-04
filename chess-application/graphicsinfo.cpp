@@ -1,11 +1,11 @@
 #include "graphicsinfo.h"
 
 GraphicsInfo::GraphicsInfo(){
-    setGraphicsFromPath("");
+    setGraphicsFromPath("", White);
 }
 
-void GraphicsInfo::setGraphicsFromPath(QString path){
-    QString graphicsPath = path;
+void GraphicsInfo::setGraphicsFromPath(QString themeName, Colour playerColour){
+    QString graphicsPath = ":/images/images/" + themeName + "/";
     if (!QFileInfo::exists(graphicsPath + "white_king.png")) {
         graphicsPath = ":/images/images/Standard/";
         qDebug() << "Graphics path does not exist.";

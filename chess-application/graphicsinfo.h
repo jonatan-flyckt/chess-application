@@ -13,6 +13,8 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QFont>
+#include <chessstructs.h>
+
 
 
 class GraphicsInfo
@@ -20,7 +22,7 @@ class GraphicsInfo
 public:
     GraphicsInfo();
 
-    void setGraphicsFromPath(QString path);
+    void setGraphicsFromPath(QString themeName, Colour playerColour);
 
     QPixmap _legal_move_highlight_white;
     QPixmap _legal_move_highlight_black;
@@ -31,6 +33,7 @@ public:
 
     QPixmap _black_square;
     QPixmap _white_square;
+
 
 
     QMap<QString, QPixmap> _base_square_map;
