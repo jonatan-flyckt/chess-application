@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QFont>
 #include <chessstructs.h>
+#include "utils.h"
 
 
 

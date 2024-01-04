@@ -312,10 +312,14 @@ void MainWindow::highlightPreviousMove(State *state){
 
 void MainWindow::removeAllSquareHighlights(){
     for (auto square: _square_widgets){
+        square->changePixmap(_graphics_info._base_square_map[square->id()]);
+
+        /*
         if (square->getDenotation()  == "white")
             square->changePixmap(_graphics_info._white_square);
         else
             square->changePixmap(_graphics_info._black_square);
+            */
     }
 }
 
@@ -329,10 +333,13 @@ void MainWindow::removeHighlightPreviousMove(){
     for (auto squareStr: previousMoveSquares){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
+                square->changePixmap(_graphics_info._base_square_map[square->id()]);
+                /*
                 if (square->getDenotation()  == "white")
                     square->changePixmap(_graphics_info._white_square);
                 else
                     square->changePixmap(_graphics_info._black_square);
+                    */
             }
         }
     }
@@ -352,10 +359,14 @@ void MainWindow::highlightCurrentMovingFromSquare(QString highlightSquare){
 void MainWindow::removeHighlightCurrentMovingFromSquare(QString highlightSquare){
     for (auto square: _square_widgets){
         if (square->id() == highlightSquare){
+            square->changePixmap(_graphics_info._base_square_map[square->id()]);
+
+            /*
             if (square->getDenotation()  == "white")
                 square->changePixmap(_graphics_info._white_square);
             else
                 square->changePixmap(_graphics_info._black_square);
+                */
         }
     }
 }
@@ -364,10 +375,14 @@ void MainWindow::removeLegalSquaresHighlight(){
     for (auto squareStr: _legal_destination_squares_for_origin_square){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
+                square->changePixmap(_graphics_info._base_square_map[square->id()]);
+
+                /*
                 if (square->getDenotation()  == "white")
                     square->changePixmap(_graphics_info._white_square);
                 else
                     square->changePixmap(_graphics_info._black_square);
+                    */
             }
         }
     }
@@ -929,7 +944,11 @@ void MainWindow::startDraggingMove(QString originSquare){
     QString pieceColour = _piece_widget_currently_dragged->denotation();
     if ((_game->getCurrent_state()->_colour_to_move == White && pieceColour == "black") ||
             (_game->getCurrent_state()->_colour_to_move == Black && pieceColour == "white")){
-        QPixmap highlightSquarePixmap = squareFrom->getDenotation() == "white" ? _graphics_info._white_square : _graphics_info._black_square;
+
+        QPixmap highlightSquarePixmap = _graphics_info._base_square_map[squareFrom->id()];
+
+        //QPixmap highlightSquarePixmap = squareFrom->getDenotation() == "white" ? _graphics_info._white_square : _graphics_info._black_square;
+
         pieceToMove->setPiece_pixmap(highlightSquarePixmap);
         pieceToMove->populateWithPixmap();
     }
@@ -1048,12 +1067,18 @@ void MainWindow::initiateBoardSquaresUI(){
             for (int j = 8; j > 0; j--){
                 SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1), _graphics_info._white_square, "white");
+                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1),
+                                              _graphics_info._base_square_map[QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1)],
+                                              //_graphics_info._white_square,
+                                              "white");
                     _board_grid_layout->addWidget(square, abs(8-i), j);
                     _square_widgets.append(square);
                 }
                 else{
-                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1), _graphics_info._black_square, "black");
+                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1),
+                                              _graphics_info._base_square_map[QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1)],
+                                              //_graphics_info._black_square,
+                                              "black");
                     _board_grid_layout->addWidget(square, abs(8-i), j);
                     _square_widgets.append(square);
                 }
@@ -1064,12 +1089,18 @@ void MainWindow::initiateBoardSquaresUI(){
             for (int j = 0; j < 8; j++){
                 SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1), _graphics_info._black_square, "black");
+                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1),
+                                              _graphics_info._base_square_map[QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1)],
+                                              //_graphics_info._black_square,
+                                              "black");
                     _board_grid_layout->addWidget(square, i+1, abs(8-j));
                     _square_widgets.append(square);
                 }
                 else{
-                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1), _graphics_info._white_square, "white");
+                    square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1),
+                                              _graphics_info._base_square_map[QString::fromStdString(_cols_from_index.at(j-1)) + QString::number(i+1)],
+                                              //_graphics_info._white_square,
+                                              "white");
                     _board_grid_layout->addWidget(square, i+1, abs(8-j));
                     _square_widgets.append(square);
                 }
