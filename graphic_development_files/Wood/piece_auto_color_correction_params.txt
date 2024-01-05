@@ -1,0 +1,26 @@
+warp + overlay
+
+light piece:
+b49068
+ecd6b8
+ffffff
+dark gray outline:
+393939
+
+dark piece:
+432a10
+7b5c31
+bb9c6f
+light gray outline:
+
+mid gray outline:
+666666 (2 pixles)
+
+drop shadow:
+multiply (black)
+50 % opacity
+120 deg
+8 px distance
+40 % spread
+10 px size
+0 % noise
