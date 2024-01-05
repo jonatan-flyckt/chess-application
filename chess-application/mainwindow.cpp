@@ -514,6 +514,7 @@ void MainWindow::setLeftLayout(){
     _theme_combo_box->addItem("Standard");
     _theme_combo_box->setItemText(0, "Standard");
     _theme_combo_box->addItem("Placeholders");
+    _theme_combo_box->addItem("Wood");
     _theme_combo_box->setFixedWidth(160);
     _left_vertical_layout->addWidget(_theme_combo_box);
     connect(_theme_combo_box, QOverload<const QString&>::of(&QComboBox::currentTextChanged),
