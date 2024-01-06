@@ -11,6 +11,12 @@ dark piece:
 432a10
 7b5c31
 bb9c6f
+
+new dark piece:
+56391b
+907249
+d1b894
+
 light gray outline:
 
 mid gray outline:
