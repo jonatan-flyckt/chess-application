@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     _engine_thread = new EngineThread();
     connect(_engine_thread, &EngineThread::moveCalculationsFinished, this, &MainWindow::onEngineMoveReady);
+
 }
 
 void MainWindow::showNewGamePopup(){
@@ -1090,12 +1091,9 @@ bool MainWindow::mouseIsInsideBoard(){
 }
 
 void MainWindow::initiateBoardSquaresUI(){
-    qDebug() << "Called initiateBoardSquaresUI";
     clearBoardUI();
-    qDebug() << "Finished clearBoardUI";
     for (int i = 0; i < 8; i++){
         if (_user_is_white){
-            qDebug() << "White";
             for (int j = 8; j > 0; j--){
                 SquareWidget *square;
                 if ((i+j) % 2 == 0){
@@ -1118,37 +1116,30 @@ void MainWindow::initiateBoardSquaresUI(){
             }
         }
         else{
-            qDebug() << "Black";
             for (int j = 0; j < 8; j++){
                 SquareWidget *square;
                 if ((i+j) % 2 == 0){
-                    qDebug() << "in if";
                     square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1),
                                               _graphics_info._base_square_map[QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1)],
                                               //_graphics_info._black_square,
                                               "black");
-                    qDebug() << "Created widget";
                     _board_grid_layout->addWidget(square, i+1, abs(8-j));
                     _square_widgets.append(square);
                 }
                 else{
-                    qDebug() << "in else";
                     square = new SquareWidget(QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1),
                                               _graphics_info._base_square_map[QString::fromStdString(_cols_from_index.at(j)) + QString::number(i+1)],
                                               //_graphics_info._white_square,
                                               "white");
-                    qDebug() << "Created widget";
                     _board_grid_layout->addWidget(square, i+1, abs(8-j));
                     _square_widgets.append(square);
                 }
 
                 connectSquareToSignals(square);
-                qDebug() << "Connected widget to signal";
             }
         }
     }
     addCoordinateWidgets();
-    qDebug() << "Finished initiateBoardSquaresUI";
 }
 
 void MainWindow::connectSquareToSignals(SquareWidget *square){

@@ -222,6 +222,7 @@ float ChessEngine::simpleEndGameEvaluation(State *state){
     eval += materialEval;
     eval += forceKingToEdgeInEndGame(state, materialEval);
     eval += encouragePawnPushing(state);
+    eval += forceKingCloseToOwnPiecesInEndGame(state, materialEval);;
     return eval;
 }
 
@@ -265,7 +266,175 @@ float ChessEngine::forceKingToEdgeInEndGame(State *state, float materialEval){
     if (state->_bit_board._white_king & _small_corner_mask)
         blackVal += opposingKingSmallCornerBonus * blackWinningMultiplier;
 
-    return materialEval + whiteVal - blackVal;
+    return whiteVal - blackVal;
+}
+
+float ChessEngine::forceKingCloseToOwnPiecesInEndGame(State *state, float materialEval){
+    //Very simple end-game evaluation to try to encourage the king to be close to ones own pieces in the end-game
+    float pawnMultiplier = 1;
+    float queenMultiplier = 0.7;
+    float rookMultiplier = 0.6;
+    float bishopMultiplier = 0.5;
+    float knightMultiplier = 0.4;
+
+    float tinyMaskBonus = 0.1;
+    float smallMaskBonus = 0.05;
+    float mediumMaskBonus = 0.02;
+    float largeMaskBonus = 0.01;
+    float xLargeMaskBonus = 0.005;
+    int maximumMaterialEvalBonusLimit = 15;
+
+    //The player who has the piece advantage should be encouraged more to move their king closer to their pieces to make mating easier
+    //The player with advantage gets a bigger multiplier the bigger their material advantage is, up to 15, after which they always get a multiplier of 1
+    float whiteWinningMultiplier = min(static_cast<float>(1), (max(materialEval / maximumMaterialEvalBonusLimit, static_cast<float>(0.05))));
+    float blackWinningMultiplier = min(static_cast<float>(1), (max(materialEval / -maximumMaterialEvalBonusLimit, static_cast<float>(0.05))));
+
+    float whiteVal = 0;
+    float blackVal = 0;
+
+    if (state->_bit_board._white_pawns){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._white_pawns)){
+            if (state->_bit_board._white_king & _tiny_manhattan_masks[index])
+                whiteVal += pawnMultiplier * tinyMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _small_manhattan_masks[index])
+                whiteVal += pawnMultiplier * smallMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _medium_manhattan_masks[index])
+                whiteVal += pawnMultiplier * mediumMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _large_manhattan_masks[index])
+                whiteVal += pawnMultiplier * largeMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _x_large_manhattan_masks[index])
+                whiteVal += pawnMultiplier * xLargeMaskBonus * whiteWinningMultiplier;
+        }
+    }
+    if (state->_bit_board._white_queens){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._white_queens)){
+            if (state->_bit_board._white_king & _tiny_manhattan_masks[index])
+                whiteVal += queenMultiplier * tinyMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _small_manhattan_masks[index])
+                whiteVal += queenMultiplier * smallMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _medium_manhattan_masks[index])
+                whiteVal += queenMultiplier * mediumMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _large_manhattan_masks[index])
+                whiteVal += queenMultiplier * largeMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _x_large_manhattan_masks[index])
+                whiteVal += queenMultiplier * xLargeMaskBonus * whiteWinningMultiplier;
+        }
+    }
+    if (state->_bit_board._white_rooks){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._white_rooks)){
+            if (state->_bit_board._white_king & _tiny_manhattan_masks[index])
+                whiteVal += rookMultiplier * tinyMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _small_manhattan_masks[index])
+                whiteVal += rookMultiplier * smallMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _medium_manhattan_masks[index])
+                whiteVal += rookMultiplier * mediumMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _large_manhattan_masks[index])
+                whiteVal += rookMultiplier * largeMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _x_large_manhattan_masks[index])
+                whiteVal += rookMultiplier * xLargeMaskBonus * whiteWinningMultiplier;
+        }
+    }
+    if (state->_bit_board._white_bishops){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._white_bishops)){
+            if (state->_bit_board._white_king & _tiny_manhattan_masks[index])
+                whiteVal += bishopMultiplier * tinyMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _small_manhattan_masks[index])
+                whiteVal += bishopMultiplier * smallMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _medium_manhattan_masks[index])
+                whiteVal += bishopMultiplier * mediumMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _large_manhattan_masks[index])
+                whiteVal += bishopMultiplier * largeMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _x_large_manhattan_masks[index])
+                whiteVal += bishopMultiplier * xLargeMaskBonus * whiteWinningMultiplier;
+        }
+    }
+    if (state->_bit_board._white_knights){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._white_knights)){
+            if (state->_bit_board._white_king & _tiny_manhattan_masks[index])
+                whiteVal += knightMultiplier * tinyMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _small_manhattan_masks[index])
+                whiteVal += knightMultiplier * smallMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _medium_manhattan_masks[index])
+                whiteVal += knightMultiplier * mediumMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _large_manhattan_masks[index])
+                whiteVal += knightMultiplier * largeMaskBonus * whiteWinningMultiplier;
+            if (state->_bit_board._white_king & _x_large_manhattan_masks[index])
+                whiteVal += knightMultiplier * xLargeMaskBonus * whiteWinningMultiplier;
+        }
+    }
+
+    if (state->_bit_board._black_pawns){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._black_pawns)){
+            if (state->_bit_board._black_king & _tiny_manhattan_masks[index])
+                blackVal += pawnMultiplier * tinyMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _small_manhattan_masks[index])
+                blackVal += pawnMultiplier * smallMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _medium_manhattan_masks[index])
+                blackVal += pawnMultiplier * mediumMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _large_manhattan_masks[index])
+                blackVal += pawnMultiplier * largeMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _x_large_manhattan_masks[index])
+                blackVal += pawnMultiplier * xLargeMaskBonus * blackWinningMultiplier;
+        }
+    }
+    if (state->_bit_board._black_queens){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._black_queens)){
+            if (state->_bit_board._black_king & _tiny_manhattan_masks[index])
+                blackVal += queenMultiplier * tinyMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _small_manhattan_masks[index])
+                blackVal += queenMultiplier * smallMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _medium_manhattan_masks[index])
+                blackVal += queenMultiplier * mediumMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _large_manhattan_masks[index])
+                blackVal += queenMultiplier * largeMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _x_large_manhattan_masks[index])
+                blackVal += queenMultiplier * xLargeMaskBonus * blackWinningMultiplier;
+        }
+    }
+    if (state->_bit_board._black_rooks){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._black_rooks)){
+            if (state->_bit_board._black_king & _tiny_manhattan_masks[index])
+                blackVal += rookMultiplier * tinyMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _small_manhattan_masks[index])
+                blackVal += rookMultiplier * smallMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _medium_manhattan_masks[index])
+                blackVal += rookMultiplier * mediumMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _large_manhattan_masks[index])
+                blackVal += rookMultiplier * largeMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _x_large_manhattan_masks[index])
+                blackVal += rookMultiplier * xLargeMaskBonus * blackWinningMultiplier;
+        }
+    }
+    if (state->_bit_board._black_bishops){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._black_bishops)){
+            if (state->_bit_board._black_king & _tiny_manhattan_masks[index])
+                blackVal += bishopMultiplier * tinyMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _small_manhattan_masks[index])
+                blackVal += bishopMultiplier * smallMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _medium_manhattan_masks[index])
+                blackVal += bishopMultiplier * mediumMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _large_manhattan_masks[index])
+                blackVal += bishopMultiplier * largeMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _x_large_manhattan_masks[index])
+                blackVal += bishopMultiplier * xLargeMaskBonus * blackWinningMultiplier;
+        }
+    }
+    if (state->_bit_board._black_knights){
+        for (auto index: getIndicesOfBitsInBoard(state->_bit_board._black_knights)){
+            if (state->_bit_board._black_king & _tiny_manhattan_masks[index])
+                blackVal += knightMultiplier * tinyMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _small_manhattan_masks[index])
+                blackVal += knightMultiplier * smallMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _medium_manhattan_masks[index])
+                blackVal += knightMultiplier * mediumMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _large_manhattan_masks[index])
+                blackVal += knightMultiplier * largeMaskBonus * blackWinningMultiplier;
+            if (state->_bit_board._black_king & _x_large_manhattan_masks[index])
+                blackVal += knightMultiplier * xLargeMaskBonus * blackWinningMultiplier;
+        }
+    }
+
+    return whiteVal - blackVal;
 }
 
 float ChessEngine::encouragePawnPushing(State *state, int multiplier){

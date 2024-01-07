@@ -238,6 +238,15 @@ ULL *BitBoardUtils::generateFilledDownToMasks(){
     return maskArray;
 }
 
+ULL *BitBoardUtils::generateManhattanMasks(int radius){
+    ULL* maskArray = (ULL*)malloc(64 * sizeof (ULL));
+    for (int square = 0; square < 64; square++){
+        ULL mask = generateManhattanMaskAroundSquare(square, radius);
+        maskArray[square] = mask;
+    }
+    return maskArray;
+}
+
 unordered_map<Piece, ULL> BitBoardUtils::generateStartingPosition(){
     unordered_map<Piece, ULL> startingBoard;
 
@@ -558,6 +567,20 @@ ULL BitBoardUtils::generateEighthRankMask(){
     ULL resultingMap = 0;
     for (int i = 56; i < 64; i++){
         resultingMap |= 1ULL<<i;
+    }
+    return resultingMap;
+}
+
+ULL BitBoardUtils::generateManhattanMaskAroundSquare(int index, int manhattanDistanceRadius){
+    ULL resultingMap = 0;
+    int row = index / 8;
+    int col = index % 8;
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            if (abs(col - i) + abs(row - j) <= manhattanDistanceRadius){
+                resultingMap |= 1ULL<< (j * 8 + i);
+            }
+        }
     }
     return resultingMap;
 }

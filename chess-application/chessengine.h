@@ -53,6 +53,7 @@ public:
 
     float simpleEndGameEvaluation(State *state);
     float forceKingToEdgeInEndGame(State *state, float materialEval);
+    float forceKingCloseToOwnPiecesInEndGame(State *state, float materialEval);
     float encouragePawnPushing(State *state, int multiplier=1);
 
     Move makeRandomMove(State *state);

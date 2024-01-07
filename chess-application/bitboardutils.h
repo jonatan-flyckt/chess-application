@@ -36,6 +36,8 @@ public:
 
     ULL* generateFilledDownToMasks();
 
+    ULL* generateManhattanMasks(int radius);
+
     unordered_map<Piece, ULL> generateStartingPosition();
 
     pair<ULL*, ULL*> generateBitMasks();
@@ -81,6 +83,7 @@ public:
     ULL generateSeventhRankMask();
     ULL generateEighthRankMask();
 
+    ULL generateManhattanMaskAroundSquare(int index, int manhattanDistanceRadius);
 
     void printFullBitboard(const BitBoard &board);
 
@@ -156,6 +159,12 @@ public:
     const ULL* _filled_up_to_masks = generateFilledUpToMasks();
 
     const ULL* _filled_down_to_masks = generateFilledDownToMasks();
+
+    const ULL* _tiny_manhattan_masks = generateManhattanMasks(2);
+    const ULL* _small_manhattan_masks = generateManhattanMasks(4);
+    const ULL* _medium_manhattan_masks = generateManhattanMasks(6);
+    const ULL* _large_manhattan_masks = generateManhattanMasks(8);
+    const ULL* _x_large_manhattan_masks = generateManhattanMasks(10);
 
     unordered_map<BishopDirections, ULL>* _bishop_square_attack_rays = generateBishopMoveSet();
 

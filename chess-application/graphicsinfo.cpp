@@ -46,7 +46,6 @@ void GraphicsInfo::setSquareGraphics(Colour playerColour){
         for (int colID = 0; colID <= 7;  colID++){
             string colName = _cols_from_index[colID];
             QString squareName = QString::fromStdString(colName + std::to_string(row));
-            qDebug() << squareName;
 
             QPixmap baseSquarePixmap;
             baseSquarePixmap.load(squarePath+"base_squares/" + squareName + ".png");
