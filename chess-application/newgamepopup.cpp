@@ -22,6 +22,8 @@ NewGamePopup::NewGamePopup(QWidget *parent) :
 
 }
 
+
+
 void NewGamePopup::showEvent(QShowEvent *event){
     _ui->white_button->setDown(_selected_colour == White);
     _ui->black_button->setDown(_selected_colour == Black);
@@ -70,4 +72,12 @@ void NewGamePopup::on_start_game_button_clicked(){
 void NewGamePopup::on_name_line_edit_returnPressed(){
     emit startNewGame(_selected_colour, _difficulty, _name);
     this->close();
+}
+
+void NewGamePopup::updateNewGamePopupTheme(GraphicsInfo newGraphicsInfo){
+    _graphics_info = newGraphicsInfo;
+    _ui->white_button->setIcon(QIcon(_graphics_info._white_king));
+    _ui->white_button->setIconSize(_ui->white_button->size());
+    _ui->black_button->setIcon(QIcon(_graphics_info._black_king));
+    _ui->black_button->setIconSize(_ui->black_button->size());
 }

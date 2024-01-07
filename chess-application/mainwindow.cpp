@@ -511,14 +511,14 @@ void MainWindow::setLeftLayout(){
 
     _left_vertical_layout->addWidget(new QLabel("Select Theme:"));
     _theme_combo_box = new QComboBox();
-    _theme_combo_box->addItem("Standard");
-    _theme_combo_box->setItemText(0, "Standard");
-    _theme_combo_box->addItem("Placeholders");
+
     _theme_combo_box->addItem("Wood");
+    _theme_combo_box->setItemText(0, "Wood");
+    _theme_combo_box->addItem("Old Standard");
     _theme_combo_box->setFixedWidth(160);
     _left_vertical_layout->addWidget(_theme_combo_box);
     connect(_theme_combo_box, QOverload<const QString&>::of(&QComboBox::currentTextChanged),
-            this, &MainWindow::changeBoardTheme);
+            this, &MainWindow::changeTheme);
 
     _new_game_button->setEnabled(true);
     _resign_game_button->setHidden(true);
@@ -730,9 +730,12 @@ void MainWindow::onEngineMoveReady(Move move){
     _time_to_update_board = true;
 }
 
-void MainWindow::changeBoardTheme(const QString &selectedTheme){
+void MainWindow::changeTheme(const QString &selectedTheme){
     _graphics_info.setGraphicsFromPath(selectedTheme, _game->getUser_colour());
     loadStateGraphically(_game->getCurrent_state());
+    _new_game_popup->updateNewGamePopupTheme(_graphics_info);
+    updatePlayingAsIcon();
+    updateColourToMoveIcon();
 }
 
 void MainWindow::performEngineMove(Move move){
@@ -805,6 +808,20 @@ bool MainWindow::completeMove(Move attemptedMove){
     return true;
 }
 
+void MainWindow::updatePlayingAsIcon(){
+    if (_game->getUser_colour() == White)
+        _playing_as_colour_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
+    else
+        _playing_as_colour_label->setPixmap(_graphics_info._black_king.scaled(65, 65, Qt::KeepAspectRatio));
+}
+
+void MainWindow::updateColourToMoveIcon(){
+    if (_game->getCurrent_state()->_colour_to_move == White)
+        _colour_to_move_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
+    else
+        _colour_to_move_label->setPixmap(_graphics_info._black_king.scaled(65, 65, Qt::KeepAspectRatio));
+}
+
 void MainWindow::endGame(){
     _check_for_player_move_timer->stop();
     QString gameOverString = "";
@@ -823,7 +840,7 @@ void MainWindow::endGame(){
 
 void MainWindow::promotedPawnSelection(){
     Colour colour = _user_is_white ? White : Black;
-    _choose_promotion_popup = new ChoosePromotionPopup(this, colour);
+    _choose_promotion_popup = new ChoosePromotionPopup(_graphics_info, this, colour);
     connect(_choose_promotion_popup, &ChoosePromotionPopup::promotionSelected, this, &MainWindow::promotionSelected);
     _choose_promotion_popup->setWindowModality(Qt::ApplicationModal);
     _choose_promotion_popup->setWindowFlag(Qt::FramelessWindowHint);

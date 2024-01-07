@@ -27,25 +27,10 @@ public:
 
     void setSquareGraphics(Colour playerColour);
 
-    QPixmap _legal_move_highlight_white;
-    QPixmap _legal_move_highlight_black;
-    QPixmap _check_highlight_white;
-    QPixmap _check_highlight_black;
-    QPixmap _misc_highlight_white;
-    QPixmap _misc_highlight_black;
-
-    QPixmap _black_square;
-    QPixmap _white_square;
-
-
-
     QMap<QString, QPixmap> _base_square_map;
     QMap<QString, QPixmap> _legal_move_highlight_square_map;
     QMap<QString, QPixmap> _check_highlight_square_map;
     QMap<QString, QPixmap> _misc_highlight_square_map;
-
-
-
 
     QPixmap _white_king;
     QPixmap _white_queen;

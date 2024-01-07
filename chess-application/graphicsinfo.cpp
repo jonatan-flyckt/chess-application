@@ -1,7 +1,7 @@
 #include "graphicsinfo.h"
 
 GraphicsInfo::GraphicsInfo(){
-    setGraphicsFromPath("Standard", White);
+    setGraphicsFromPath("Wood", White);
 }
 
 void GraphicsInfo::setGraphicsFromPath(QString themeName, Colour playerColour){
@@ -17,22 +17,6 @@ void GraphicsInfo::setGraphicsFromPath(QString themeName, Colour playerColour){
     qDebug() << "Setting graphics theme path to: " << _current_graphics_path;
 
     setSquareGraphics(playerColour);
-
-
-    /*
-    _legal_move_highlight_black.load(graphicsPath+"legal_move_highlight_black.png");
-    _legal_move_highlight_white.load(graphicsPath+"legal_move_highlight_white.png");
-    _check_highlight_black.load(graphicsPath+"check_highlight_black.png");
-    _check_highlight_white.load(graphicsPath+"check_highlight_white.png");
-    _misc_highlight_black.load(graphicsPath+"misc_square_highlight_black.png");
-    _misc_highlight_white.load(graphicsPath+"misc_square_highlight_white.png");
-
-    _white_square.load(graphicsPath+"white_square.png");
-    _black_square.load(graphicsPath+"black_square.png");
-    */
-
-
-
 
     _white_king.load(_current_graphics_path+"pieces/white_king.png");
     _white_queen.load(_current_graphics_path+"pieces/white_queen.png");

@@ -1,10 +1,11 @@
 #include "choosepromotionpopup.h"
 #include "ui_choosepromotionpopup.h"
 
-ChoosePromotionPopup::ChoosePromotionPopup(QWidget *parent, Colour colour) :
+ChoosePromotionPopup::ChoosePromotionPopup(GraphicsInfo graphicsInfo, QWidget *parent, Colour colour) :
     QDialog(parent),
     _ui(new Ui::ChoosePromotionPopup)
 {
+    _graphics_info = graphicsInfo;
     _colour = colour;
     _ui->setupUi(this);
 }

@@ -20,6 +20,8 @@ public:
     void showEvent(QShowEvent *event);
     ~NewGamePopup();
 
+    void updateNewGamePopupTheme(GraphicsInfo newGraphicsInfo);
+
 private slots:
     void on_cancel_button_clicked();
 
@@ -34,6 +36,8 @@ private slots:
     void on_start_game_button_clicked();
 
     void on_name_line_edit_returnPressed();
+
+
 
 signals:
 

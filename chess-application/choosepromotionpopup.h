@@ -15,7 +15,7 @@ class ChoosePromotionPopup : public QDialog//QWidget
     Q_OBJECT
 
 public:
-    explicit ChoosePromotionPopup(QWidget *parent = nullptr, Colour colour = White);
+    explicit ChoosePromotionPopup(GraphicsInfo graphicsInfo, QWidget *parent = nullptr, Colour colour = White);
     ~ChoosePromotionPopup();
 
     void showEvent(QShowEvent *event);

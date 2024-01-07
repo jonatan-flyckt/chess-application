@@ -91,6 +91,8 @@ public:
 
     bool completeMove(Move attemptedMove);
 
+    void updatePlayingAsIcon();
+    void updateColourToMoveIcon();
 
     void highlightPreviousMove(State *state);
     void removeHighlightPreviousMove();
@@ -188,7 +190,7 @@ public slots:
 
     void onEngineMoveReady(Move move);
 
-    void changeBoardTheme(const QString &selectedTheme);
+    void changeTheme(const QString &selectedTheme);
 
 private:
     Ui::MainWindow *_ui;

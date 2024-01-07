@@ -1,11 +1,17 @@
 warp + overlay
 
+dark gray outline:
+393939
+
 light piece:
 b49068
 ecd6b8
 ffffff
-dark gray outline:
-393939
+
+white_new piece:
+dbc8b3
+f2e6d6
+ffffff
 
 dark piece:
 432a10
