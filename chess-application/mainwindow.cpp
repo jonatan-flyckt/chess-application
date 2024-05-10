@@ -46,7 +46,17 @@ MainWindow::MainWindow(QWidget *parent)
     initiateUIComponents();
     _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
 
-    resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
+
+
+
+    //resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
+    QScreen *screen = QGuiApplication::primaryScreen();
+    if (screen) {
+        QRect availableGeometry = screen->availableGeometry();
+        // Resize the window to 70% of the available screen size
+        resize(availableGeometry.size() * 0.7);
+    }
+
 
     _check_for_player_move_timer = new QTimer(this);
     connect(_check_for_player_move_timer, &QTimer::timeout, this, &MainWindow::checkIfPlayerMadeMove);

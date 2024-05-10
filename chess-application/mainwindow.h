@@ -20,7 +20,12 @@
 #include <boardaspectratiowidget.h>
 #include <graphicsinfo.h>
 #include <QPixmap>
-#include <QDesktopWidget>
+
+
+//#include <QDesktopWidget>
+#include <QGuiApplication>>
+#include <QScreen>
+
 #include <squarewidget.h>
 #include <QVector>
 #include "math.h"

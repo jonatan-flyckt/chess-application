@@ -76,7 +76,7 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
     qDebug() << "pseudo rook time:" << float(_rules._rook_timer) / 1000000.0 << "ms";
     qDebug() << "pseudo queen time:" << float(_rules._queen_timer) / 1000000.0 << "ms";
     qDebug() << "pseudo king time:" << float(_rules._king_timer) / 1000000.0 << "ms";
-    qDebug() << "castling time:" << float(_rules._castling_timer) / 1000000.0 << "ms" << endl;
+    qDebug() << "castling time:" << float(_rules._castling_timer) / 1000000.0 << "ms";
     qDebug() << "self check time:" << float(_rules._self_check_timer) / 1000000.0 << "ms";
     qDebug() << "self check inner time:" << float(_rules._self_check_inner_timer) / 1000000.0 << "ms";
     qDebug() << "self check first part:" << float(_rules._self_check_first_timer) / 1000000.0 << "ms";
