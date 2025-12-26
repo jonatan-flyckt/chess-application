@@ -294,11 +294,6 @@ void MainWindow::highlightLegalSquares(QString originSquare){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
                 square->changePixmap(_graphics_info._legal_move_highlight_square_map[square->id()]);
-                /*if (square->getDenotation()  == "white")
-                    square->changePixmap(_graphics_info._legal_move_highlight_white);
-                else
-                    square->changePixmap(_graphics_info._legal_move_highlight_black);
-                    */
             }
         }
     }
@@ -314,11 +309,6 @@ void MainWindow::highlightPreviousMove(State *state){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
                 square->changePixmap(_graphics_info._misc_highlight_square_map[square->id()]);
-                /*if (square->getDenotation()  == "white")
-                    square->changePixmap(_graphics_info._misc_highlight_white);
-                else
-                    square->changePixmap(_graphics_info._misc_highlight_black);
-                    */
             }
         }
     }
@@ -329,13 +319,6 @@ void MainWindow::highlightPreviousMove(State *state){
 void MainWindow::removeAllSquareHighlights(){
     for (auto square: _square_widgets){
         square->changePixmap(_graphics_info._base_square_map[square->id()]);
-
-        /*
-        if (square->getDenotation()  == "white")
-            square->changePixmap(_graphics_info._white_square);
-        else
-            square->changePixmap(_graphics_info._black_square);
-            */
     }
 }
 
@@ -350,12 +333,6 @@ void MainWindow::removeHighlightPreviousMove(){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
                 square->changePixmap(_graphics_info._base_square_map[square->id()]);
-                /*
-                if (square->getDenotation()  == "white")
-                    square->changePixmap(_graphics_info._white_square);
-                else
-                    square->changePixmap(_graphics_info._black_square);
-                    */
             }
         }
     }
@@ -365,12 +342,6 @@ void MainWindow::highlightCurrentMovingFromSquare(QString highlightSquare){
     for (auto square: _square_widgets){
         if (square->id() == highlightSquare){
             square->changePixmap(_graphics_info._misc_highlight_square_map[square->id()]);
-            /*
-            if (square->getDenotation()  == "white")
-                square->changePixmap(_graphics_info._misc_highlight_white);
-            else
-                square->changePixmap(_graphics_info._misc_highlight_black);
-                */
         }
     }
 }
@@ -379,13 +350,6 @@ void MainWindow::removeHighlightCurrentMovingFromSquare(QString highlightSquare)
     for (auto square: _square_widgets){
         if (square->id() == highlightSquare){
             square->changePixmap(_graphics_info._base_square_map[square->id()]);
-
-            /*
-            if (square->getDenotation()  == "white")
-                square->changePixmap(_graphics_info._white_square);
-            else
-                square->changePixmap(_graphics_info._black_square);
-                */
         }
     }
 }
@@ -395,13 +359,6 @@ void MainWindow::removeLegalSquaresHighlight(){
         for (auto square: _square_widgets){
             if (square->id() == squareStr){
                 square->changePixmap(_graphics_info._base_square_map[square->id()]);
-
-                /*
-                if (square->getDenotation()  == "white")
-                    square->changePixmap(_graphics_info._white_square);
-                else
-                    square->changePixmap(_graphics_info._black_square);
-                    */
             }
         }
     }
@@ -912,11 +869,6 @@ void MainWindow::highlightCheck(State *state){
         for (auto square: _square_widgets){
             if (square->id() == squareToHiglight){
                 square->changePixmap(_graphics_info._check_highlight_square_map[square->id()]);
-                /*if (square->getDenotation() == "white")
-                    square->changePixmap(_graphics_info._check_highlight_white);
-                else
-                    square->changePixmap(_graphics_info._check_highlight_black);
-                    */
             }
         }
     }
@@ -986,14 +938,11 @@ void MainWindow::startDraggingMove(QString originSquare){
 
         QPixmap highlightSquarePixmap = _graphics_info._base_square_map[squareFrom->id()];
 
-        //QPixmap highlightSquarePixmap = squareFrom->getDenotation() == "white" ? _graphics_info._white_square : _graphics_info._black_square;
-
         pieceToMove->setPiece_pixmap(highlightSquarePixmap);
         pieceToMove->populateWithPixmap();
     }
     else{
         QPixmap highlightSquarePixmap = _graphics_info._misc_highlight_square_map[squareFrom->id()];
-        //QPixmap highlightSquarePixmap = squareFrom->getDenotation() == "white" ? _graphics_info._misc_highlight_white : _graphics_info._misc_highlight_black;
         pieceToMove->setPiece_pixmap(highlightSquarePixmap);
         pieceToMove->populateWithPixmap();
     }
@@ -1006,6 +955,7 @@ void MainWindow::setDraggingMoveReadyToComplete(){
 }
 
 void MainWindow::completeDraggingMove(){
+    qDebug() << "in completeDraggingMove";
     _dragging_move_ready_to_complete = false;
     removeLegalSquaresHighlight();
     removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);
