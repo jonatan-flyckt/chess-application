@@ -606,7 +606,6 @@ void MainWindow::exportPGNFile(){
         QString defaultFile = QDir::homePath()+"/"+defaultName;
         QString fileName = QFileDialog::getSaveFileName(this,
             tr("Save file"), defaultFile, tr("Portable Game Notation (*.pgn)"));
-        qDebug() << fileName;
         QFile file(fileName);
         file.open(QIODevice::WriteOnly);
         file.write(QString::fromStdString(_game->getPortable_game_notation()).toUtf8());
@@ -955,7 +954,6 @@ void MainWindow::setDraggingMoveReadyToComplete(){
 }
 
 void MainWindow::completeDraggingMove(){
-    qDebug() << "in completeDraggingMove";
     _dragging_move_ready_to_complete = false;
     removeLegalSquaresHighlight();
     removeHighlightCurrentMovingFromSquare(_move_in_progress_origin_square);

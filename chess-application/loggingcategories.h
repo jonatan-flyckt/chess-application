@@ -1,0 +1,12 @@
+#ifndef LOGGINGCATEGORIES_H
+#define LOGGINGCATEGORIES_H
+
+#pragma once
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(logMoveTimes)
+Q_DECLARE_LOGGING_CATEGORY(logEvaluations)
+Q_DECLARE_LOGGING_CATEGORY(logMouseEvents)
+Q_DECLARE_LOGGING_CATEGORY(logGraphicsThemes)
+
+#endif // LOGGINGCATEGORIES_H

@@ -60,6 +60,7 @@
 #include "enginethread.h"
 #include "bitboardutils.h"
 
+#include <QLoggingCategory>
 
 #include <future>
 
@@ -120,9 +121,6 @@ public:
     void performEngineMove(Move move);
     void getEngineMove();
 signals:
-    void on_set_white_button_clicked();
-
-    void on_set_black_button_clicked();
 
     void signalToReloadStateGraphically();
 

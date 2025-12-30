@@ -34,6 +34,7 @@ SOURCES += \
     contactpopup.cpp \
     graphicsinfo.cpp \
     linksdownladspopup.cpp \
+    loggingcategories.cpp \
     magicslidinggenerator.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     enginethread.h \
     graphicsinfo.h \
     linksdownladspopup.h \
+    loggingcategories.h \
     magicslidinggenerator.h \
     mainwindow.h \
     newgamepopup.h \

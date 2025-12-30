@@ -1,4 +1,5 @@
 #include "graphicsinfo.h"
+#include "loggingcategories.h"
 
 GraphicsInfo::GraphicsInfo(){
     setGraphicsFromPath("Wood", White);
@@ -11,10 +12,10 @@ void GraphicsInfo::setGraphicsFromPath(QString themeName, Colour playerColour){
 
     if (!QFileInfo::exists(_current_graphics_path + "pieces/white_king.png")) {
         _current_graphics_path = ":/images/images/Standard/";
-        qDebug() << "Graphics path does not exist.";
+        qCDebug(logGraphicsThemes) << "Graphics path does not exist.";
     }
 
-    qDebug() << "Setting graphics theme path to: " << _current_graphics_path;
+    qCDebug(logGraphicsThemes) << "Setting graphics theme path to: " << _current_graphics_path;
 
     setSquareGraphics(playerColour);
 
@@ -40,7 +41,7 @@ void GraphicsInfo::setGraphicsFromPath(QString themeName, Colour playerColour){
 void GraphicsInfo::setSquareGraphics(Colour playerColour){
     //Sets square graphics depending on player viewing perspective
     QString squarePath = _current_graphics_path + "squares/" + ((playerColour == White) ? "white_perspective/" : "black_perspective/");
-    qDebug() << "Setting square graphics with path: " << squarePath;
+    qCDebug(logGraphicsThemes) << "Setting square graphics with path: " << squarePath;
 
     for (int row = 1; row <= 8;  row++){
         for (int colID = 0; colID <= 7;  colID++){

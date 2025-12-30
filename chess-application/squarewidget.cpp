@@ -1,4 +1,5 @@
 #include "squarewidget.h"
+#include "loggingcategories.h"
 
 SquareWidget::SquareWidget(QString id, QPixmap pixmap, QString denotation){
     _inner_layout = new QHBoxLayout(this);
@@ -34,10 +35,10 @@ void SquareWidget::leaveEvent(QEvent *event){ //User stopped hovering square
 
     bool mouseInBoard = emit signalMouseIsInsideBoard();
     bool draggingMoveStatus = getDraggingMoveStatus();
-    qDebug() << "mouseInBoard: " << mouseInBoard << "-- draggingMoveStatus: " << draggingMoveStatus;
+    qCDebug(logMouseEvents) << "mouseInBoard: " << mouseInBoard << "-- draggingMoveStatus: " << draggingMoveStatus;
 
     if (!emit signalMouseIsInsideBoard() && getDraggingMoveStatus()){
-        qDebug() << "mouse was released outside of board";
+        qCDebug(logMouseEvents) << "mouse was released outside of board";
         emit signalCurrentHovered("");
         emit signalCompleteDraggingMove();
         return;
@@ -69,14 +70,14 @@ void SquareWidget::mouseMoveEvent(QMouseEvent *ev){
 
 void SquareWidget::mouseReleaseEvent(QMouseEvent *ev){
 
-    qDebug() << "Inside mouseReleaseEvent for squareWidget";
+    qCDebug(logMouseEvents) << "Inside mouseReleaseEvent for squareWidget";
 
     if (!emit getDraggingMoveStatus())
         return;
     QString origin = emit getMoveOriginSquare();
     QString hovered = emit getHoveredSquare();
 
-    qDebug() << "origin: " << origin << "-- hovered: " << hovered;
+    qCDebug(logMouseEvents) << "origin: " << origin << "-- hovered: " << hovered;
 
     if (hovered == origin){ //Widget was released on origin square
         emit signalCompleteDraggingMove();

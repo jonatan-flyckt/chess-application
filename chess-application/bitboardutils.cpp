@@ -656,7 +656,6 @@ unordered_map<ULL, vector<int> > BitBoardUtils::generateTwoPieceIndexMap(){
             returnMap[resultingBoard] = innerVector;
         }
     }
-    cout << returnMap.size() << endl;
     return returnMap;
 }
 

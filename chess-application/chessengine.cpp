@@ -1,4 +1,5 @@
 #include "chessengine.h"
+#include "loggingcategories.h""
 
 ChessEngine::ChessEngine(){
     _move_number_minimax_tree_map = new unordered_map<int, MiniMaxTree*>();
@@ -10,7 +11,7 @@ ChessEngine::~ChessEngine(){
 }
 
 Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
-    cout << endl << "Game phase: " << state->_game_phase << endl;
+    qCDebug(logEvaluations) << "Game phase: " << state->_game_phase;
     return miniMax(state, engineColour);
     //return makeRandomMove(state);
 }
@@ -60,32 +61,32 @@ Move ChessEngine::miniMax(State *state, Colour engineColour){
 
     pair<Move, float> bestMoveEvalPair = alphaBeta(tree, startingNode, startingNode->_depth_of_node, INFINITY_NEG, INFINITY_POS, engineColour == White);
 
-    qDebug() << "Total time for finding move:" << float(nanosecond_measurement() - start) / 1000000.0 << "ms";
-    qDebug() << "Move generation time:" << float(_accumulated_move_generation_time) / 1000000.0 << "ms";
-    qDebug() << "State generation time:" << float(_accumulated_state_generation_time) / 1000000.0 << "ms";
-    qDebug() << "Inner state generation time:" << float(_rules._inner_accumulated_state_generation_time) / 1000000.0 << "ms";
-    qDebug() << "Heuristic evaluation time:" << float(_accumulated_heuristic_evaluation_time) / 1000000.0 << "ms";
-    qDebug() << "Accumulated update bit board time:" << float(_rules._accumulated_update_bit_board_time) / 1000000.0 << "ms";
-    qDebug() << "Accumulated get legal bit board moves time:" << float(_rules._accumulated_get_legal_bit_board_moves_timer) / 1000000.0 << "ms";
-    qDebug() << "Accumulated update castling time:" << float(_rules._accumulated_update_castling_time) / 1000000.0 << "ms";
-    qDebug() << "Accumulated kings in check time:" << float(_rules._accumulated_kings_in_check_time) / 1000000.0 << "ms";
-    qDebug() << "Accumulated hash generation time:" << float(_rules._accumulated_hash_time) / 1000000.0 << "ms";
-    qDebug() << "pseudo pawn time:" << float(_rules._pawn_timer) / 1000000.0 << "ms";
-    qDebug() << "pseudo knight time:" << float(_rules._knight_timer) / 1000000.0 << "ms";
-    qDebug() << "pseudo bishop time:" << float(_rules._bishop_timer) / 1000000.0 << "ms";
-    qDebug() << "pseudo rook time:" << float(_rules._rook_timer) / 1000000.0 << "ms";
-    qDebug() << "pseudo queen time:" << float(_rules._queen_timer) / 1000000.0 << "ms";
-    qDebug() << "pseudo king time:" << float(_rules._king_timer) / 1000000.0 << "ms";
-    qDebug() << "castling time:" << float(_rules._castling_timer) / 1000000.0 << "ms";
-    qDebug() << "self check time:" << float(_rules._self_check_timer) / 1000000.0 << "ms";
-    qDebug() << "self check inner time:" << float(_rules._self_check_inner_timer) / 1000000.0 << "ms";
-    qDebug() << "self check first part:" << float(_rules._self_check_first_timer) / 1000000.0 << "ms";
-    qDebug() << "self check second part:" << float(_rules._self_check_second_timer) / 1000000.0 << "ms";
-    qDebug() << "attacking square pawn:" << float(_rules._attack_pawn_timer) / 1000000.0 << "ms";
-    qDebug() << "attacking square knight:" << float(_rules._attack_knight_timer) / 1000000.0 << "ms";
-    qDebug() << "attacking square bishop/queen:" << float(_rules._attack_bishop_timer) / 1000000.0 << "ms";
-    qDebug() << "attacking square rook/queen:" << float(_rules._attack_rook_timer) / 1000000.0 << "ms";
-    qDebug() << "";
+    qCDebug(logMoveTimes) << "Total time for finding move:" << float(nanosecond_measurement() - start) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "Move generation time:" << float(_accumulated_move_generation_time) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "State generation time:" << float(_accumulated_state_generation_time) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "Inner state generation time:" << float(_rules._inner_accumulated_state_generation_time) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "Heuristic evaluation time:" << float(_accumulated_heuristic_evaluation_time) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "Accumulated update bit board time:" << float(_rules._accumulated_update_bit_board_time) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "Accumulated get legal bit board moves time:" << float(_rules._accumulated_get_legal_bit_board_moves_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "Accumulated update castling time:" << float(_rules._accumulated_update_castling_time) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "Accumulated kings in check time:" << float(_rules._accumulated_kings_in_check_time) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "Accumulated hash generation time:" << float(_rules._accumulated_hash_time) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "pseudo pawn time:" << float(_rules._pawn_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "pseudo knight time:" << float(_rules._knight_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "pseudo bishop time:" << float(_rules._bishop_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "pseudo rook time:" << float(_rules._rook_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "pseudo queen time:" << float(_rules._queen_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "pseudo king time:" << float(_rules._king_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "castling time:" << float(_rules._castling_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "self check time:" << float(_rules._self_check_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "self check inner time:" << float(_rules._self_check_inner_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "self check first part:" << float(_rules._self_check_first_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "self check second part:" << float(_rules._self_check_second_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "attacking square pawn:" << float(_rules._attack_pawn_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "attacking square knight:" << float(_rules._attack_knight_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "attacking square bishop/queen:" << float(_rules._attack_bishop_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "attacking square rook/queen:" << float(_rules._attack_rook_timer) / 1000000.0 << "ms";
+    qCDebug(logMoveTimes) << "";
 
     startingNode->_move_eval_pair.second = bestMoveEvalPair.second;
     tree->_best_move = bestMoveEvalPair.first;

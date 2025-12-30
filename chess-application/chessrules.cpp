@@ -1,4 +1,5 @@
 #include "chessrules.h"
+#include "loggingcategories.h"
 
 ChessRules::ChessRules(){
 }
@@ -20,13 +21,18 @@ uint64_t millisecond_measurement()
 }
 
 State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMake){
-    uint64_t whole_func_start = nanosecond_measurement();
+
+    const bool measure = logMoveTimes().isDebugEnabled();
+    uint64_t start = 0;
+    uint64_t whole_func_start = 0;
+
+    if (measure) whole_func_start = nanosecond_measurement();
 
     State *resultingState = new State();
-    uint64_t start = nanosecond_measurement();
 
+    if (measure) start = nanosecond_measurement();
     updateBitBoardWithMove(currentState, resultingState, moveToMake);
-    _accumulated_update_bit_board_time += nanosecond_measurement() - start;
+    if (measure) _accumulated_update_bit_board_time += nanosecond_measurement() - start;
 
     resultingState->_bit_board_state_seen_count = currentState->_bit_board_state_seen_count;
     resultingState->_colour_to_move = currentState->_colour_to_move == White ? Black : White;
@@ -36,18 +42,18 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     resultingState->_moves_without_capture_or_pawn_advancement = (moveToMake._move_type == Capture || moveToMake._piece._type == Pawn) ? 0 : currentState->_moves_without_capture_or_pawn_advancement+1;
     resultingState->_castling_info = currentState->_castling_info;
 
-    start = nanosecond_measurement();
+    if (measure) start = nanosecond_measurement();
     updateCastlingInfo(moveToMake, resultingState);
-    _accumulated_update_castling_time += nanosecond_measurement() - start;
+    if (measure) _accumulated_update_castling_time += nanosecond_measurement() - start;
 
-    start = nanosecond_measurement();
+    if (measure) start = nanosecond_measurement();
     resultingState->_legal_moves_from_state = getLegalMoves(resultingState);
-    _accumulated_get_legal_bit_board_moves_timer += nanosecond_measurement() - start;
+    if (measure) _accumulated_get_legal_bit_board_moves_timer += nanosecond_measurement() - start;
 
-    start = nanosecond_measurement();
+    if (measure) start = nanosecond_measurement();
     resultingState->_white_king_is_in_check = whiteKingIsInCheck(resultingState->_bit_board);
     resultingState->_black_king_is_in_check = blackKingIsInCheck(resultingState->_bit_board);
-    _accumulated_kings_in_check_time += nanosecond_measurement() - start;
+    if (measure) _accumulated_kings_in_check_time += nanosecond_measurement() - start;
 
     if (resultingState->_legal_moves_from_state.size() == 0){ //End the game if there are no legal moves
         resultingState->_is_game_over = true;
@@ -76,19 +82,19 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
         resultingState->_game_over_reason = "50 move rule";
     }
 
-    start = nanosecond_measurement();
+    if (measure) start = nanosecond_measurement();
     resultingState->_position_hash = _hasher.generateHashForPosition(resultingState->_bit_board._indices_of_bits_for_piece_types,
                                                                      resultingState->_castling_info,
                                                                      resultingState->_colour_to_move,
                                                                      getIndicesOfBitsInBoard(resultingState->_bit_board._en_passant_square));
-    _accumulated_hash_time += nanosecond_measurement() - start;
+    if (measure) _accumulated_hash_time += nanosecond_measurement() - start;
 
 
     //TODO: incorporate three move repetition in minimax search as well
 
     resultingState->_game_phase = determineGamePhase(resultingState);
 
-    _inner_accumulated_state_generation_time += nanosecond_measurement() - whole_func_start;
+    if (measure) _inner_accumulated_state_generation_time += nanosecond_measurement() - whole_func_start;
 
     return resultingState;
 }
