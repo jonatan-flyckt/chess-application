@@ -24,7 +24,7 @@ void SquareWidget::populateWithPixmap(){
     this->setPixmap(_square_pixmap.scaled(_square_scale_factor, _square_scale_factor, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 
-void SquareWidget::enterEvent(QEvent *event){ //User started hovering square
+void SquareWidget::enterEvent(QEnterEvent *event){ //User started hovering square
     emit signalCurrentHovered(_id);
     if (emit getDraggingMoveReadyToCompleteStatus())
         emit signalCompleteDraggingMove();
@@ -70,6 +70,8 @@ void SquareWidget::mouseMoveEvent(QMouseEvent *ev){
 
 void SquareWidget::mouseReleaseEvent(QMouseEvent *ev){
 
+    qDebug() << "Inside mouseReleaseEvent for squareWidget";
+
     if (!emit getDraggingMoveStatus())
         return;
     QString origin = emit getMoveOriginSquare();
@@ -82,7 +84,6 @@ void SquareWidget::mouseReleaseEvent(QMouseEvent *ev){
         return;
     }
     emit signalDraggingMoveReadyToComplete();
-
 }
 
 void SquareWidget::changePixmap(QPixmap newPixmap){

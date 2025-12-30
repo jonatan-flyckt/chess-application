@@ -14,13 +14,13 @@ public:
 
     void populateWithPixmap();
 
-    void enterEvent(QEvent *event);
-    void leaveEvent(QEvent *event);
+    void enterEvent(QEnterEvent  *event) override;
+    void leaveEvent(QEvent *event) override;
 
-    void mousePressEvent(QMouseEvent *ev);
-    void mouseMoveEvent(QMouseEvent *ev);
+    void mousePressEvent(QMouseEvent *ev) override;
+    void mouseMoveEvent(QMouseEvent *ev) override;
 
-    void mouseReleaseEvent(QMouseEvent *ev);
+    void mouseReleaseEvent(QMouseEvent *ev) override;
 
     void changePixmap(QPixmap newPixmap);
 
