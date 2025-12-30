@@ -28,7 +28,6 @@ void SquareWidget::enterEvent(QEnterEvent *event){ //User started hovering squar
     emit signalCurrentHovered(_id);
     if (emit getDraggingMoveReadyToCompleteStatus())
         emit signalCompleteDraggingMove();
-
 }
 
 void SquareWidget::leaveEvent(QEvent *event){ //User stopped hovering square
