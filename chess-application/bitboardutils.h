@@ -82,6 +82,7 @@ public:
     ULL generateSixthRankMask();
     ULL generateSeventhRankMask();
     ULL generateEighthRankMask();
+    ULL generateWhiteSquaresMask();
 
     ULL generateManhattanMaskAroundSquare(int index, int manhattanDistanceRadius);
 
@@ -197,6 +198,8 @@ public:
     const ULL _seventh_rank_mask = generateSeventhRankMask();
     const ULL _eighth_rank_mask = generateEighthRankMask();
 
+    const ULL _white_squares_mask = generateWhiteSquaresMask();
+    const ULL _black_squares_mask = ~_white_squares_mask;
 
 };
 

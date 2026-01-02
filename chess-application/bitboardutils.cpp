@@ -571,6 +571,17 @@ ULL BitBoardUtils::generateEighthRankMask(){
     return resultingMap;
 }
 
+ULL BitBoardUtils::generateWhiteSquaresMask(){
+    ULL mask = 0;
+    for (int i = 0; i < 64; ++i) {
+        int file = i % 8;
+        int rank = i / 8;
+        if ( ((file + rank) & 1) == 1 )
+            mask |= (1ULL << i);
+    }
+    return mask;
+}
+
 ULL BitBoardUtils::generateManhattanMaskAroundSquare(int index, int manhattanDistanceRadius){
     ULL resultingMap = 0;
     int row = index / 8;

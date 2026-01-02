@@ -22,7 +22,6 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state);
     updatePGN();
 
-
     //_rules.testMoveGenerationCorrectness("small"); //Takes roughly 2 seconds
     //_rules.testMoveGenerationCorrectness("large"); //Takes roughly 70 seconds
 }
@@ -65,7 +64,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
 
     State *resultingState = _rules.getResultingStateFromMove(_current_state, moveToMake);
     _current_state->_next_state = resultingState;
-    //TODO: test code below more
+    //TODO: test code below more. Maybe it should be in ChessRules?
     if (_rules.bitBoardNumberOfTimesThisStateSeen(resultingState->_position_hash, resultingState->_bit_board_state_seen_count) >= 3){
         resultingState->_is_game_over = true;
         resultingState->_is_draw = true;

@@ -71,11 +71,11 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
             resultingState->_game_over_reason = "Stalemate";
         }
     }
-    //if (isInsufficientMaterial(currentState)){ //TODO: Replace
-    //    currentState->_is_game_over = true;
-    //    resultingState->_is_draw = true;
-    //    resultingState->_game_over_reason = "Insufficient mating material";
-    //}
+    if (isInsufficientMaterial(resultingState)){
+        resultingState->_is_game_over = true;
+        resultingState->_is_draw = true;
+        resultingState->_game_over_reason = "Insufficient mating material";
+    }
     if (resultingState->_moves_without_capture_or_pawn_advancement >= 100){
         resultingState->_is_game_over = true;
         resultingState->_is_draw = true;
@@ -825,13 +825,13 @@ GamePhase ChessRules::determineGamePhase(State *state){
         return MidGame;
     }
 
-    //It is later than move 8, but not yet mid-game
+    //It is later than move 12, but not yet mid-game
     return Opening;
 }
 
 
 //TODO: Not currently used. Replace with bitboard version
-bool ChessRules::isInsufficientMaterial(State *state){
+/*bool ChessRules::isInsufficientMaterial(State *state){
     int whiteMinorPieceCount = 0;
     int blackMinorPieceCount = 0;
     vector<pair<Piece, Colour>> minorPieces; //second element denotes colour of square
@@ -868,6 +868,51 @@ bool ChessRules::isInsufficientMaterial(State *state){
                 minorPieces.at(0).second == minorPieces.at(1).second)
             return true;
     }
+    return false;
+}*/
+
+bool ChessRules::isInsufficientMaterial(State *state){
+    if (state->_bit_board._white_queens | state->_bit_board._white_rooks | state->_bit_board._white_pawns |
+        state->_bit_board._black_queens | state->_bit_board._black_rooks | state->_bit_board._black_pawns ){
+        //Either a queen, a rook, or a pawn exists. Not insufficient.
+        return false;
+    }
+    int numberOfPiecesOnBoard = countBitsInBoard(state->_bit_board._all_pieces);
+    if (numberOfPiecesOnBoard <= 2){
+        //Only kings left on board. Insufficient material.
+        return true;
+    }
+
+    int numberOfWhiteBishopsOnWhiteSquares = countBitsInBoard(state->_bit_board._white_bishops & _white_squares_mask);
+    int numberOfWhiteBishopsOnBlackSquares = countBitsInBoard(state->_bit_board._white_bishops & _black_squares_mask);
+    int numberOfBlackBishopsOnWhiteSquares = countBitsInBoard(state->_bit_board._black_bishops & _white_squares_mask);
+    int numberOfBlackBishopsOnBlackSquares = countBitsInBoard(state->_bit_board._black_bishops & _black_squares_mask);
+    int numberOfWhiteKnights = countBitsInBoard(state->_bit_board._white_knights);
+    int numberOfBlackKnights = countBitsInBoard(state->_bit_board._black_knights);
+    int numberOfWhiteMinors = numberOfWhiteBishopsOnWhiteSquares + numberOfWhiteBishopsOnBlackSquares + numberOfWhiteKnights;
+    int numberOfBlackMinors = numberOfBlackBishopsOnWhiteSquares + numberOfBlackBishopsOnBlackSquares + numberOfBlackKnights;
+    int numberOfMinorPiecesInTotal = numberOfWhiteMinors + numberOfBlackMinors;
+
+    if (numberOfMinorPiecesInTotal == 1){
+        //Only one minor piece left. Insufficient material.
+        return true;
+    }
+
+    if (numberOfMinorPiecesInTotal >= 2){
+        if ((numberOfWhiteMinors >= 1 && numberOfBlackKnights >= 1) ||
+            (numberOfBlackMinors >= 1 && numberOfWhiteKnights >= 1)){
+            //One side has at least a minor piece and the other has a knight. Not insufficient.
+            return false;
+        }
+        if ((numberOfBlackKnights + numberOfWhiteKnights == 0) &&
+            ((numberOfWhiteBishopsOnWhiteSquares + numberOfBlackBishopsOnWhiteSquares == 0) ||
+             (numberOfWhiteBishopsOnBlackSquares + numberOfBlackBishopsOnBlackSquares == 0))){
+            //No knights remain and only same coloured squares bishops remain. Insufficient material.
+            return true;
+        }
+    }
+
+    //Only knights and bihops remain, but enough to mate. Not insufficient.
     return false;
 }
 
