@@ -637,7 +637,6 @@ void MainWindow::startClickingMove(QString originSquare){
             if ((piece->denotation() == "white" && _game->getUser_colour() == Black) ||
                     (piece->denotation() == "black" && _game->getUser_colour() == White)){
                 liftingOpponentPiece = true;
-                //TODO: uncomment this when bot exists.
             }
             squareContainsPiece = true;
         }
@@ -884,7 +883,6 @@ void MainWindow::startDraggingMove(QString originSquare){
             if ((piece->denotation() == "white" && _game->getUser_colour() == Black) ||
                     (piece->denotation() == "black" && _game->getUser_colour() == White)){
                 liftingOpponentPiece = true;
-                //TODO: uncomment this when bot exists.
             }
             squareContainsPiece = true;
         }

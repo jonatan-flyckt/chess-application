@@ -829,48 +829,6 @@ GamePhase ChessRules::determineGamePhase(State *state){
     return Opening;
 }
 
-
-//TODO: Not currently used. Replace with bitboard version
-/*bool ChessRules::isInsufficientMaterial(State *state){
-    int whiteMinorPieceCount = 0;
-    int blackMinorPieceCount = 0;
-    vector<pair<Piece, Colour>> minorPieces; //second element denotes colour of square
-    for (int i = 0; i < state->_board_for_graphics.size(); i++){
-        for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
-            if (state->_board_for_graphics.at(i).at(j) != nullptr){
-                //Not insufficient material if pawn, queen, or rook is still in play
-                if (state->_board_for_graphics.at(i).at(j)->_type == Queen ||
-                        state->_board_for_graphics.at(i).at(j)->_type == Rook ||
-                        state->_board_for_graphics.at(i).at(j)->_type == Pawn)
-                    return false;
-                else if (state->_board_for_graphics.at(i).at(j)->_type == Bishop || state->_board_for_graphics.at(i).at(j)->_type == Knight){
-                    minorPieces.push_back(make_pair<Piece, Colour>(
-                                              Piece(state->_board_for_graphics.at(i).at(j)->_colour, state->_board_for_graphics.at(i).at(j)->_type),
-                                              i+j % 2 == 0 ? Black : White));
-                    if (state->_board_for_graphics.at(i).at(j)->_colour == White)
-                        whiteMinorPieceCount += 1;
-                    if (state->_board_for_graphics.at(i).at(j)->_colour == Black)
-                        blackMinorPieceCount += 1;
-                }
-            }
-            if (whiteMinorPieceCount > 1 || blackMinorPieceCount > 1)
-                return false;
-        }
-    }
-    if ((whiteMinorPieceCount == 1 && blackMinorPieceCount == 0)
-            || (blackMinorPieceCount == 1 && whiteMinorPieceCount == 0) ||
-                (whiteMinorPieceCount == 0 && blackMinorPieceCount == 0))
-        return true;
-    if (blackMinorPieceCount == 1 && whiteMinorPieceCount == 1){
-        //Insufficient if the only two minor pieces left are bishops on the same colour square
-        if (minorPieces.at(0).first._type == Bishop &&
-                minorPieces.at(1).first._type == Bishop &&
-                minorPieces.at(0).second == minorPieces.at(1).second)
-            return true;
-    }
-    return false;
-}*/
-
 bool ChessRules::isInsufficientMaterial(State *state){
     if (state->_bit_board._white_queens | state->_bit_board._white_rooks | state->_bit_board._white_pawns |
         state->_bit_board._black_queens | state->_bit_board._black_rooks | state->_bit_board._black_pawns ){
@@ -928,7 +886,7 @@ State* ChessRules::stateFromFEN(string fen){
     State *state = new State();
     state->_previous_state = nullptr;
     state->_bit_board_state_seen_count = new unordered_map<ULL, int>;
-    state->_state_seen_count = new unordered_map<string, int>;
+    //state->_state_seen_count = new unordered_map<string, int>;
 
     vector<string> splitFen = splitString(fen, " ");
 

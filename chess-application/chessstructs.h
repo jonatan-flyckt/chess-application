@@ -128,7 +128,7 @@ struct State{
     int _number_of_moves;
 
     //outer vector: vector of rows
-    vector<vector<Piece*>> _board_for_graphics{
+    vector<vector<Piece*>> _board_for_graphics{ //TODO: This causes overhead for minimax, see if we can move it somewhere else
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
@@ -149,7 +149,7 @@ struct State{
     bool _white_won = false;
     bool _black_won = false;
     string _game_over_reason;
-    unordered_map<string, int> *_state_seen_count;
+    //unordered_map<string, int> *_state_seen_count;
 
     ULL _position_hash;
     unordered_map<ULL, int> *_bit_board_state_seen_count;
