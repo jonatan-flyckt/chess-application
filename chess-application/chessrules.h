@@ -42,7 +42,7 @@ public:
     ZobristHasher _hasher = ZobristHasher();
     MagicSlidingGenerator _slide_move_generator = MagicSlidingGenerator();
 
-    int bitBoardNumberOfTimesThisStateSeen(ULL hash, unordered_map<ULL, int> *stateSeenCount);
+    int numberOfTimesThisStateSeen(State* state);
 
     State* stateFromFEN(string fen);
     bool runPerftTest(State *state, int maxDepth, map<string, int> *correctDivide = nullptr);

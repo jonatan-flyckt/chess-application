@@ -10,6 +10,7 @@ ChessEngine::~ChessEngine(){
     delete _move_number_minimax_tree_map;
 }
 
+
 Move ChessEngine::selectMoveFromState(State *state, Colour engineColour){
     qCDebug(logEvaluations) << "Game phase: " << state->_game_phase;
     return miniMax(state, engineColour);

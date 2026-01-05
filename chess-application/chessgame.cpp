@@ -17,8 +17,7 @@ ChessGame::ChessGame(bool _user_is_white, string date, Difficulty difficulty, st
     _state_vector = new vector<State*>();
     _state_vector->push_back(_current_state);
     updatePGN();
-    //_current_state->_state_seen_count = new unordered_map<string, int>();
-    _current_state->_bit_board_state_seen_count = new unordered_map<ULL, int>();
+
     _current_state->_legal_moves_from_state = _rules.getLegalMoves(_current_state);
     updatePGN();
 
@@ -64,12 +63,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
 
     State *resultingState = _rules.getResultingStateFromMove(_current_state, moveToMake);
     _current_state->_next_state = resultingState;
-    //TODO: test code below more. Maybe it should be in ChessRules?
-    if (_rules.bitBoardNumberOfTimesThisStateSeen(resultingState->_position_hash, resultingState->_bit_board_state_seen_count) >= 3){
-        resultingState->_is_game_over = true;
-        resultingState->_is_draw = true;
-        resultingState->_game_over_reason = "Threefold repetition";
-    }
+
     updateBoardForGraphics(_current_state, resultingState, moveToMake);
     _is_draw = resultingState->_is_draw;
     _white_won = resultingState->_white_won;

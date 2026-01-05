@@ -34,7 +34,6 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
     updateBitBoardWithMove(currentState, resultingState, moveToMake);
     if (measure) _accumulated_update_bit_board_time += nanosecond_measurement() - start;
 
-    resultingState->_bit_board_state_seen_count = currentState->_bit_board_state_seen_count;
     resultingState->_colour_to_move = currentState->_colour_to_move == White ? Black : White;
     resultingState->_move_to_state = moveToMake;
     resultingState->_previous_state = currentState;
@@ -89,8 +88,11 @@ State* ChessRules::getResultingStateFromMove(State *currentState, Move moveToMak
                                                                      getIndicesOfBitsInBoard(resultingState->_bit_board._en_passant_square));
     if (measure) _accumulated_hash_time += nanosecond_measurement() - start;
 
-
-    //TODO: incorporate three move repetition in minimax search as well
+    if (numberOfTimesThisStateSeen(resultingState) >= 3){
+        resultingState->_is_game_over = true;
+        resultingState->_is_draw = true;
+        resultingState->_game_over_reason = "Threefold repetition";
+    }
 
     resultingState->_game_phase = determineGamePhase(resultingState);
 
@@ -874,19 +876,30 @@ bool ChessRules::isInsufficientMaterial(State *state){
     return false;
 }
 
-int ChessRules::bitBoardNumberOfTimesThisStateSeen(ULL hash, unordered_map<ULL, int> *stateSeenCount){
-    if (stateSeenCount->count(hash) > 0)
-        stateSeenCount->find(hash)->second += 1;
-    else
-        stateSeenCount->insert(pair<ULL, int>(hash, 1));
-    return stateSeenCount->find(hash)->second;
+int ChessRules::numberOfTimesThisStateSeen(State* state){
+    if (state == nullptr)
+        return 0;
+
+    const ULL targetHash = state->_position_hash;
+
+    //Threefold repetition is only possible within the reversible-move window.
+    //The max nodes to scan is the number of half-moves since the last pawn move or capture.
+    const int maxNodesToScan = state->_moves_without_capture_or_pawn_advancement + 1;
+    int count = 0;
+    State* currentState = state;
+
+    for (int i = 0; i < maxNodesToScan && currentState != nullptr; i++){
+        if (currentState->_position_hash == targetHash)
+            ++count;
+
+        currentState = currentState->_previous_state;
+    }
+    return count;
 }
 
 State* ChessRules::stateFromFEN(string fen){
     State *state = new State();
     state->_previous_state = nullptr;
-    state->_bit_board_state_seen_count = new unordered_map<ULL, int>;
-    //state->_state_seen_count = new unordered_map<string, int>;
 
     vector<string> splitFen = splitString(fen, " ");
 

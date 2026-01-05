@@ -149,10 +149,8 @@ struct State{
     bool _white_won = false;
     bool _black_won = false;
     string _game_over_reason;
-    //unordered_map<string, int> *_state_seen_count;
 
     ULL _position_hash;
-    unordered_map<ULL, int> *_bit_board_state_seen_count;
 };
 
 #endif // STRUCTS_H
