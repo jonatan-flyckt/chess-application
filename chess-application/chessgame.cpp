@@ -64,7 +64,7 @@ bool ChessGame::makeMove(string originSquare, string destinationSquare){
     State *resultingState = _rules.getResultingStateFromMove(_current_state, moveToMake);
     _current_state->_next_state = resultingState;
 
-    updateBoardForGraphics(_current_state, resultingState, moveToMake);
+    //updateBoardForGraphics(_current_state, resultingState, moveToMake);
     _is_draw = resultingState->_is_draw;
     _white_won = resultingState->_white_won;
     _black_won = resultingState->_black_won;
@@ -147,7 +147,7 @@ void ChessGame::performEnPassantMoveForGraphicBoard(Move move, State *state){
     state->_board_for_graphics.at(rowFrom).at(colTo) = nullptr;
 }
 
-void ChessGame::setFenForState(State *state){
+void ChessGame::setFenForState(State *state){ //TODO: Base this on the bitboard representation instead of board for graphics
     string fenBuilder = "";
     for (int i = state->_board_for_graphics.size()-1; i >= 0; i--){
         int emptySquareCounter = 0;
@@ -394,7 +394,7 @@ void ChessGame::updatePGN(){
     }
 }
 
-string ChessGame::algebraicNotationForMove(State *state){
+string ChessGame::algebraicNotationForMove(State *state){ //TODO: Remove dependency on board for graphics
     string notation = "";
     Move move = state->_move_to_state;
     if (move._move_type == LongCastle){

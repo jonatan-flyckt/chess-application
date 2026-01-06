@@ -112,7 +112,7 @@ public:
     void setTopLayout();
     void addNotationWidgetForMove(State *resultingState);
     void clearAlgebraicNotationView();
-    void loadStateGraphically(State *state);
+    void renderState(State *state);
     void removeAllSquareHighlights();
     void addPiecesToBoardFromState(State *state);
 

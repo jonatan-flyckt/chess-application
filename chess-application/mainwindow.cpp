@@ -183,10 +183,13 @@ void MainWindow::addNotationWidgetForMove(State *resultingState){
 }
 
 void MainWindow::notationWidgetClicked(State *state){
-    loadStateGraphically(state);
+    renderState(state);
 }
 
-void MainWindow::loadStateGraphically(State *state){
+void MainWindow::renderState(State *state){
+
+    qDebug() << "Inside renderState";
+
     for (auto widget: _notation_widgets){
         widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 0px");
         if (widget->state()->_number_of_moves == state->_number_of_moves){
@@ -210,6 +213,7 @@ void MainWindow::loadStateGraphically(State *state){
     _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(state->_fen_notation));
 }
 
+/*
 void MainWindow::addPiecesToBoardFromState(State *state){
     for (int i = 0; i < state->_board_for_graphics.size(); i++){
         for (int j = 0; j < state->_board_for_graphics.at(i).size(); j++){
@@ -242,7 +246,74 @@ void MainWindow::addPiecesToBoardFromState(State *state){
             }
         }
     }
+}*/
+
+void MainWindow::addPiecesToBoardFromState(State *state){
+
+    qDebug() << "Inside addPiecesToBoardFromState";
+
+    const BitBoard& board = state->_bit_board;
+
+    auto getIndices = [&](Colour colour, PieceType type) -> const vector<int>&
+    {
+        static const vector<int> empty;
+
+        const auto it = board._indices_of_bits_for_piece_types.find(Piece(colour, type));
+        if (it == board._indices_of_bits_for_piece_types.end())
+            return empty;
+
+        return it->second;
+    };
+
+    auto addPieces = [&](Colour colour, PieceType type, const vector<int>& indices)
+    {
+        const bool isWhite = (colour == White);
+        const QString denotation = isWhite ? "white" : "black";
+
+        const QPixmap* pix = nullptr;
+        switch (type) {
+        case Pawn:   pix = isWhite ? &_graphics_info._white_pawn   : &_graphics_info._black_pawn;   break;
+        case Rook:   pix = isWhite ? &_graphics_info._white_rook   : &_graphics_info._black_rook;   break;
+        case Knight: pix = isWhite ? &_graphics_info._white_knight : &_graphics_info._black_knight; break;
+        case Bishop: pix = isWhite ? &_graphics_info._white_bishop : &_graphics_info._black_bishop; break;
+        case Queen:  pix = isWhite ? &_graphics_info._white_queen  : &_graphics_info._black_queen;  break;
+        case King:   pix = isWhite ? &_graphics_info._white_king   : &_graphics_info._black_king;   break;
+        }
+
+        /*
+        for (int idx : indices) {
+            const int row = idx / 8;
+            const int col = idx % 8;
+            addPieceGraphically(*pix,
+                                QString::fromStdString(squareIDFromIndices(row, col)),
+                                denotation);
+        }*/
+        for (int idx : indices) {
+            if (idx < 0 || idx >= 64) {
+                qDebug() << "render: idx out of range:" << idx;
+                continue;
+            }
+
+            const QString squareId = QString::fromStdString(_square_from_index[idx]);
+            addPieceGraphically(*pix, squareId, denotation);
+        }
+    };
+
+    addPieces(White, Pawn,   getIndices(White, Pawn));
+    addPieces(White, Rook,   getIndices(White, Rook));
+    addPieces(White, Knight, getIndices(White, Knight));
+    addPieces(White, Bishop, getIndices(White, Bishop));
+    addPieces(White, Queen,  getIndices(White, Queen));
+    addPieces(White, King,   getIndices(White, King));
+
+    addPieces(Black, Pawn,   getIndices(Black, Pawn));
+    addPieces(Black, Rook,   getIndices(Black, Rook));
+    addPieces(Black, Knight, getIndices(Black, Knight));
+    addPieces(Black, Bishop, getIndices(Black, Bishop));
+    addPieces(Black, Queen,  getIndices(Black, Queen));
+    addPieces(Black, King,   getIndices(Black, King));
 }
+
 
 void MainWindow::clearAllPiecesFromBoard(){
     for (auto square: _square_widgets){
@@ -364,6 +435,7 @@ void MainWindow::removeLegalSquaresHighlight(){
     }
 }
 
+/*
 void MainWindow::addPieceGraphically(QPixmap pieceGraphic, QString squareID, QString denotation){
     SquareWidget *squareToPlacePieceOn;
     for (SquareWidget *square: _square_widgets){
@@ -376,11 +448,36 @@ void MainWindow::addPieceGraphically(QPixmap pieceGraphic, QString squareID, QSt
     piece->setPiece_position(squareID);
     squareToPlacePieceOn->inner_layout()->addWidget(piece);
     _piece_widgets.append(piece);
+}*/
+
+void MainWindow::addPieceGraphically(QPixmap pieceGraphic, QString squareID, QString denotation){
+    SquareWidget *squareToPlacePieceOn = nullptr;
+
+    for (SquareWidget *square: _square_widgets){
+        if (square->id() == squareID){
+            squareToPlacePieceOn = square;
+            break;
+        }
+    }
+
+    if (!squareToPlacePieceOn){
+        qDebug() << "addPieceGraphically: no square found for" << squareID;
+        return;
+    }
+
+    PieceWidget *piece = new PieceWidget(denotation);
+    piece->setPiece_pixmap(pieceGraphic);
+    piece->populateWithPixmap();
+    piece->setPiece_position(squareID);
+    squareToPlacePieceOn->inner_layout()->addWidget(piece);
+    _piece_widgets.append(piece);
 }
+
 
 void MainWindow::removePieceGraphically(PieceWidget *piece){
     int index = _piece_widgets.indexOf(piece);
-    _piece_widgets.remove(index);
+    if (index >= 0)
+        _piece_widgets.remove(index);
     piece->hide();
     piece->deleteLater();
 }
@@ -580,23 +677,23 @@ void MainWindow::setRightLayout(){
 }
 
 void MainWindow::exploreFirstState(){
-    loadStateGraphically(_game->getState_vector()->at(0));
+    renderState(_game->getState_vector()->at(0));
 }
 
 void MainWindow::explorePreviousState(){
     if (_state_being_viewed->_previous_state != nullptr){
-        loadStateGraphically(_state_being_viewed->_previous_state);
+        renderState(_state_being_viewed->_previous_state);
     }
 }
 
 void MainWindow::exploreNextState(){
     if (_state_being_viewed->_next_state != nullptr)
-        loadStateGraphically(_state_being_viewed->_next_state);
+        renderState(_state_being_viewed->_next_state);
 }
 
 void MainWindow::exploreLastState(){
     if (_game->getState_vector()->size() > 0)
-        loadStateGraphically(_game->getState_vector()->at(_game->getState_vector()->size()-1));
+        renderState(_game->getState_vector()->at(_game->getState_vector()->size()-1));
 }
 
 void MainWindow::exportPGNFile(){
@@ -675,9 +772,6 @@ void MainWindow::completeClickingMove(QString destinationSquare){
     _legal_destination_squares_for_origin_square.clear();
     _clicking_move_in_progress = false;
     _move_in_progress_origin_square = "";
-
-    _time_to_update_board = true;
-
 }
 
 void MainWindow::getEngineMove(){
@@ -698,7 +792,7 @@ void MainWindow::onEngineMoveReady(Move move){
 
 void MainWindow::changeTheme(const QString &selectedTheme){
     _graphics_info.setGraphicsFromPath(selectedTheme, _game->getUser_colour());
-    loadStateGraphically(_game->getCurrent_state());
+    renderState(_game->getCurrent_state());
     _new_game_popup->updateNewGamePopupTheme(_graphics_info);
     updatePlayingAsIcon();
     updateColourToMoveIcon();
@@ -708,7 +802,7 @@ void MainWindow::performEngineMove(Move move){
     completeMove(move);
 }
 
-bool MainWindow::completeMove(Move attemptedMove){
+/*bool MainWindow::completeMove(Move attemptedMove){
     _info_label->setText("");
     Move moveMade;
     QString originSquare = QString::fromStdString(attemptedMove._origin_square);
@@ -735,6 +829,8 @@ bool MainWindow::completeMove(Move attemptedMove){
         return false;
 
     State *currentState = _game->getCurrent_state();
+
+    _time_to_update_board = true;
 
     _legal_moves_for_current_state.clear();
     for (auto legalMove: _game->getLegalMovesForCurrentState()){
@@ -765,6 +861,94 @@ bool MainWindow::completeMove(Move attemptedMove){
         }
     }
 
+
+    if (_game->getUser_colour() != _game->getCurrent_state()->_colour_to_move)
+        _player_moved_against_engine = true;
+    else
+        _player_moved_against_engine = false;
+
+    return true;
+}*/
+
+bool MainWindow::completeMove(Move attemptedMove){
+    _info_label->setText("");
+
+    Move moveMade;
+    bool found = false;
+
+    const QString originSquare = QString::fromStdString(attemptedMove._origin_square);
+    const QString destinationSquare = QString::fromStdString(attemptedMove._destination_square);
+
+    // Find the corresponding fully-specified legal move (incl. MoveType, piece, etc.)
+    for (const auto& move : _legal_moves_for_current_state){
+        if (QString::fromStdString(move._origin_square) == originSquare &&
+            QString::fromStdString(move._destination_square) == destinationSquare){
+            moveMade = move;
+            found = true;
+
+            // If the attempted move is a promotion, carry over the chosen promotion piece
+            if (attemptedMove._move_type == Promotion || attemptedMove._move_type == PromotionCapture)
+                moveMade._promotion_selection = attemptedMove._promotion_selection;
+
+            break;
+        }
+    }
+
+    // Prevent UB: if no legal move matched, stop here
+    if (!found)
+        return false;
+
+    // Handle promotion UI/selection
+    if (moveMade._move_type == Promotion || moveMade._move_type == PromotionCapture){
+        if ((moveMade._colour_performing_move == White && _user_is_white) ||
+            (moveMade._colour_performing_move == Black && !_user_is_white)){
+            promotedPawnSelection();
+        } else {
+            _game->setPiece_selected_from_promotion(moveMade._promotion_selection);
+        }
+        _move_was_promotion = true;
+    } else {
+        _move_was_promotion = false;
+    }
+
+    if (!_game->makeMove(originSquare.toStdString(), destinationSquare.toStdString()))
+        return false;
+
+    State *currentState = _game->getCurrent_state();
+
+    _time_to_update_board = true;
+
+    _legal_moves_for_current_state.clear();
+    for (auto legalMove: _game->getLegalMovesForCurrentState()){
+        _legal_moves_for_current_state.append(legalMove);
+    }
+
+    _fen_label->setText("Forsyth-Edwards Notation:\n" + QString::fromStdString(_game->getCurrent_state()->_fen_notation));
+
+    if (moveMade._piece._colour == White)
+        _colour_to_move_label->setPixmap(_graphics_info._black_king.scaled(65, 65, Qt::KeepAspectRatio));
+    else
+        _colour_to_move_label->setPixmap(_graphics_info._white_king.scaled(65, 65, Qt::KeepAspectRatio));
+
+    if (_game->_is_game_over){
+        endGame();
+    } else {
+        _new_game_button->setEnabled(false);
+        _resign_game_button->setHidden(false);
+    }
+
+    addNotationWidgetForMove(currentState);
+
+    _explore_first_button->setEnabled(true);
+    _explore_previous_button->setEnabled(true);
+    _state_being_viewed = currentState;
+
+    for (auto widget: _notation_widgets){
+        widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 0px");
+        if (widget->state()->_number_of_moves == currentState->_number_of_moves){
+            widget->setStyleSheet("background-color: rgba(255, 255, 255, 0%); border: 1px solid blue");
+        }
+    }
 
     if (_game->getUser_colour() != _game->getCurrent_state()->_colour_to_move)
         _player_moved_against_engine = true;
@@ -849,8 +1033,12 @@ void MainWindow::checkIfPlayerMadeMove(){
 void MainWindow::updateBoardGraphicsAfterMove(){
     if (!_time_to_update_board)
         return;
+
+    if (_dragging_move_in_progress || _piece_widget_currently_dragged != nullptr)
+        return;
+
     _time_to_update_board = false;
-    loadStateGraphically(_game->getCurrent_state());
+    renderState(_game->getCurrent_state());
 }
 
 void MainWindow::highlightCheck(State *state){
@@ -921,7 +1109,7 @@ void MainWindow::startDraggingMove(QString originSquare){
     _piece_widget_currently_dragged->show();
     _piece_widget_currently_dragged->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-    _piece_widgets.append(_piece_widget_currently_dragged);
+    //_piece_widgets.append(_piece_widget_currently_dragged);
 
     SquareWidget *squareFrom;
     for (auto square: _square_widgets){
@@ -976,7 +1164,6 @@ void MainWindow::completeDraggingMove(){
     _dragging_move_in_progress = false;
     removePieceGraphically(_piece_widget_currently_dragged);
     _piece_widget_currently_dragged = nullptr;
-    _time_to_update_board = true;
 }
 
 bool MainWindow::sendClickingMoveStatus(){

@@ -128,7 +128,7 @@ struct State{
     int _number_of_moves;
 
     //outer vector: vector of rows
-    vector<vector<Piece*>> _board_for_graphics{ //TODO: This causes overhead for minimax, see if we can move it somewhere else
+    vector<vector<Piece*>> _board_for_graphics{ //TODO: This causes overhead for minimax, see if we can remove it
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
         {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
